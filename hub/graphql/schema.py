@@ -1,9 +1,12 @@
+from datetime import datetime, timedelta
+from django.conf import settings
 from gqlauth.core.middlewares import JwtSchema
 from gqlauth.core.types_ import GQLAuthError, GQLAuthErrors
 from gqlauth.core.utils import get_user
 from gqlauth.user.queries import UserQueries
 from gqlauth.user import arg_mutations as mutations
 import strawberry
+from strawberry.extensions import SchemaExtension
 from strawberry.types import Info
 import strawberry_django
 from strawberry_django.optimizer import DjangoOptimizerExtension
@@ -35,10 +38,31 @@ class Query(UserQueries):
 class Mutation:
     token_auth = mutations.ObtainJSONWebToken.field
 
+
+class TimeoutExtension(SchemaExtension):
+    def on_operation(self):
+        """
+        Called before and after a GraphQL operation (query / mutation) starts.
+        Create an expiry time for the query.
+        """
+        self.expires_at = datetime.now() + timedelta(seconds=settings.GRAPHQL_TIMEOUT_SECONDS)
+        yield None
+
+    def resolve(self, *args, **kwargs):
+        """
+        Called before every field resolver.
+        Check if the current time is after the expiry time, and abort the query if so.
+        """
+        if datetime.now() > self.expires_at:
+            raise Exception("Request timed out")
+        return super().resolve(*args, **kwargs)
+
+
 schema = JwtSchema(
     query=Query,
     mutation=Mutation,
     extensions=[
         DjangoOptimizerExtension,  # not required, but highly recommended
+        TimeoutExtension,
     ],
 )

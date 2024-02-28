@@ -246,6 +246,8 @@ if DEBUG and HIDE_DEBUG_TOOLBAR is False:  # pragma: no cover
 
 # CK Section
 
+GRAPHQL_TIMEOUT_SECONDS=20
+
 one_hour = timedelta(hours=1)
 GQL_AUTH = GqlAuthSettings(
     JWT_EXPIRATION_DELTA=one_hour,
