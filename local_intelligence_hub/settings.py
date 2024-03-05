@@ -81,7 +81,7 @@ INSTALLED_APPS = [
     "django_jsonform",
     "gqlauth",
     "hub",
-     "corsheaders"
+    "corsheaders"
 ]
 
 MIDDLEWARE = [

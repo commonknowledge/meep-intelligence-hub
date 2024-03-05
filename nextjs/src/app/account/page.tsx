@@ -1,6 +1,4 @@
-'use client';
-
-import { useRequireAuth } from '../../components/authenticationHandler';
+import { useRequireAuth } from '../../hooks/auth';
 
 export default function Account() {
   useRequireAuth();

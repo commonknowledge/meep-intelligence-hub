@@ -3,7 +3,7 @@ import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { HttpLink } from "@apollo/client";
 
-const httpLink = new HttpLink({ uri: process.env.NEXT_PUBLIC_BACKEND_BASE_URL });
+const httpLink = new HttpLink({ uri: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/graphql` });
 
 const authLink = setContext((_, { headers }) => {
     // get the authentication token from local storage if it exists
