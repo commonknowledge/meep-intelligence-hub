@@ -1,8 +1,8 @@
 import { useRequireAuth } from "../../hooks/auth";
 import LoginForm from "./login-form";
 
-// LoginForm has been split out as it is requires "use client"
-// which does not work with the server-side useRequireAuth()
+// This has been split into a two components to separate the client-side (LoginForm)
+// and the server side (this component), which allows using useRequireAuth() here
 export default async function Login() {
   await useRequireAuth();
 

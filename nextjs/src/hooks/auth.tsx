@@ -33,22 +33,12 @@ export const useAuth = async (): Promise<User> => {
   const client = getClient();
 
   let data = null;
-  let errorMessage = "";
   try {
     const response = await client.query({ query: USER_QUERY });
     data = response.data;
-  } catch (e) {
-    errorMessage = "Auth request error";
+  } catch (e: any) {
+    console.error(e.message);
   }
-
-  if (!data?.me) {
-    errorMessage = "Invalid or expired JWT";
-  }
-
-  if (errorMessage) {
-    console.error(errorMessage);
-  }
-
   return data?.me;
 };
 

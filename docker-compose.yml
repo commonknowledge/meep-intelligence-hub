@@ -19,6 +19,7 @@ services:
     working_dir: /app
     ports:
       - "53333:5432"
+      - "8000:8000"
   web:
     image: mysociety/local-intelligence-hub:${TAG:-latest}
     build: .

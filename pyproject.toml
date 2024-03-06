@@ -32,6 +32,7 @@ django-cors-headers = "^4.3.1"
 python-benedict = "^0.33.2"
 gunicorn = "^21.2.0"
 whitenoise = "^6.6.0"
+setuptools = "^69.1.1"
 
 [tool.poetry.dev-dependencies]
 django-debug-toolbar = "^3.7.0"

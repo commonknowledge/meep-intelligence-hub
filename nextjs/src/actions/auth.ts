@@ -1,3 +1,7 @@
+/**
+ * Client-side actions for user login and logout.
+ */
+
 export const login = (jwt: string, expiresISODate: string) => {
   localStorage.setItem("jwt", jwt);
   const cookieExpires = new Date(expiresISODate).toUTCString();
