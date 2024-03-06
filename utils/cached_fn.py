@@ -56,7 +56,6 @@ def cache_resolve_many(keys, resolve, bucket, get_key=id_key, cache_type='defaul
     }
 
 def cache_resolve(key, resolve, bucket, cache_type='default', timeout_seconds=None):
-    # print('lookup', [bucket, key])
     
     cache = caches[cache_type]
 
