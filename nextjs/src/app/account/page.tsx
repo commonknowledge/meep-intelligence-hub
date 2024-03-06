@@ -1,17 +1,11 @@
-'use client';
+import { useRequireAuth } from "../../hooks/auth";
 
-import { useRequireAuth } from '../../components/authenticationHandler';
-
-export default function Account() {
-  const loading = useRequireAuth();
-
-  if (loading) {
-    return <h2>Loading...</h2>
-  }
+export default async function Account() {
+  const user = await useRequireAuth();
 
   return (
     <>
-      <h1>Welcome to your Mapped Account</h1>
+      <h1>Welcome to your Mapped Account, {user.username}</h1>
     </>
   );
 }
