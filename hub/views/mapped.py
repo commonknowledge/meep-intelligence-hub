@@ -11,6 +11,7 @@ class CRMRecordUpdatedWebhookView(View):
         config = ExternalDataSourceUpdateConfig.objects.get(
             id=config_id
         )
+        print(f"Found config {config}")
         if not config:
             return JsonResponse({ "status": "You need to set up a webhook first." })
         if not config.enabled:

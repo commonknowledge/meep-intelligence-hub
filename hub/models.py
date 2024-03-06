@@ -1,33 +1,33 @@
-from datetime import datetime, timezone
-import uuid
-from typing import TypedDict, Union
 import asyncio
-from asgiref.sync import sync_to_async
-from psycopg.errors import UniqueViolation
+import uuid
+from datetime import datetime, timezone
+from typing import TypedDict, Union
+from urllib.parse import urljoin
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Avg, IntegerField, Max, Min
 from django.db.models.functions import Cast, Coalesce
 from django.dispatch import receiver
-from django.utils.functional import cached_property
-from django.urls import reverse
-from django.conf import settings
-from urllib.parse import urljoin
-from dateutil.parser import parser as date_parser
 from django.http import HttpResponse
+from django.urls import reverse
+from django.utils.functional import cached_property
 
+from asgiref.sync import sync_to_async
+from dateutil.parser import parser as date_parser
 from django_jsonform.models.fields import JSONField
+from psycopg.errors import UniqueViolation
+from pyairtable import Api as AirtableAPI
+from pyairtable import Base as AirtableBase
+from pyairtable import Table as AirtableTable
+from strawberry.dataloader import DataLoader
 
 import utils as lih_utils
 from hub.filters import Filter
-
-from hub.tasks import update_one, update_many, update_all, refresh_webhook
-from utils.postcodesIO import get_postcode_geo, get_bulk_postcode_geo, PostcodesIOResult
-from utils.py import get, ensure_list
-
-from strawberry.dataloader import DataLoader
-from pyairtable import Api as AirtableAPI, Base as AirtableBase, Table as AirtableTable
+from hub.tasks import refresh_webhook, update_all, update_many, update_one
+from utils.postcodesIO import PostcodesIOResult, get_bulk_postcode_geo, get_postcode_geo
+from utils.py import ensure_list, get
 
 User = get_user_model()
 
@@ -728,6 +728,7 @@ def cast_data(sender, instance, *args, **kwargs):
 
 from polymorphic.models import PolymorphicModel
 
+
 class ExternalDataSource(PolymorphicModel):
     '''
     A third-party data source that can be read and optionally written back to.
@@ -950,16 +951,21 @@ class AirtableSource(ExternalDataSource):
         return record['fields'].get(str(field))
 
     async def update_one(self, mapped_record):
-        self.table.update(mapped_record['member']['id'], mapped_record['update_fields'])
+        print(f"------ doing airtable update_one {mapped_record['member']['id']} {mapped_record['update_fields']}")
+        result = self.table.update(mapped_record['member']['id'], mapped_record['update_fields'])
+        print(f"------ done airtable update one {result}")
 
     async def update_many(self, mapped_records):
-        self.table.batch_update([
+        for mapped_record in mapped_records:
+            print(f"------ doing airtable update_many {mapped_record['member']['id']} {mapped_record['update_fields']}")
+        result = self.table.batch_update([
           {
             "id": mapped_record['member']['id'],
             "fields": mapped_record['update_fields']
           } for
           mapped_record in mapped_records
         ])
+        print(f"------ done airtable update many {result}")
 
     async def update_all(self, mapped_records):
         self.table.batch_update([
@@ -1114,12 +1120,16 @@ class ExternalDataSourceUpdateConfig(models.Model):
         
     async def update_one(self, member_id: Union[str, any]):
         loaders = self.data_source.get_loaders()
+        print(f"----- doing config update_one")
         mapped_record = await self.data_source.map_one(member_id, self, loaders)
+        print(f"----- got mapped record {mapped_record}")
         await self.data_source.update_one(mapped_record=mapped_record)
 
     async def update_many(self, member_ids: list[Union[str, any]]):
         loaders = self.data_source.get_loaders()
+        print(f"----- doing config update_many")
         mapped_records = await self.data_source.map_many(member_ids, self, loaders)
+        print(f"----- got mapped records {mapped_records}")
         await self.data_source.update_many(mapped_records=mapped_records)
 
     async def update_all(self):
@@ -1131,6 +1141,7 @@ class ExternalDataSourceUpdateConfig(models.Model):
         
     def handle_update_webhook_view(self, body):
         member_ids = self.data_source.get_member_ids_from_webhook(body)
+        print(f"- updating member ids {member_ids}")
         if len(member_ids) == 1:
             self.schedule_update_one(member_id=member_ids[0])
         else:
@@ -1143,12 +1154,14 @@ class ExternalDataSourceUpdateConfig(models.Model):
     async def deferred_update_one(cls, config_id: str, member_id: str):
         config = await cls.objects.select_related('data_source').aget(id=config_id)
         if config.enabled:
+            print(f"---- doing deferred update one {config} {member_id}")
             config.update_one(member_id=member_id)
 
     @classmethod
     async def deferred_update_many(cls, config_id: str, member_ids: list[str]):
         config = await cls.objects.select_related('data_source').aget(id=config_id)
         if config.enabled:
+            print(f"---- doing deferred update many {config} {member_ids}")
             config.update_many(member_ids=member_ids)
 
     @classmethod
@@ -1166,6 +1179,8 @@ class ExternalDataSourceUpdateConfig(models.Model):
                 await data_source.refresh_webhook(config=config)
 
     def schedule_update_one(self, member_id: str):
+        print(f"-- schedule update one {member_id}")
+
         try:
           update_one\
           .configure(
@@ -1176,9 +1191,11 @@ class ExternalDataSourceUpdateConfig(models.Model):
           )\
           .defer(config_id=str(self.id), member_id=member_id)
         except UniqueViolation:
-          pass
+          print("-- unique violation")
 
     def schedule_update_many(self, member_ids: list[str]):
+        print(f"-- schedule update many {member_ids}")
+
         try:
           member_ids_hash = hash(",".join(list(sorted(set(member_ids)))))
           update_many\
@@ -1190,7 +1207,8 @@ class ExternalDataSourceUpdateConfig(models.Model):
           )\
           .defer(config_id=str(self.id), member_ids=member_ids)
         except UniqueViolation:
-          pass
+          print("-- unique violation")
+
 
     def schedule_update_all(self):
         try:
