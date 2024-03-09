@@ -19,19 +19,28 @@ const config = {
     },
     extend: {
       fontFamily: {
-        'IBMPlexSans': ["IBMPlexSans", 'sans-serif'],
+        'IBMPlexSans': ["IBMPlexSansReg", 'sans-serif'],
+        'IBMPlexSansSemiBold': ["IBMPlexSansSemiBold", 'sans-serif'],
+        'IBMPlexSansMedium': ["IBMPlexSansMedium", 'sans-serif'],
         'IBMPlexSansCondensed': ["IBMPlexSansCondensed", 'sans-serif'],
-        'IBMPlexMono': ['"IBM Plex Mono", sans-serif'],
+        'IBMPlexMono': ["IBMPlexMono", 'sans-serif'],
         'PPRightGrotesk': ['PPRightGrotesk, sans-serif'],
+        
       },
       fontSize: {
         hXlg: ['73.488px', {
           lineHeight: '107%',
         }],
         hLg: ['36px', {
-          lineHeight: '47px',
-          letterSpacing: '0em',
+          lineHeight: '100%',
           fontWeight: '700',
+
+        }],
+        hLgPP: ['36px', {
+          lineHeight: '100%',
+          fontWeight: '700',
+          letterSpacing: '0.05rem'
+
         }],
         hMd: ['21px', {
           lineHeight: 'normal',

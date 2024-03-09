@@ -46,7 +46,7 @@ export default function ExternalDataSourceUpdates() {
     <div className=" max-w-7xl space-y-7 w-full">
       <PageHeader />
       <div className="border-b border-meepGray-700 pt-10" />
-      <h2 className="text-hSm">Active Syncs</h2>
+      <h2 className="text-hSm label">Active Syncs</h2>
       {loading ? (
         <section className="grid gap-7 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
           <article className="rounded-xl border border-meepGray-700 px-6 py-5 space-y-3">
