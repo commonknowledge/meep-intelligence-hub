@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/auth";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import { AreaPattern } from "@/components/areaPattern";
+import { NavigationMenuDemo } from "@/components/nav-v2";
 
 
 

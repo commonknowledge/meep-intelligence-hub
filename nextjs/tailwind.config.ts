@@ -28,8 +28,13 @@ const config = {
         
       },
       fontSize: {
-        hXlg: ['73.488px', {
+        hXlg: ['4.5rem', {
           lineHeight: '107%',
+          letterSpacing: '-0.1rem',
+        }],
+        hXlgPP: ['4.7rem', {
+          lineHeight: '107%',
+          letterSpacing: '0rem',
         }],
         hLg: ['36px', {
           lineHeight: '100%',
@@ -61,6 +66,10 @@ const config = {
           lineHeight: 'normal',
           letterSpacing: '0em',
           fontWeight: '400',
+        }],
+        lg: ['20px', {
+          lineHeight: '160%',
+          letterSpacing: '0em',
         }],
         tiny: ['12px', {
           lineHeight: 'normal',

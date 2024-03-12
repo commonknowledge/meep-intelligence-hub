@@ -154,8 +154,6 @@ export default function Home() {
                                             mpName="James Daly"
                                             mpImgUrl="https://www.localintelligencehub.com/media/person/mp_4854_BxRRx9j.jpeg"
 
-
-
                                         />
                                         <ReportsConsItem
                                             consName="Camberwell and Peckham"
@@ -163,9 +161,6 @@ export default function Home() {
                                             secondIn2019="Conservative"
                                             mpName="Harriet Harman"
                                             mpImgUrl="https://www.localintelligencehub.com/media/person/mp_150_rgMOVq7.jpeg"
-
-
-
                                         />
                                     </TabsContent>
                                     <TabsContent value="selected-cons-1">Change your password here.</TabsContent>
