@@ -63,8 +63,6 @@ export default function DataEnrichment() {
             <p className="max-w-prose">During that process, it became apparent that a lot of the CRM’s these organisations use have limited mapping tools. Their membership lists are mostly seen in a generic list format as you would expect from a spreadsheet but the ability to see their members in geographic context unlocks so much potential for organising.</p>
             <p className="max-w-prose">Thankfully, we were able to fill in this gap by building this feature into Mapped, getting us one step closer to our goal with our tool of empowering organisers</p>
           </div>
-          <Link href={btnLink} className={buttonVariants({ variant: "brand" })}>Get Started</Link>
-
         </div>
       </div>
     </>

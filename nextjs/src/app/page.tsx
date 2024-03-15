@@ -12,14 +12,14 @@ export default function Home() {
           Empowering <span className="font-PPRightGrotesk text-hXlgPP">organisers</span> and <span className="text-hXlgPP font-PPRightGrotesk">activists</span> with mapping tools and data enrichment ✊</h1>
         <p className="text-base w-[582px] mb-9">Take your organising to the next level with our free to use tools that enhance your existing membership lists with geographic and political data. </p>
         <Link href="/" className={buttonVariants({ variant: "brand" })}>Get started</Link>
-        <Image className="absolute -top-20 right-0" src={"/hero-bg.svg"} alt="constiteuncy map" width={800} height={700} />
+        <Image className="absolute -top-20 right-0 -z-10" src={"/hero-bg.svg"} alt="constiteuncy map" width={800} height={700} />
       </div>
 
-      <div className="py-10 border-t border-meepGray-700">
+      <div className="py-20 border-t border-meepGray-700 flex flex-col items-center">
+        <p className=" text-labelLg text-meepGray-300 mb-5">Features</p>
+      <h2 className="text-hLg mb-10">Discover what Mapped can do</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="grid grid-row-3 gap-5">
-            <h2 className="text-hLg text-meepGray-300 mb-5">Discover what Mapped can do</h2>
-
             <Card>
               <CardHeader>
                 <CardTitle className="mb-3 px-6 pt-6">Load in your member data</CardTitle>
