@@ -26,7 +26,7 @@ from strawberry.django.views import AsyncGraphQLView
 from hub.graphql.schema import schema
 from hub.sitemap import hub_sitemap
 from hub.views import accounts, area, core, explore, landingpages
-from hub.views.mapped import CRMRecordUpdatedWebhookView
+from hub.views.mapped import ExternalDataSourceAutoUpdateWebhook
 
 handler404 = core.NotFoundPageView.as_view()
 
@@ -115,9 +115,9 @@ urlpatterns = [
     ),
     path("graphql", AsyncGraphQLView.as_view(schema=schema), name="graphql"),
     path(
-        "webhooks/<str:config_id>/record-updated",
-        csrf_exempt(CRMRecordUpdatedWebhookView.as_view()),
-        name="record_updated_webhook",
+        f"{ExternalDataSourceAutoUpdateWebhook.base_path}/<str:external_data_source_id>",
+        csrf_exempt(ExternalDataSourceAutoUpdateWebhook.as_view()),
+        name="external_data_source_auto_update_webhook",
     ),
 ]
 

@@ -1,0 +1,29 @@
+import { Button } from "@/components/ui/button";
+import { useRequireNoAuth } from "../../../hooks/auth";
+import LoginForm from "./login-form";
+import Link from "next/link";
+import { Metadata } from "next";
+
+// This has been split into a two components to separate the client-side (LoginForm)
+// and the server side (this component), which allows using useRequireNoAuth() here
+export default async function Login() {
+  await useRequireNoAuth();
+
+  return (
+    <div className='m-8 md:ml-36 max-w-xs space-y-4 rounded border border-meepGray-600 bg-meepGray-800 p-8'>
+      <h1 className='text-hLg font-IBMPlexSans'>Login</h1>
+      <LoginForm />
+      <div aria-roledescription="divider" className="border-t border-meepGray-600"></div>
+      <div className='text-labelMain text-meepGray-400'>Don’t have an account?</div>
+      <Link href="/signup" className='block'>
+        <Button className='w-full' variant='outline' size="sm">
+          Sign up
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+export const metadata: Metadata = {
+  title: "Login",
+};

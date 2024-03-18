@@ -13,9 +13,12 @@ jobs:
     environment: testing
     services:
       postgres:
-        image: postgres
+        image: kartoza/postgis:13
         env:
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: local-intelligence
+          POSTGRES_PORT: 5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -26,14 +29,17 @@ jobs:
     container:
       image: python:3.12
       env:
-        DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+        DATABASE_URL: postgis://postgres:password@postgres:5432/local-intelligence
         CACHE_FILE: /tmp/meep
         POETRY_VIRTUALENVS_CREATE: "false"
         MAPIT_URL: https://mapit.mysociety.org/
         MAPIT_API_KEY: "not_a_key"
-        TEST_AIRTABLE_BASE_ID: ${{ vars.TEST_AIRTABLE_BASE_ID }}
-        TEST_AIRTABLE_TABLE_NAME: ${{ vars.TEST_AIRTABLE_TABLE_NAME }}
-        TEST_AIRTABLE_API_KEY: ${{ secrets.TEST_AIRTABLE_API_KEY }}
+        TEST_AIRTABLE_MEMBERLIST_BASE_ID: ${{ secrets.TEST_AIRTABLE_MEMBERLIST_BASE_ID }}
+        TEST_AIRTABLE_MEMBERLIST_TABLE_NAME: ${{ secrets.TEST_AIRTABLE_MEMBERLIST_TABLE_NAME }}
+        TEST_AIRTABLE_MEMBERLIST_API_KEY: ${{ secrets.TEST_AIRTABLE_MEMBERLIST_API_KEY }}
+        TEST_AIRTABLE_CUSTOMDATALAYER_BASE_ID: ${{ secrets.TEST_AIRTABLE_CUSTOMDATALAYER_BASE_ID }}
+        TEST_AIRTABLE_CUSTOMDATALAYER_TABLE_NAME: ${{ secrets.TEST_AIRTABLE_CUSTOMDATALAYER_TABLE_NAME }}
+        TEST_AIRTABLE_CUSTOMDATALAYER_API_KEY: ${{ secrets.TEST_AIRTABLE_CUSTOMDATALAYER_API_KEY }}
         SECRET_KEY: keyboardcat
     steps:
       - name: Checkout repo content

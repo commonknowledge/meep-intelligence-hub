@@ -1,4 +1,4 @@
-import { ApolloLink, HttpLink } from "@apollo/client";
+import { ApolloLink, HttpLink, gql } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import {
   NextSSRInMemoryCache,

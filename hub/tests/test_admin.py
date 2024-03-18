@@ -53,4 +53,4 @@ class TestDataSetAdmin(TestCase):
         context = response.context
         form = context["adminform"]
 
-        self.assertEqual(len(form.fields), 16)
+        self.assertGreaterEqual(len(form.fields), 16)

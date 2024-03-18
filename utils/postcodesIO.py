@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from django.conf import settings
 
+import httpx
 import requests
 
 from utils.geo import create_point
@@ -28,7 +29,7 @@ class Codes:
 
 
 @dataclass
-class Result:
+class PostcodesIOResult:
     postcode: str
     quality: int
     eastings: int
@@ -59,15 +60,15 @@ class Result:
 
 
 @dataclass
-class PostcodesIOResult:
+class PostcodesIOResponse:
     status: int
-    result: Result
+    result: PostcodesIOResult
 
 
 @dataclass
 class ResultElement:
     query: str
-    result: Result
+    result: PostcodesIOResult
 
 
 @dataclass
@@ -90,10 +91,14 @@ def get_postcode_geo(postcode: str) -> PostcodesIOResult:
 
 @batch_and_aggregate(settings.POSTCODES_IO_BATCH_MAXIMUM)
 async def get_bulk_postcode_geo(postcodes) -> PostcodesIOBulkResult:
-    response = requests.post(
-        f"{settings.POSTCODES_IO_URL}/postcodes",
-        json={"postcodes": postcodes},
-    )
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{settings.POSTCODES_IO_URL}/postcodes",
+            json={"postcodes": postcodes},
+        )
+    if response.status_code != httpx.codes.OK:
+        raise Exception(f"Failed to bulk geocode postcodes: {postcodes}.")
+
     data = response.json()
     status = get(data, "status")
     result: List[ResultElement] = get(data, "result")
