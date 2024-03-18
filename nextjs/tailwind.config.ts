@@ -28,23 +28,19 @@ const config = {
         
       },
       fontSize: {
-        hXlg: ['4.5rem', {
+        hXlg: ['73.488px', {
           lineHeight: '107%',
-          letterSpacing: '-0.1rem',
         }],
-        hXlgPP: ['4.7rem', {
-          lineHeight: '107%',
-          letterSpacing: '0rem',
+        hLg: ['36px', {
+          lineHeight: '100%',
+          fontWeight: '700',
+
         }],
         hLgPP: ['36px', {
           lineHeight: '100%',
           fontWeight: '700',
           letterSpacing: '0.05rem'
-        }],
-        hLg: ['36px', {
-          lineHeight: '47px',
-          letterSpacing: '0em',
-          fontWeight: '700',
+
         }],
         hMd: ['21px', {
           lineHeight: 'normal',
@@ -60,10 +56,6 @@ const config = {
           lineHeight: 'normal',
           letterSpacing: '0em',
           fontWeight: '400',
-        }],
-        lg: ['20px', {
-          lineHeight: '160%',
-          letterSpacing: '0em',
         }],
         sm: ['14px', {
           lineHeight: 'normal',
@@ -162,9 +154,9 @@ const config = {
 
       },
       borderRadius: {
-        lg: "calc(var(--radius))",
+        lg: "50px",
         md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "10px",
       },
 
       keyframes: {
@@ -183,7 +175,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/forms")],
 } satisfies Config;
 
 export default config;

@@ -48,14 +48,14 @@
     --meep-gray-700: 222, 13%, 19%;
     --meep-gray-800: 222, 14%, 14%;
     --brand-blue: 222, 69%, 65%;
+    --meepGray-400: 0, 0%, 100%, 0.5;
     --button-text: 220, 25%, 16%;
     --white: 0, 0%, 100%;
     --labour: 4, 100%, 58%;
     --conservative: 222, 100%, 58%;
-    --foreground: var(--meep-gray-200);
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-<<<<<<< HEAD
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
     --primary: 222, 14%, 34%;
@@ -66,18 +66,6 @@
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222, 14%, 34%;
-=======
-    --popover: var(--meep-gray-800);
-    --popover-foreground: 0, 0%, 100%;
-    --primary: 222, 14%, 34%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 225, 14%, 89%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground:  222, 14%, 64%;
-    --accent: var(--brand-blue);
-    --accent-foreground: var(--meep-gray-800);
->>>>>>> 575f98ecfe19ee6a0a508230979a738ff62e70fd
     --border: 0, 0%, 100%, 0.32;
 
     --brand: 222, 69%, 65%;
@@ -85,8 +73,8 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 0%;
 
-    --border: var(--meep-gray-600);
-    --input: var(--meep-gray-600);
+    --border: var(--meepGray-600);
+    --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
   }

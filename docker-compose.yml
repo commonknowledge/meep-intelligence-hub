@@ -2,13 +2,12 @@ version: '3.9'
 
 services:
   db:
-    image: kartoza/postgis:13
+    image: postgres:13
     restart: always
     volumes:
       - .:/app
       - pgdata:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: 'postgres'
       POSTGRES_PASSWORD: 'password'
       POSTGRES_DB: 'local-intelligence'
       POSTGRES_PORT: 5432
@@ -34,7 +33,7 @@ services:
     environment:
       SECRET_KEY: 'secret'
       DEBUG: 1
-      DATABASE_URL: 'postgis://postgres:password@db/local-intelligence'
+      DATABASE_URL: 'postgres://postgres:password@db/local-intelligence'
       EMAIL_HOST: email.svc
       CACHE_FILE: 'data/cache'
       MAPIT_URL: 'https://mapit.mysociety.org/'

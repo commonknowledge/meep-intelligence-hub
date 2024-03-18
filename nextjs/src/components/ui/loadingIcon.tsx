@@ -1,11 +1,11 @@
 import { Oval } from "react-loader-spinner";
 
-export function LoadingIcon({ size = "80" }: { size?: string }) {
+export function LoadingIcon() {
   return (
     <Oval
       visible={true}
-      height={size.toString()}
-      width={size.toString()}
+      height="60"
+      width="60"
       color="white"
       secondaryColor="#111"
       strokeWidth={10}

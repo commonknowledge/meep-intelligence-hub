@@ -3,12 +3,10 @@ import pprint
 from benedict import benedict
 
 
-def get(d, path, default=None):
+def get(d, path):
     if isinstance(d, benedict):
-        val = d[path]
-    else:
-        val = benedict(d)[path]
-    return val if val is not None else default
+        return d[path]
+    return benedict(d)[path]
 
 
 def is_sequence(arg):
