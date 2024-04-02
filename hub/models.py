@@ -1404,22 +1404,21 @@ class ExternalDataSource(PolymorphicModel, Analytics):
                 else:
                     try:
                         source_loader = loaders["source_loaders"].get(source, None)
-                        if source_loader is not None:
-                            update_fields[
-                                destination_column
-                            ] = await source_loader.load(
-                                self.EnrichmentLookup(
-                                    member_id=self.get_record_id(member),
-                                    postcode_data=postcode_data,
-                                    source_id=source,
-                                    source_path=source_path,
-                                )
+                        if source_loader is not None and postcode_data is not None:
+                            lookup = self.EnrichmentLookup(
+                                member_id=self.get_record_id(member),
+                                postcode_data=postcode_data,
+                                source_id=source,
+                                source_path=source_path,
                             )
+                            update_fields[destination_column] = await source_loader.load(lookup)
                     except Exception:
                         # TODO: sentry logging
                         continue
             # Return the member and config data
-            return self.MappedMember(member=member, update_fields=update_fields)
+            mapped_member = self.MappedMember(member=member, update_fields=update_fields)
+            print("\n\n", mapped_member, "\n\n")
+            return mapped_member
         except TypeError:
             # Error fetching postcode data
             return self.MappedMember(member=member, update_fields={})
