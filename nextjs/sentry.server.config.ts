@@ -11,7 +11,7 @@ Sentry.init({
   debug: false,
 
   beforeSend(event) {
-    if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'development') {
+    if (process.env.NEXT_PUBLIC_ENVIRONMENT === "development") {
       return null;
     }
     return event;
@@ -19,5 +19,4 @@ Sentry.init({
 
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: process.env.NEXT_PUBLIC_ENVIRONMENT === 'development',
-
 });

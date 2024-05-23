@@ -12,7 +12,7 @@ export default async function Page() {
       <h2 className="text-hSm label">Your reports</h2>
       <ReportList />
     </div>
-  )
+  );
 }
 
 function PageHeader() {
@@ -21,7 +21,8 @@ function PageHeader() {
       <div>
         <h1 className="text-hLg mb-7">Reports</h1>
         <p className="text-meepGray-400 w-[400px]">
-          Make sense of your data with reports. Create, edit, and share them with your team, your members and the public.
+          Make sense of your data with reports. Create, edit, and share them
+          with your team, your members and the public.
         </p>
       </div>
       <img src="/reports_page_screenshot.png" alt="Description of the image" />

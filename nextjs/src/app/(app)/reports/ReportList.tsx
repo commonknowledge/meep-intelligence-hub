@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import Image from 'next/image';
+import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import {
@@ -9,15 +9,20 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Metadata } from 'next';
-import { FetchResult, gql, useApolloClient, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
-import { toast } from 'sonner';
-import { CreateMapReportMutation, CreateMapReportMutationVariables, ListReportsQuery, ListReportsQueryVariables } from '@/__generated__/graphql';
-import { formatRelative } from 'date-fns';
-import { useRouter } from 'next/navigation';
+} from "@/components/ui/card";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Metadata } from "next";
+import { FetchResult, gql, useApolloClient, useQuery } from "@apollo/client";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import {
+  CreateMapReportMutation,
+  CreateMapReportMutationVariables,
+  ListReportsQuery,
+  ListReportsQueryVariables,
+} from "@/__generated__/graphql";
+import { formatRelative } from "date-fns";
+import { useRouter } from "next/navigation";
 import { triggerAnalyticsEvent } from "@/app/utils/posthogutils";
 
 const LIST_REPORTS = gql`
@@ -31,11 +36,14 @@ const LIST_REPORTS = gql`
 `;
 
 export default function ReportList() {
-  const { loading, error, data, refetch } = useQuery<ListReportsQuery, ListReportsQueryVariables>(LIST_REPORTS);
+  const { loading, error, data, refetch } = useQuery<
+    ListReportsQuery,
+    ListReportsQueryVariables
+  >(LIST_REPORTS);
 
   useEffect(() => {
-    refetch()
-  }, [refetch])
+    refetch();
+  }, [refetch]);
 
   return (
     <div className="flex flex-row gap-lg">
@@ -51,15 +59,17 @@ export default function ReportList() {
         <h2>Error: {error.message}</h2>
       ) : data ? (
         <section className="w-full grid gap-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {data.reports?.slice().sort(
-            // Most recently edited
-            (a, b) => b.lastUpdate && a.lastUpdate ? new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime() : 0
-          ).map((report) => (
-            <ReportCard
-              key={report.id}
-              report={report}
-            />
-          ))}
+          {data.reports
+            ?.slice()
+            .sort(
+              // Most recently edited
+              (a, b) =>
+                b.lastUpdate && a.lastUpdate
+                  ? new Date(b.lastUpdate).getTime() -
+                    new Date(a.lastUpdate).getTime()
+                  : 0,
+            )
+            .map((report) => <ReportCard key={report.id} report={report} />)}
           <CreateReportCard />
         </section>
       ) : null}
@@ -67,7 +77,7 @@ export default function ReportList() {
   );
 }
 
-export function PlaceholderReportCard () {
+export function PlaceholderReportCard() {
   return (
     <Card className="rounded-xl border border-meepGray-700 px-6 py-5 space-y-3">
       <Skeleton className="h-4 w-full max-w-[100px]" />
@@ -76,29 +86,37 @@ export function PlaceholderReportCard () {
   );
 }
 
-export function ReportCard ({ report }: { report: ListReportsQuery['reports'][0] }) {
+export function ReportCard({
+  report,
+}: {
+  report: ListReportsQuery["reports"][0];
+}) {
   return (
     <Link href={`/reports/${report.id}`}>
       <Card>
         <CardHeader>
           <CardContent>
-            <Image src="/reports_page_card_image.png" alt="Description of the image" width={300} height={300} />
+            <Image
+              src="/reports_page_card_image.png"
+              alt="Description of the image"
+              width={300}
+              height={300}
+            />
           </CardContent>
-          <CardTitle className="mb-1 px-5 pt-4">
-            {report.name}
-          </CardTitle>
+          <CardTitle className="mb-1 px-5 pt-4">{report.name}</CardTitle>
           <CardDescription className="text-sm text-meepGray-400 px-5 pb-5">
-            Last edited <span className='text-meepGray-300'>
+            Last edited{" "}
+            <span className="text-meepGray-300">
               {formatRelative(report.lastUpdate, new Date())}
             </span>
           </CardDescription>
         </CardHeader>
       </Card>
     </Link>
-  )
+  );
 }
 
-export function CreateReportCard () {
+export function CreateReportCard() {
   const client = useApolloClient();
   const router = useRouter();
 
@@ -108,11 +126,13 @@ export function CreateReportCard () {
         <Skeleton className="h-4 w-full max-w-[100px]" />
         <Skeleton className="h-10 w-full" />
         <div className="!m-0 absolute inset-0 top-1/2 -translate-y-1/2 flex items-center justify-center">
-          <Button onClick={create} variant="reverse">Create new report</Button>
+          <Button onClick={create} variant="reverse">
+            Create new report
+          </Button>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 
   function create() {
     const tid = toast.promise(
@@ -120,52 +140,59 @@ export function CreateReportCard () {
         mutation: CREATE_MAP_REPORT,
         variables: {
           data: {
-            name: new Date().toISOString()
-          }
-        }
+            name: new Date().toISOString(),
+          },
+        },
       }),
       {
-        loading: 'Creating report...',
+        loading: "Creating report...",
         success: (d: FetchResult<CreateMapReportMutation>) => {
-          if (!d.errors && d.data?.createMapReport?.__typename === 'MapReport') {
-            router.push(`/reports/${d.data.createMapReport.id}`)
+          if (
+            !d.errors &&
+            d.data?.createMapReport?.__typename === "MapReport"
+          ) {
+            router.push(`/reports/${d.data.createMapReport.id}`);
             triggerAnalyticsEvent("Map report created succesfully", {});
-            return 'Report created!'
-          } else if (d.data?.createMapReport?.__typename === 'OperationInfo' ) {
-            toast.error('Failed to create report', {
+            return "Report created!";
+          } else if (d.data?.createMapReport?.__typename === "OperationInfo") {
+            toast.error("Failed to create report", {
               id: tid,
-              description: d.data.createMapReport.messages.map(m => m.message).join(', ')
-            })
+              description: d.data.createMapReport.messages
+                .map((m) => m.message)
+                .join(", "),
+            });
             triggerAnalyticsEvent("Map report creatio failed", {
-              errorMessages: d.data.createMapReport.messages.map(m => m.message).join(', ')
+              errorMessages: d.data.createMapReport.messages
+                .map((m) => m.message)
+                .join(", "),
             });
           } else {
-            toast.error('Failed to create report', {
+            toast.error("Failed to create report", {
               id: tid,
-              description: d.errors?.map(e => e.message).join(', ')
-            })
+              description: d.errors?.map((e) => e.message).join(", "),
+            });
             triggerAnalyticsEvent("Report creation failed", {
-              errorMessages: d.errors?.map(e => e.message).join(', ')
+              errorMessages: d.errors?.map((e) => e.message).join(", "),
             });
           }
         },
-        error: 'Failed to create report',
-      }
-    )
+        error: "Failed to create report",
+      },
+    );
   }
 }
 
 const CREATE_MAP_REPORT = gql`
-mutation CreateMapReport($data: MapReportInput!) {
-  createMapReport(data: $data) {
-    ... on MapReport {
-      id
-    }
-    ... on OperationInfo {
-      messages {
-        message
+  mutation CreateMapReport($data: MapReportInput!) {
+    createMapReport(data: $data) {
+      ... on MapReport {
+        id
+      }
+      ... on OperationInfo {
+        messages {
+          message
+        }
       }
     }
   }
-}
-`
+`;

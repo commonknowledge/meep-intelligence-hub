@@ -1,17 +1,14 @@
 import "./globals.css";
 import { ApolloWrapper } from "@/components/apollo-wrapper";
-import { PHProvider } from './providers'
-import dynamic from 'next/dynamic'
-import { Metadata } from 'next'
-import { openGraphImage } from './shared-metadata'
+import { PHProvider } from "./providers";
+import dynamic from "next/dynamic";
+import { Metadata } from "next";
+import { openGraphImage } from "./shared-metadata";
 import { Suspense } from "react";
 
-
-const PostHogPageView = dynamic(() => import('./PostHogPageView'), {
+const PostHogPageView = dynamic(() => import("./PostHogPageView"), {
   ssr: false,
-})
-
-
+});
 
 export default async function RootLayout({
   children,
@@ -39,8 +36,10 @@ export const metadata: Metadata = {
     ...openGraphImage,
   },
   title: {
-    template: '%s | Mapped by CK',
-    default: 'Mapped by Common Knowledge', // a default is required when creating a template
+    template: "%s | Mapped by CK",
+    default: "Mapped by Common Knowledge", // a default is required when creating a template
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_BASE_URL || 'http://localhost:3000')
-}
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_FRONTEND_BASE_URL || "http://localhost:3000",
+  ),
+};

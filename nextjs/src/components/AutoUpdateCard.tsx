@@ -22,26 +22,36 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { getSourceOptionForTypename } from "@/lib/data";
-import { DataSourceCardFragment, AutoUpdateWebhookRefreshMutation, AutoUpdateWebhookRefreshMutationVariables, DataSourceType, DisableAutoUpdateMutation, DisableAutoUpdateMutationVariables, EnableAutoUpdateMutation, EnableAutoUpdateMutationVariables, TriggerFullUpdateMutation, TriggerFullUpdateMutationVariables } from "@/__generated__/graphql";
-import { DATA_SOURCE_FRAGMENT, TRIGGER_FULL_UPDATE } from "./ExternalDataSourceCard";
+import {
+  DataSourceCardFragment,
+  AutoUpdateWebhookRefreshMutation,
+  AutoUpdateWebhookRefreshMutationVariables,
+  DataSourceType,
+  DisableAutoUpdateMutation,
+  DisableAutoUpdateMutationVariables,
+  EnableAutoUpdateMutation,
+  EnableAutoUpdateMutationVariables,
+  TriggerFullUpdateMutation,
+  TriggerFullUpdateMutationVariables,
+} from "@/__generated__/graphql";
+import {
+  DATA_SOURCE_FRAGMENT,
+  TRIGGER_FULL_UPDATE,
+} from "./ExternalDataSourceCard";
 
 export function AutoUpdateCard({
   externalDataSource,
 }: {
-  externalDataSource: DataSourceCardFragment
+  externalDataSource: DataSourceCardFragment;
 }) {
-  const Logo = getSourceOptionForTypename(
-    externalDataSource.crmType,
-  )!.logo;
+  const Logo = getSourceOptionForTypename(externalDataSource.crmType)!.logo;
 
   return (
     <article className="rounded-xl border border-meepGray-600 px-6 py-5 space-y-3">
       <header className="flex flex-row justify-between items-start">
-        <div className='space-y-3'>
-          <Logo className='w-20'/>
-          <h3 className="text-hSm">
-            {externalDataSource.name}
-          </h3>
+        <div className="space-y-3">
+          <Logo className="w-20" />
+          <h3 className="text-hSm">{externalDataSource.name}</h3>
         </div>
         <Link href={`/data-sources/inspect/${externalDataSource.id}`}>
           <CogIcon />
@@ -52,7 +62,10 @@ export function AutoUpdateCard({
       )}
       {externalDataSource?.jobs?.[0]?.lastEventAt ? (
         <div className="text-sm text-meepGray-400">
-          Last background task <span className='text-meepGray-300'>{externalDataSource.jobs[0].status}</span>{" "}
+          Last background task{" "}
+          <span className="text-meepGray-300">
+            {externalDataSource.jobs[0].status}
+          </span>{" "}
           {formatRelative(externalDataSource.jobs[0].lastEventAt, new Date())}
         </div>
       ) : null}
@@ -74,7 +87,11 @@ export function AutoUpdateSwitch({
           toggleAutoUpdate(client, e, externalDataSource.id)
         }
       />
-      <span className={externalDataSource.autoUpdateEnabled ? "text-brandBlue" : ''}>Auto-update</span>
+      <span
+        className={externalDataSource.autoUpdateEnabled ? "text-brandBlue" : ""}
+      >
+        Auto-update
+      </span>
     </div>
   );
 }
@@ -93,7 +110,10 @@ export function AutoUpdateWebhookRefresh({
 }: {
   externalDataSourceId: string;
 }) {
-  const [mutate, mutation] = useMutation<AutoUpdateWebhookRefreshMutation, AutoUpdateWebhookRefreshMutationVariables>(AUTO_UPDATE_WEBHOOK_REFRESH, {
+  const [mutate, mutation] = useMutation<
+    AutoUpdateWebhookRefreshMutation,
+    AutoUpdateWebhookRefreshMutationVariables
+  >(AUTO_UPDATE_WEBHOOK_REFRESH, {
     variables: { ID: externalDataSourceId },
   });
 
@@ -125,7 +145,7 @@ export function TriggerUpdateButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger {...buttonProps}>
-        <Button variant='outline' {...buttonProps} asChild={true}>
+        <Button variant="outline" {...buttonProps} asChild={true}>
           <span>{label}</span>
         </Button>
       </AlertDialogTrigger>

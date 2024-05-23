@@ -19,94 +19,137 @@ const config = {
     },
     extend: {
       fontFamily: {
-        'IBMPlexSans': ["IBMPlexSansReg", 'sans-serif'],
-        'IBMPlexSansLight': ["IBMPlexSansLight", 'sans-serif'],
-        'IBMPlexSansSemiBold': ["IBMPlexSansSemiBold", 'sans-serif'],
-        'IBMPlexSansMedium': ["IBMPlexSansMedium", 'sans-serif'],
-        'IBMPlexSansCondensed': ["IBMPlexSansCondensed", 'sans-serif'],
-        'IBMPlexMono': ["IBMPlexMono", 'sans-serif'],
-        'PPRightGrotesk': ['PPRightGrotesk, sans-serif'],
-        
+        IBMPlexSans: ["IBMPlexSansReg", "sans-serif"],
+        IBMPlexSansLight: ["IBMPlexSansLight", "sans-serif"],
+        IBMPlexSansSemiBold: ["IBMPlexSansSemiBold", "sans-serif"],
+        IBMPlexSansMedium: ["IBMPlexSansMedium", "sans-serif"],
+        IBMPlexSansCondensed: ["IBMPlexSansCondensed", "sans-serif"],
+        IBMPlexMono: ["IBMPlexMono", "sans-serif"],
+        PPRightGrotesk: ["PPRightGrotesk, sans-serif"],
       },
       fontSize: {
-        hXlg: ['4.5rem', {
-          lineHeight: '107%',
-          letterSpacing: '-0.2rem',
-        }],
-        hXlgPP: ['4.7rem', {
-          lineHeight: '107%',
-          letterSpacing: '0rem',
-        }],
-        hLgPP: ['36px', {
-          lineHeight: '100%',
-          fontWeight: '700',
-          letterSpacing: '0.05rem'
-        }],
-        hLg: ['36px', {
-          lineHeight: '120%',
-          fontWeight: '700',
-        }],
-        hMd: ['21px', {
-          lineHeight: 'normal',
-          letterSpacing: '0em',
-          fontWeight: '500',
-        }],
-        hSm: ['16px', {
-          lineHeight: 'normal',
-          letterSpacing: '0em',
-          fontWeight: '500',
-        }],
-        base: ['16px', {
-          lineHeight: 'normal',
-          letterSpacing: '0em',
-          fontWeight: '400',
-        }],
-        lg: ['20px', {
-          lineHeight: '160%',
-          letterSpacing: '0em',
-        }],
-        sm: ['14px', {
-          lineHeight: 'normal',
-          letterSpacing: '0em',
-          fontWeight: '400',
-        }],
-        tiny: ['12px', {
-          lineHeight: 'normal',
-          letterSpacing: '0em',
-          fontWeight: '400',
-        }],
-        labelMain: ['12px', {
-          lineHeight: 'normal',
-          letterSpacing: '0em',
-          fontWeight: '500',
-        }],
-        labelLg: ['14px', {
-          lineHeight: 'normal',
-          letterSpacing: '0em',
-          fontWeight: '500',
-        }],
-        labelXlg: ['16px', {
-          lineHeight: 'normal',
-          letterSpacing: '0em',
-          fontWeight: '500',
-        }],
-        dataName: ['13px', {
-          lineHeight: '100%',
-          letterSpacing: '0.65px',
-          fontWeight: '500',
-        }],
-        dataResult: ['16px', {
-          lineHeight: '100%',
-          letterSpacing: '-0.32px',
-          fontWeight: '400',
-        }],
-
+        hXlg: [
+          "4.5rem",
+          {
+            lineHeight: "107%",
+            letterSpacing: "-0.2rem",
+          },
+        ],
+        hXlgPP: [
+          "4.7rem",
+          {
+            lineHeight: "107%",
+            letterSpacing: "0rem",
+          },
+        ],
+        hLgPP: [
+          "36px",
+          {
+            lineHeight: "100%",
+            fontWeight: "700",
+            letterSpacing: "0.05rem",
+          },
+        ],
+        hLg: [
+          "36px",
+          {
+            lineHeight: "120%",
+            fontWeight: "700",
+          },
+        ],
+        hMd: [
+          "21px",
+          {
+            lineHeight: "normal",
+            letterSpacing: "0em",
+            fontWeight: "500",
+          },
+        ],
+        hSm: [
+          "16px",
+          {
+            lineHeight: "normal",
+            letterSpacing: "0em",
+            fontWeight: "500",
+          },
+        ],
+        base: [
+          "16px",
+          {
+            lineHeight: "normal",
+            letterSpacing: "0em",
+            fontWeight: "400",
+          },
+        ],
+        lg: [
+          "20px",
+          {
+            lineHeight: "160%",
+            letterSpacing: "0em",
+          },
+        ],
+        sm: [
+          "14px",
+          {
+            lineHeight: "normal",
+            letterSpacing: "0em",
+            fontWeight: "400",
+          },
+        ],
+        tiny: [
+          "12px",
+          {
+            lineHeight: "normal",
+            letterSpacing: "0em",
+            fontWeight: "400",
+          },
+        ],
+        labelMain: [
+          "12px",
+          {
+            lineHeight: "normal",
+            letterSpacing: "0em",
+            fontWeight: "500",
+          },
+        ],
+        labelLg: [
+          "14px",
+          {
+            lineHeight: "normal",
+            letterSpacing: "0em",
+            fontWeight: "500",
+          },
+        ],
+        labelXlg: [
+          "16px",
+          {
+            lineHeight: "normal",
+            letterSpacing: "0em",
+            fontWeight: "500",
+          },
+        ],
+        dataName: [
+          "13px",
+          {
+            lineHeight: "100%",
+            letterSpacing: "0.65px",
+            fontWeight: "500",
+          },
+        ],
+        dataResult: [
+          "16px",
+          {
+            lineHeight: "100%",
+            letterSpacing: "-0.32px",
+            fontWeight: "400",
+          },
+        ],
       },
       fontWeight: {
-        light: '300',
-        normal: '400',
-        medium: '500',
-        bold: '800'
+        light: "300",
+        normal: "400",
+        medium: "500",
+        bold: "800",
       },
       colors: {
         brandBlue: "hsl(var(--brand-blue))",
@@ -129,7 +172,7 @@ const config = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         yellow: "hsl(var(--yellow))",
-        darkSecondary:  "hsl(var(--dark-secondary))",
+        darkSecondary: "hsl(var(--dark-secondary))",
         background: {
           DEFAULT: "hsl(var(--meepGray-800))",
           secondary: "hsl(var(--meepGray-700))",
@@ -162,11 +205,10 @@ const config = {
         },
       },
       spacing: {
-        xs: '10px',
-        sm: '15px',
-        md: '20px',
-        lg: '30px',
-
+        xs: "10px",
+        sm: "15px",
+        md: "20px",
+        lg: "30px",
       },
       borderRadius: {
         lg: "calc(var(--radius))",

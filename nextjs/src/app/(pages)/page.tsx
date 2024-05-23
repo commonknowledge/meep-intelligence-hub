@@ -7,11 +7,7 @@ export default async function Home() {
 
   return (
     <div className="">
-      {user ? (
-        <Dashboard user={user} />
-      ) : (
-        <MarketingHome />
-      )}
+      {user ? <Dashboard user={user} /> : <MarketingHome />}
     </div>
   );
 }

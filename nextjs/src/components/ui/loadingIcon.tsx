@@ -1,6 +1,12 @@
 import { Oval } from "react-loader-spinner";
 
-export function LoadingIcon({ className, size = "80", }: { size?: string, className?: string }) {
+export function LoadingIcon({
+  className,
+  size = "80",
+}: {
+  size?: string;
+  className?: string;
+}) {
   return (
     <div className={className}>
       <Oval

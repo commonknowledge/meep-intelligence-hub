@@ -12,12 +12,12 @@ Sentry.init({
   debug: false,
 
   beforeSend(event) {
-    console.log('env', process.env.NEXT_PUBLIC_ENVIRONMENT)
+    console.log("env", process.env.NEXT_PUBLIC_ENVIRONMENT);
 
     // Do not send events if in development environment
-    if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'development') {
+    if (process.env.NEXT_PUBLIC_ENVIRONMENT === "development") {
       return null;
     }
     return event;
-  }
+  },
 });

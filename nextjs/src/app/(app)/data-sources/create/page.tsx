@@ -7,7 +7,10 @@ import { useRouter } from "next/navigation";
 import { CreateAutoUpdateFormContext } from "./NewExternalDataSourceWrapper";
 import { externalDataSourceOptions } from "@/lib/data";
 import { gql, useQuery } from "@apollo/client";
-import { AllExternalDataSourcesQuery, DataSourceType } from "@/__generated__/graphql";
+import {
+  AllExternalDataSourcesQuery,
+  DataSourceType,
+} from "@/__generated__/graphql";
 import { formatRelative } from "date-fns";
 
 const ALL_EXTERNAL_DATA_SOURCES = gql`
@@ -39,8 +42,8 @@ export default function Page() {
   const [source, setSource] = useState<string | null>(null);
 
   useEffect(() => {
-    context.setStep(1)
-  }, [context])
+    context.setStep(1);
+  }, [context]);
 
   return (
     <div className="space-y-7">
@@ -67,7 +70,8 @@ export default function Page() {
               }}
               className={twMerge(
                 "cursor-pointer rounded-3xl bg-meepGray-700 px-10 py-6 overflow-hidden flex flex-row items-center justify-center transition-all hover:border-brandBlue border-2 box-border",
-                source === externalDataSource.key && "border-brandBlue border-2"
+                source === externalDataSource.key &&
+                  "border-brandBlue border-2",
               )}
             >
               <externalDataSource.logo className="w-full" />

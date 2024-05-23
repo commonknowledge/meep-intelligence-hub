@@ -32,7 +32,7 @@ export default async function Dashboard({
     (sources: ExternalDataSource[], org: Organisation) => {
       return sources.concat(org.externalDataSources);
     },
-    []
+    [],
   );
 
   const btnLink = qs.stringifyUrl({

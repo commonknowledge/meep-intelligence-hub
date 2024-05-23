@@ -1,5 +1,5 @@
-import Fuse, { IFuseOptions } from 'fuse.js';
-import * as React from 'react';
+import Fuse, { IFuseOptions } from "fuse.js";
+import * as React from "react";
 
 /**
  * A React Hook that filters an array using the Fuse.js fuzzy-search library.
@@ -15,7 +15,7 @@ import * as React from 'react';
 export function useFuse<T>(
   list: T[],
   searchTerm: string,
-  fuseOptions?: IFuseOptions<T>
+  fuseOptions?: IFuseOptions<T>,
 ) {
   const fuse = React.useMemo(() => {
     return new Fuse(list, fuseOptions);

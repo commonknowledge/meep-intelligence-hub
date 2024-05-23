@@ -1,13 +1,18 @@
 import MarketingPageHeader from "@/components/marketing/MarkertingPageHeader";
-import { Card, CardTitle, CardHeader, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardTitle,
+  CardHeader,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import Pin from "@/components/Pin";
 import TemplateCard from "@/components/marketing/TemplateCard";
 import { Pencil } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea"
-
+import { Textarea } from "@/components/ui/textarea";
 
 import {
   Form,
@@ -17,18 +22,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import RoadMapItems from "@/components/marketing/RoadmapItems";
 
 export default function AboutRoadmap() {
-
-  let btnLink = "/signup"
+  let btnLink = "/signup";
 
   return (
     <div className="flex flex-col items-center">
       <MarketingPageHeader
-        heading={<>Have <span className="md:text-hXlgPP text-hLgPP font-PPRightGrotesk">your say</span> on what gets built next</>}
+        heading={
+          <>
+            Have{" "}
+            <span className="md:text-hXlgPP text-hLgPP font-PPRightGrotesk">
+              your say
+            </span>{" "}
+            on what gets built next
+          </>
+        }
         description="Take your organising to the next level with our free to use tools that enhance your existing membership lists with geographic and political data."
         btnText="Get Started"
         btnLink={btnLink}
@@ -37,34 +49,32 @@ export default function AboutRoadmap() {
         <div className="relative">
           <div className="grid grid-cols-1 mb-20">
             <div className="flex items-center gap-3 mb-6 text-lg">
-              <Pin />In progress
+              <Pin />
+              In progress
             </div>
-              <RoadMapItems />
+            <RoadMapItems />
           </div>
           <div className="grid grid-cols-1 mb-20">
             <div className="flex items-center gap-3 mb-6 text-lg">
-              <Pin />Under Consideration
+              <Pin />
+              Under Consideration
             </div>
             <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
               <TemplateCard
                 highlighted={false}
-
                 heading="Segment members by drawing shape"
                 description="Create a subsection on your list by drawing a shape on a map. "
                 link="#"
                 tag="User Experience"
                 isExternalLink={false}
-
               />
               <TemplateCard
                 highlighted={false}
-
                 heading="Load in your member data"
                 description="Upload your spreadsheet/CSV file into the data configuration section and see your members appear on the map"
                 link="#"
                 tag="User Experience"
                 isExternalLink={false}
-
               />
             </div>
           </div>
@@ -73,21 +83,22 @@ export default function AboutRoadmap() {
             <CardHeader className="w-1/2 flex flex-col gap-10">
               <CardTitle className="text-hMd flex flex-col gap-5">
                 <Pencil />
-                Request new feature</CardTitle>
-              <CardDescription className="text-sm text-meepGray-400 max-w-sm">Have an idea about what we should do next? Submit this form and explain what your feature does and the benefits it provides. </CardDescription>
+                Request new feature
+              </CardTitle>
+              <CardDescription className="text-sm text-meepGray-400 max-w-sm">
+                Have an idea about what we should do next? Submit this form and
+                explain what your feature does and the benefits it provides.{" "}
+              </CardDescription>
             </CardHeader>
             <CardContent className="w-1/2 max-w-md mb-3">
               <p className="text-labelMain mb-2">Name</p>
-              <Input placeholder="shadcn" className="mb-5"/>
+              <Input placeholder="shadcn" className="mb-5" />
               <p className="text-labelMain mb-2">Idea</p>
               <Textarea className="bg-meepGray-800" />
-
             </CardContent>
-
           </Card>
 
           <div className="absolute left-0 top-1 h-full w-[10.5px] border-r border-meepGray-600 -z-10"></div>
-
         </div>
       </div>
     </div>

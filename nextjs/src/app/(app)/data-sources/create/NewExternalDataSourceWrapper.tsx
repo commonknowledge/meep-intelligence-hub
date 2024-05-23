@@ -16,12 +16,13 @@ export const CreateAutoUpdateFormContext = createContext<{
 });
 
 export default function NewExternalDataSourceWrapper({
-  children
+  children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const searchParams = useSearchParams()
-  const predeterminedDataType = searchParams.get("dataType") as DataSourceType || undefined
+  const searchParams = useSearchParams();
+  const predeterminedDataType =
+    (searchParams.get("dataType") as DataSourceType) || undefined;
   const [step, setStep] = useState<number>(0);
 
   return (
@@ -29,7 +30,7 @@ export default function NewExternalDataSourceWrapper({
       value={{
         step,
         setStep,
-        dataType: predeterminedDataType
+        dataType: predeterminedDataType,
       }}
     >
       <div className="p-4 md:p-6 max-w-6xl mx-auto flex flex-row gap-8 md:gap-20">

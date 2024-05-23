@@ -45,12 +45,12 @@ export default function NewPasswordForm() {
         .min(8)
         .regex(
           new RegExp(
-            /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
+            /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
           ),
           {
             message:
               "Your password must include at least one uppercase letter, one lowercase letter, one number and one special character, and be at least 8 characters long.",
-          }
+          },
         ),
       password2: z
         .string()
@@ -92,7 +92,7 @@ export default function NewPasswordForm() {
     {
       onCompleted: handleCompleted,
       onError: handleError,
-    }
+    },
   );
 
   const handleSubmit = async (values: OperationVariables | undefined) => {

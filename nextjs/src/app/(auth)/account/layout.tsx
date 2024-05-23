@@ -1,7 +1,7 @@
-import Link from "next/link"
-import { CircleUser, Menu, Package2, Search } from "lucide-react"
+import Link from "next/link";
+import { CircleUser, Menu, Package2, Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,8 +9,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,9 +18,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Dashboard({
   children,
@@ -34,19 +34,14 @@ export default function Dashboard({
       </div>
       <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
         <nav
-          className="grid gap-4 text-sm text-muted-foreground" x-chunk="dashboard-04-chunk-0"
+          className="grid gap-4 text-sm text-muted-foreground"
+          x-chunk="dashboard-04-chunk-0"
         >
-          <Link href="/account">
-            General
-          </Link>
-          <Link href="/account/developer">
-            Developer API
-          </Link>
+          <Link href="/account">General</Link>
+          <Link href="/account/developer">Developer API</Link>
         </nav>
-        <div>
-          {children}
-        </div>
+        <div>{children}</div>
       </div>
     </main>
-  )
+  );
 }

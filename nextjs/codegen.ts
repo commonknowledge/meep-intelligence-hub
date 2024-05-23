@@ -7,7 +7,7 @@ const config: CodegenConfig = {
     "src/app/**/*.{ts,tsx}",
     "src/hooks/**/*.{ts,tsx}",
     "src/lib/**/*.{ts,tsx}",
-    "src/graphql/**/*.{ts,tsx}"
+    "src/graphql/**/*.{ts,tsx}",
   ],
   generates: {
     "./src/__generated__/": {

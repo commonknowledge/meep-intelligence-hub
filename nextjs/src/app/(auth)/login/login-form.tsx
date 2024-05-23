@@ -4,10 +4,10 @@ import { gql, useMutation } from "@apollo/client";
 import { login } from "../../../actions/auth";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button"
- 
+import { Button } from "@/components/ui/button";
+
 import {
   Form,
   FormControl,
@@ -16,9 +16,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 
 const LOGIN_MUTATION = gql`
   mutation Login($username: String!, $password: String!) {
@@ -37,15 +36,16 @@ const LOGIN_MUTATION = gql`
 
 export default function LoginForm() {
   const form = useForm({
-    resolver: zodResolver(z.object({
-      username: z.string(),
-      password: z.string(),
-    })),
-  })
+    resolver: zodResolver(
+      z.object({
+        username: z.string(),
+        password: z.string(),
+      }),
+    ),
+  });
 
   const [doLogin, { data, loading, error: gqlError }] =
     useMutation(LOGIN_MUTATION);
-
 
   const token = data?.tokenAuth?.token?.token;
   const authError = data?.tokenAuth?.errors;
@@ -62,13 +62,16 @@ export default function LoginForm() {
   }
 
   const handleSubmit: SubmitHandler<any> = async (values: any, e) => {
-    e?.preventDefault()
+    e?.preventDefault();
     doLogin({ variables: values });
   };
 
   return (
     <Form {...form}>
-      <form className="pb-4 flex flex-col space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
+      <form
+        className="pb-4 flex flex-col space-y-5"
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
         <FormField
           control={form.control}
           name="username"
@@ -89,17 +92,23 @@ export default function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type='password' placeholder="password" {...field} />
+                <Input type="password" placeholder="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <FormMessage />
-        <Button variant='reverse' type="submit" disabled={loading} className="flex items-center justify-center">
-          {(loading || token) ? (<>Loading...</>) : 'Login'}
+        <Button
+          variant="reverse"
+          type="submit"
+          disabled={loading || token}
+          className="flex items-center justify-center"
+        >
+          {loading || token ? <>Loading...</> : "Login"}
         </Button>
-        </form>
+        {errorMessage && <small className="text-red-500">{errorMessage}</small>}
+      </form>
     </Form>
   );
 }

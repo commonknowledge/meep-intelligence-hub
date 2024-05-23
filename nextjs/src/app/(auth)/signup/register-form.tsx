@@ -2,9 +2,9 @@
 
 import { gql, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,12 +12,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 const REGISTER_MUTATION = gql`
-  mutation Register($email: String!, $password1: String!, $password2: String!, $username: String!) {
-    register(email: $email, password1: $password1, password2: $password2, username: $username) {
+  mutation Register(
+    $email: String!
+    $password1: String!
+    $password2: String!
+    $username: String!
+  ) {
+    register(
+      email: $email
+      password1: $password1
+      password2: $password2
+      username: $username
+    ) {
       errors
       success
     }
@@ -26,21 +36,32 @@ const REGISTER_MUTATION = gql`
 
 export default function RegisterForm() {
   const form = useForm({
-    resolver: zodResolver(z.object({
-      username: z.string().min(5),
-      email: z.string().email(),
-      password1: z.string().min(8).regex(new RegExp(
-        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
-      ), {
-        message: 'Your password must include at least one uppercase letter, one lowercase letter, one number and one special character, and be at least 8 characters long.',
-      }),
-      // Make sure password2 == password1
-      password2: z.string()
-    }).refine((data) => data.password1 === data.password2, {
-      message: "Passwords don't match",
-      path: ["password2"],
-    })),
-  })
+    resolver: zodResolver(
+      z
+        .object({
+          username: z.string().min(5),
+          email: z.string().email(),
+          password1: z
+            .string()
+            .min(8)
+            .regex(
+              new RegExp(
+                /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+              ),
+              {
+                message:
+                  "Your password must include at least one uppercase letter, one lowercase letter, one number and one special character, and be at least 8 characters long.",
+              },
+            ),
+          // Make sure password2 == password1
+          password2: z.string(),
+        })
+        .refine((data) => data.password1 === data.password2, {
+          message: "Passwords don't match",
+          path: ["password2"],
+        }),
+    ),
+  });
 
   const [doRegister, { data, loading, error: gqlError }] =
     useMutation(REGISTER_MUTATION);
@@ -54,7 +75,7 @@ export default function RegisterForm() {
   }
   if (authError) {
     for (const field of Object.keys(authError)) {
-      const fieldErrors = authError[field]
+      const fieldErrors = authError[field];
       for (const error of fieldErrors) {
         errors.push(error.message);
       }
@@ -70,18 +91,20 @@ export default function RegisterForm() {
       <>
         <h2>Thanks for registering!</h2>
         <p>
-          One last step: we{"'"}ve emailed you an activation link at the email address you provided.
+          One last step: we{"'"}ve emailed you an activation link at the email
+          address you provided.
         </p>
-        <p>
-          Once you click that link, you can log in and start using Mapped!
-        </p>
+        <p>Once you click that link, you can log in and start using Mapped!</p>
       </>
-    )
+    );
   }
 
   return (
     <Form {...form}>
-      <form className="pb-4 flex flex-col space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
+      <form
+        className="pb-4 flex flex-col space-y-4"
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
         <FormField
           control={form.control}
           name="email"
@@ -115,7 +138,7 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type='password' placeholder="password" {...field} />
+                <Input type="password" placeholder="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -128,14 +151,16 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Confirm password</FormLabel>
               <FormControl>
-                <Input type='password' placeholder="password" {...field} />
+                <Input type="password" placeholder="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <FormMessage />
-        <Button variant='reverse' type="submit" disabled={loading}>Sign up</Button>
+        <Button variant="reverse" type="submit" disabled={loading}>
+          Sign up
+        </Button>
       </form>
     </Form>
   );

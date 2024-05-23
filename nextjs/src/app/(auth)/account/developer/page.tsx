@@ -1,6 +1,12 @@
 "use client";
 
-import { CreateTokenMutation, CreateTokenMutationVariables, DeveloperApiContextQuery, RevokeTokenMutation, RevokeTokenMutationVariables } from "@/__generated__/graphql";
+import {
+  CreateTokenMutation,
+  CreateTokenMutationVariables,
+  DeveloperApiContextQuery,
+  RevokeTokenMutation,
+  RevokeTokenMutationVariables,
+} from "@/__generated__/graphql";
 import { Button } from "@/components/ui/button";
 import { toastPromise } from "@/lib/toast";
 import { gql, useApolloClient } from "@apollo/client";
@@ -12,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogClose,
@@ -22,7 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { ClipboardCopy, Trash } from "lucide-react";
@@ -39,10 +45,11 @@ const YOUR_API_TOKENS = gql`
       expiresAt
     }
   }
-`
+`;
 
 export default function DeveloperConfig() {
-  const { data, error, loading, refetch, client } = useQuery<DeveloperApiContextQuery>(YOUR_API_TOKENS);
+  const { data, error, loading, refetch, client } =
+    useQuery<DeveloperApiContextQuery>(YOUR_API_TOKENS);
 
   if (error && !loading) {
     return <p className="text-red-500">Error: {String(error)}</p>;
@@ -64,74 +71,105 @@ export default function DeveloperConfig() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.listApiTokens?.filter(t => !t.revoked).map(token => (
-            <TableRow key={token.signature}>
-              <TableCell className='w-3/4'>
-                <Input 
-                  id={`input-${token.signature}`}
-                  onClick={() => {
-                    // highlight on click
-                    const input: HTMLInputElement = document.getElementById(`input-${token.signature}`) as any
-                    input?.focus()
-                    input?.select()
-                    navigator.clipboard.writeText(token.token)
-                    toast.success("Copied token to clipboard")
-                  }}
-                  value={token.token}
-                />
-              </TableCell>
-              <TableCell>
-                {new Date(token.expiresAt).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
-                <Button
-                  onClick={() => {
-                    navigator.clipboard.writeText(token.token)
-                    toast.success("Copied token to clipboard")
-                  }}
-                >
-                  <ClipboardCopy />&nbsp;&nbsp;Copy
-                </Button>
-              </TableCell>
-              <TableCell>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Trash />&nbsp;&nbsp;Revoke
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Are you sure?</DialogTitle>
-                    </DialogHeader>
-                    <DialogFooter className="sm:justify-start">
-                      <DialogClose asChild>
-                        <Button type="button" variant="destructive" onClick={() => revoke(token.signature)}>
-                          Revoke token
-                        </Button>
-                      </DialogClose>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </TableCell>
-            </TableRow>
-          ))}
+          {data?.listApiTokens
+            ?.filter((t) => !t.revoked)
+            .map((token) => (
+              <TableRow key={token.signature}>
+                <TableCell className="w-3/4">
+                  <Input
+                    id={`input-${token.signature}`}
+                    onClick={() => {
+                      // highlight on click
+                      const input: HTMLInputElement = document.getElementById(
+                        `input-${token.signature}`,
+                      ) as any;
+                      input?.focus();
+                      input?.select();
+                      navigator.clipboard.writeText(token.token);
+                      toast.success("Copied token to clipboard");
+                    }}
+                    value={token.token}
+                  />
+                </TableCell>
+                <TableCell>
+                  {new Date(token.expiresAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(token.token);
+                      toast.success("Copied token to clipboard");
+                    }}
+                  >
+                    <ClipboardCopy />
+                    &nbsp;&nbsp;Copy
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Trash />
+                        &nbsp;&nbsp;Revoke
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Are you sure?</DialogTitle>
+                      </DialogHeader>
+                      <DialogFooter className="sm:justify-start">
+                        <DialogClose asChild>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => revoke(token.signature)}
+                          >
+                            Revoke token
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
-      <Button className='mt-4 mb-8' onClick={() => { createToken() }}>Generate an API token</Button>
-      
-      <h2 className="text-xl font-semibold mb-3">How to authenticate the API</h2>
+      <Button
+        className="mt-4 mb-8"
+        onClick={() => {
+          createToken();
+        }}
+      >
+        Generate an API token
+      </Button>
+
+      <h2 className="text-xl font-semibold mb-3">
+        How to authenticate the API
+      </h2>
       <p>
-        To use the API, simply make a request to <code className='bg-meepGray-700 p-1 rounded-lg'>{process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/graphql</code> and place the token in the Authorization header following {"'"}JWT{"'"}, like so: <code className='bg-meepGray-700 p-1 rounded-lg'>Authorization: {"'"}JWT eyJh...{"'"}</code>.
+        To use the API, simply make a request to{" "}
+        <code className="bg-meepGray-700 p-1 rounded-lg">
+          {process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/graphql
+        </code>{" "}
+        and place the token in the Authorization header following {"'"}JWT{"'"},
+        like so:{" "}
+        <code className="bg-meepGray-700 p-1 rounded-lg">
+          Authorization: {"'"}JWT eyJh...{"'"}
+        </code>
+        .
       </p>
       <div className="font-semibold mb-3 mt-8 underline">
         <Link href="/graphiql">Visit the API playground &rarr;</Link>
       </div>
     </div>
-  )
+  );
 
   function createToken() {
-    const createToken = client.mutate<CreateTokenMutation, CreateTokenMutationVariables>({
+    const createToken = client.mutate<
+      CreateTokenMutation,
+      CreateTokenMutationVariables
+    >({
       mutation: gql`
         mutation CreateToken {
           createApiToken {
@@ -142,20 +180,23 @@ export default function DeveloperConfig() {
             expiresAt
           }
         }
-      `
-    })
+      `,
+    });
     toastPromise(createToken, {
       loading: "Creating token...",
       success: () => {
-        refetch()
-        return "Token has been created"
+        refetch();
+        return "Token has been created";
       },
       error: "Token creation failed",
     });
   }
 
   function revoke(signature: string) {
-    const revokeToken = client.mutate<RevokeTokenMutation, RevokeTokenMutationVariables>({
+    const revokeToken = client.mutate<
+      RevokeTokenMutation,
+      RevokeTokenMutationVariables
+    >({
       mutation: gql`
         mutation RevokeToken($signature: ID!) {
           revokeApiToken(signature: $signature) {
@@ -164,13 +205,13 @@ export default function DeveloperConfig() {
           }
         }
       `,
-      variables: { signature }
-    })
+      variables: { signature },
+    });
     toastPromise(revokeToken, {
       loading: "Revoking token...",
       success: () => {
-        refetch()
-        return "Token has been revoked"
+        refetch();
+        return "Token has been revoked";
       },
       error: "Token revocation failed",
     });

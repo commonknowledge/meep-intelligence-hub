@@ -44,4 +44,4 @@ export const useRequireNoAuth = async () => {
   }
 
   return user;
-}
+};

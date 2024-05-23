@@ -11,10 +11,10 @@ export default async function Layout({
   const isLoggedIn = Boolean(user);
 
   return (
-    <div className='h-dvh flex flex-col'>
+    <div className="h-dvh flex flex-col">
       <Navbar isLoggedIn={isLoggedIn} />
       <main className="p-4 sm:p-8 md:p-20 relative 2xl:p-24 overflow-x-hidden overflow-y-auto flex-grow">
-          {children}
+        {children}
       </main>
       <Toaster />
     </div>

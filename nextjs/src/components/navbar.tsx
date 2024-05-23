@@ -1,23 +1,21 @@
-'use client'
+"use client";
 
-import { buttonVariants } from "@/components/ui/button"
-import Link, { LinkProps } from "next/link"
-import { twMerge } from 'tailwind-merge';
-import { usePathname } from 'next/navigation'
+import { buttonVariants } from "@/components/ui/button";
+import Link, { LinkProps } from "next/link";
+import { twMerge } from "tailwind-merge";
+import { usePathname } from "next/navigation";
 import { forwardRef } from "react";
-import { useRouter } from "next/navigation"
-
+import { useRouter } from "next/navigation";
 
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
 
-
-import { cn } from "@/lib/utils"
-import * as React from "react"
+import { cn } from "@/lib/utils";
+import * as React from "react";
 
 import {
   NavigationMenu,
@@ -27,10 +25,9 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
+} from "@/components/ui/navigation-menu";
 import { Mail } from "lucide-react";
 import { externalDataSourceOptions } from "@/lib/data";
-
 
 import {
   Sheet,
@@ -39,15 +36,12 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
 
 import { useState } from "react";
 
-
-
-
 const crmSync: { title: string; href: string; description: string }[] = [
-  ...Object.values(externalDataSourceOptions).map(d => ({
+  ...Object.values(externalDataSourceOptions).map((d) => ({
     title: d.name,
     href: `/integrations/${d.key}`,
     description: d.name,
@@ -57,44 +51,50 @@ const crmSync: { title: string; href: string; description: string }[] = [
     href: "mailto:hello@commonknowledge.coop",
     description: "Make a request",
   },
-]
+];
 
 interface NavbarProps {
   isLoggedIn: boolean;
 }
 
-
 export default function Navbar({ isLoggedIn }: NavbarProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
 
   return (
     <>
       {isLoggedIn ? (
-        <nav className='sticky top-0 shrink-0 flex flex-row justify-start items-stretch gap-md font-IBMPlexSansCondensed text-lg border-b border-meepGray-700 px-sm'>
-          <Link href='/' className="py-sm"><MappedIcon /></Link>
+        <nav className="sticky top-0 shrink-0 flex flex-row justify-start items-stretch gap-md font-IBMPlexSansCondensed text-lg border-b border-meepGray-700 px-sm">
+          <Link href="/" className="py-sm">
+            <MappedIcon />
+          </Link>
           <Link
-            className={`link ${pathname === '/reports' ? 'active' : 'flex items-center'}`}
+            className={`link ${pathname === "/reports" ? "active" : "flex items-center"}`}
             href="/reports"
           >
             Reports
           </Link>
           <Link
-            className={`link ${pathname === '/data-layers' ? 'active' : 'flex items-center'}`}
+            className={`link ${pathname === "/data-layers" ? "active" : "flex items-center"}`}
             href="/data-sources"
           >
             Data sources
           </Link>
           <div className="ml-auto flex items-stretch gap-md ">
             <Link
-              className={`link ${pathname === '/account' ? 'active' : 'flex items-center'}`}
+              className={`link ${pathname === "/account" ? "active" : "flex items-center"}`}
               href="/account"
             >
               Account
             </Link>
             <div className="flex items-center">
-              <Link href="/logout" className={twMerge('', buttonVariants({ variant: "brand" }))}>Logout</Link>
+              <Link
+                href="/logout"
+                className={twMerge("", buttonVariants({ variant: "brand" }))}
+              >
+                Logout
+              </Link>
             </div>
           </div>
         </nav>
@@ -103,13 +103,15 @@ export default function Navbar({ isLoggedIn }: NavbarProps) {
           <ul className="flex flex-row">
             <div className="shrink-0 flex flex-row justify-between items-center bg-meepGray-700 border border-meepGray-600 rounded-lg p-2">
               <div className="flex flex-row items-center gap-xs px-2">
-                <Link className="" href='/'>
+                <Link className="" href="/">
                   <MappedIcon />
                 </Link>
                 <div className="flex flex-col">
-                  <Link href='/'>
+                  <Link href="/">
                     <div className="text-hLg font-PPRightGrotesk">Mapped</div>
-                    <p className="text-[9px] tracking-[-0.185px]"><em>by</em> Common Knowledge</p>
+                    <p className="text-[9px] tracking-[-0.185px]">
+                      <em>by</em> Common Knowledge
+                    </p>
                   </Link>
                 </div>
               </div>
@@ -128,22 +130,32 @@ export default function Navbar({ isLoggedIn }: NavbarProps) {
                                 href="/"
                               >
                                 <div className="mb-2 mt-4 text-hMd font-medium">
-                                  ✊
-                                  Empowering the movement
+                                  ✊ Empowering the movement
                                 </div>
                                 <p className="text-sm leading-tight text-meepGray-400">
-                                  Stay up to date with new ways to empower your organising.
+                                  Stay up to date with new ways to empower your
+                                  organising.
                                 </p>
                               </a>
                             </NavigationMenuLink>
                           </li>
-                          <ListItem href="/features/member-maps" title="Member Maps">
-                            Simple but effective geographic mapping of your people
+                          <ListItem
+                            href="/features/member-maps"
+                            title="Member Maps"
+                          >
+                            Simple but effective geographic mapping of your
+                            people
                           </ListItem>
-                          <ListItem href="/features/data-enrichment" title="Data Enrichment">
+                          <ListItem
+                            href="/features/data-enrichment"
+                            title="Data Enrichment"
+                          >
                             Unlock new insights for your campaign
                           </ListItem>
-                          <ListItem href="/features/crm-sync" title="Sync with your CRM">
+                          <ListItem
+                            href="/features/crm-sync"
+                            title="Sync with your CRM"
+                          >
                             Sync your member list seamlessly
                           </ListItem>
                         </ul>
@@ -158,15 +170,16 @@ export default function Navbar({ isLoggedIn }: NavbarProps) {
                               key={component.title}
                               title={component.title}
                               href={component.href}
-                            >
-                            </ListItem>
+                            ></ListItem>
                           ))}
                         </ul>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
                       <Link href="/about" legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <NavigationMenuLink
+                          className={navigationMenuTriggerStyle()}
+                        >
                           About
                         </NavigationMenuLink>
                       </Link>
@@ -177,21 +190,30 @@ export default function Navbar({ isLoggedIn }: NavbarProps) {
             </div>
             <div className="flex grow justify-end items-center">
               <li className="hidden sm:block">
-                <Link href="/login" className={buttonVariants({ variant: "brand" })}>Login</Link>
+                <Link
+                  href="/login"
+                  className={buttonVariants({ variant: "brand" })}
+                >
+                  Login
+                </Link>
               </li>
               <div className="sm:hidden">
                 <Sheet open={open} onOpenChange={setOpen}>
-                  <SheetTrigger className={buttonVariants({ variant: "secondary" })}>Menu</SheetTrigger>
+                  <SheetTrigger
+                    className={buttonVariants({ variant: "secondary" })}
+                  >
+                    Menu
+                  </SheetTrigger>
                   <SheetContent className="bg-meepGray-800">
                     <SheetHeader>
                       <SheetTitle></SheetTitle>
-                      <SheetDescription>
-
-                      </SheetDescription>
+                      <SheetDescription></SheetDescription>
                     </SheetHeader>
                     <Accordion type="single" collapsible>
                       <AccordionItem value="item-1">
-                        <AccordionTrigger className="text-lg p-4 bg-meepGray-700 rounded-md my-2">Features</AccordionTrigger>
+                        <AccordionTrigger className="text-lg p-4 bg-meepGray-700 rounded-md my-2">
+                          Features
+                        </AccordionTrigger>
                         <AccordionContent className="flex flex-col gap-2">
                           <MobileLink
                             href="/features/member-maps"
@@ -214,32 +236,29 @@ export default function Navbar({ isLoggedIn }: NavbarProps) {
                           >
                             CRM Sync
                           </MobileLink>
-
-
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
                     <Accordion type="single" collapsible>
                       <AccordionItem value="item-2">
-                        <AccordionTrigger className="text-lg p-4 bg-meepGray-700 mb-2 rounded-md">Integrations</AccordionTrigger>
+                        <AccordionTrigger className="text-lg p-4 bg-meepGray-700 mb-2 rounded-md">
+                          Integrations
+                        </AccordionTrigger>
                         <AccordionContent className="flex flex-col gap-2">
                           <ul className="flex flex-col gap-2 ">
                             {crmSync.map((component) => (
-                               <MobileLink
-                               key={component.title}
-
-                               href={component.href}
-                               onOpenChange={setOpen}
-                               className="p-4 border border-meepGray-600 rounded-md"
-                             >
+                              <MobileLink
+                                key={component.title}
+                                href={component.href}
+                                onOpenChange={setOpen}
+                                className="p-4 border border-meepGray-600 rounded-md"
+                              >
                                 {component.title}
-                             </MobileLink>
-                              
+                              </MobileLink>
                             ))}
                           </ul>
                         </AccordionContent>
                       </AccordionItem>
-
                     </Accordion>
                     <div className="flex flex-col gap-2">
                       <MobileLink
@@ -256,29 +275,34 @@ export default function Navbar({ isLoggedIn }: NavbarProps) {
                       >
                         Login
                       </MobileLink>
-
                     </div>
-
                   </SheetContent>
                 </Sheet>
               </div>
             </div>
-
-
           </ul>
         </nav>
       )}
     </>
-  )
+  );
 }
 
 function MappedIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="29" height="43" viewBox="0 0 29 43" fill="none">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="29"
+      height="43"
+      viewBox="0 0 29 43"
+      fill="none"
+    >
       <circle cx="14.7351" cy="14.2833" r="13.9737" fill="#678DE3" />
-      <path d="M16.3481 39.9C15.6435 41.1625 13.8271 41.1625 13.1226 39.9L2.23064 20.3842C1.54355 19.153 2.43356 17.6371 3.84342 17.6371L25.6273 17.6371C27.0371 17.6371 27.9271 19.1531 27.24 20.3842L16.3481 39.9Z" fill="#678DE3" />
+      <path
+        d="M16.3481 39.9C15.6435 41.1625 13.8271 41.1625 13.1226 39.9L2.23064 20.3842C1.54355 19.153 2.43356 17.6371 3.84342 17.6371L25.6273 17.6371C27.0371 17.6371 27.9271 19.1531 27.24 20.3842L16.3481 39.9Z"
+        fill="#678DE3"
+      />
     </svg>
-  )
+  );
 }
 
 const ListItem = forwardRef<
@@ -292,7 +316,7 @@ const ListItem = forwardRef<
           ref={ref}
           className={cn(
             "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
+            className,
           )}
           {...props}
         >
@@ -303,15 +327,14 @@ const ListItem = forwardRef<
         </a>
       </NavigationMenuLink>
     </li>
-  )
-})
-ListItem.displayName = "ListItem"
-
+  );
+});
+ListItem.displayName = "ListItem";
 
 interface MobileLinkProps extends LinkProps {
-  onOpenChange?: (open: boolean) => void
-  children: React.ReactNode
-  className?: string
+  onOpenChange?: (open: boolean) => void;
+  children: React.ReactNode;
+  className?: string;
 }
 
 function MobileLink({
@@ -321,18 +344,18 @@ function MobileLink({
   children,
   ...props
 }: MobileLinkProps) {
-  const router = useRouter()
+  const router = useRouter();
   return (
     <Link
       href={href}
       onClick={() => {
-        router.push(href.toString())
-        onOpenChange?.(false)
+        router.push(href.toString());
+        onOpenChange?.(false);
       }}
       className={cn(className)}
       {...props}
     >
       {children}
     </Link>
-  )
+  );
 }

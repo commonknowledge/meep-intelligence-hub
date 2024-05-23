@@ -9,7 +9,11 @@ import {
   AutoUpdateCreationReviewQuery,
   AutoUpdateCreationReviewQueryVariables,
 } from "@/__generated__/graphql";
-import { ExternalDataSourceCard, DATA_SOURCE_FRAGMENT, TriggerUpdateButton } from "@/components/ExternalDataSourceCard";
+import {
+  ExternalDataSourceCard,
+  DATA_SOURCE_FRAGMENT,
+  TriggerUpdateButton,
+} from "@/components/ExternalDataSourceCard";
 import { LoadingIcon } from "@/components/ui/loadingIcon";
 import { DataSourceFieldLabel } from "@/components/DataSourceIcon";
 
@@ -47,8 +51,8 @@ export default function Page({
   const context = useContext(CreateAutoUpdateFormContext);
 
   useEffect(() => {
-    context.setStep(4)
-  }, [context])
+    context.setStep(4);
+  }, [context]);
 
   const pageQuery = useQuery<
     AutoUpdateCreationReviewQuery,
@@ -78,19 +82,20 @@ export default function Page({
           </p>
           <ul className="list-disc list-outside pl-4 space-y-3 mt-3">
             <li className="text-meepGray-300 max-w-sm">
-              <span className='align-middle'>
-                Active auto-update webhooks to start updating your data source when the 
+              <span className="align-middle">
+                Active auto-update webhooks to start updating your data source
+                when the
               </span>
               <DataSourceFieldLabel
-                className='align-middle'
+                className="align-middle"
                 label={pageQuery.data?.externalDataSource.geographyColumn}
                 crmType={pageQuery.data?.externalDataSource.crmType}
               />
-              <span className='align-middle'>
-                field changes.
-              </span>
+              <span className="align-middle">field changes.</span>
             </li>
-            <li className="text-meepGray-300 max-w-sm">Trigger an update to see the data source in action.</li>
+            <li className="text-meepGray-300 max-w-sm">
+              Trigger an update to see the data source in action.
+            </li>
           </ul>
         </header>
       ) : (
@@ -113,7 +118,11 @@ export default function Page({
             />
           </div>
           <div>
-            <TriggerUpdateButton id={externalDataSourceId} className='w-full' variant='reverse' />
+            <TriggerUpdateButton
+              id={externalDataSourceId}
+              className="w-full"
+              variant="reverse"
+            />
           </div>
         </>
       )}
@@ -128,4 +137,3 @@ export default function Page({
     </div>
   );
 }
-

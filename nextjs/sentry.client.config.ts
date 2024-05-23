@@ -12,7 +12,7 @@ Sentry.init({
 
   beforeSend(event) {
     // Do not send events if in development environment
-    if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'development') {
+    if (process.env.NEXT_PUBLIC_ENVIRONMENT === "development") {
       return null;
     }
     return event;

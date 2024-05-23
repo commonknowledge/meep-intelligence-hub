@@ -10,7 +10,7 @@ const YOUR_ORGANISATIONS = gql`
       name
     }
   }
-`
+`;
 
 export default function YourOrganisations() {
   const { data, error, loading } = useQuery(YOUR_ORGANISATIONS);
@@ -23,15 +23,13 @@ export default function YourOrganisations() {
     return <p>Loading...</p>;
   }
 
-    const orgs = data?.organisations || [];
+  const orgs = data?.organisations || [];
 
-    return (
-      <div>
-        {orgs.map((a: { id: string, name: string }) => (
-          <div key={a.id}>
-            {a.name}
-          </div>
-        ))}
-      </div>
-    )
+  return (
+    <div>
+      {orgs.map((a: { id: string; name: string }) => (
+        <div key={a.id}>{a.name}</div>
+      ))}
+    </div>
+  );
 }

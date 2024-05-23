@@ -16,16 +16,14 @@ export default async function Layout({
   const isLoggedIn = Boolean(user);
 
   return (
-    <div className='flex flex-col min-h-dvh'>
+    <div className="flex flex-col min-h-dvh">
       <AreaPattern />
-      <FeedbackBanner/>
+      <FeedbackBanner />
       <Navbar isLoggedIn={isLoggedIn} />
-    
-      <main className="p-4 relative">
-        {children}
-      </main>
+
+      <main className="p-4 relative">{children}</main>
       <Toaster />
-      <div className='flex flex-col gap-4 mt-auto mx-4'>
+      <div className="flex flex-col gap-4 mt-auto mx-4">
         {!isLoggedIn && <SignUp />}
         <PreFooter />
         <Footer />

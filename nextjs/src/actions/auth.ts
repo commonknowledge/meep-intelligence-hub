@@ -4,7 +4,7 @@
 
 export const login = (jwt: string, expiresISODate: string) => {
   localStorage.setItem("jwt", jwt);
-  console.log({ "Authorization": "JWT " + jwt })
+  console.log({ Authorization: "JWT " + jwt });
   const cookieExpires = new Date(expiresISODate).toUTCString();
   document.cookie = `jwt=${jwt}; path=/; expires=${cookieExpires}`;
   window.location.href = "/";
@@ -16,6 +16,6 @@ export const clearJwt = () => {
 };
 
 export const logout = () => {
-  clearJwt()
+  clearJwt();
   window.location.href = "/";
 };

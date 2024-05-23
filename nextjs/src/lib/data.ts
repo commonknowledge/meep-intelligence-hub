@@ -1,14 +1,26 @@
-import { AirtableLogo, ActionNetworkLogo, MailchimpIcon, MailchimpLogo, GoogleSheetsLogo, CiviCRMLogo, NationBuilderLogo, AirtableIcon } from "@/components/logos";
+import {
+  AirtableLogo,
+  ActionNetworkLogo,
+  MailchimpIcon,
+  MailchimpLogo,
+  GoogleSheetsLogo,
+  CiviCRMLogo,
+  NationBuilderLogo,
+  AirtableIcon,
+} from "@/components/logos";
 
-export const externalDataSourceOptions: Record<string, {
-  key: string,
-  modelName: string, 
-  name: string,
-  icon?: ({ className }: { className?: string | undefined; }) => any,
-  logo: ({ className }: { className?: string | undefined; }) => any,
-  screenshot: string,
-  supported: boolean
-}> = {
+export const externalDataSourceOptions: Record<
+  string,
+  {
+    key: string;
+    modelName: string;
+    name: string;
+    icon?: ({ className }: { className?: string | undefined }) => any;
+    logo: ({ className }: { className?: string | undefined }) => any;
+    screenshot: string;
+    supported: boolean;
+  }
+> = {
   airtable: {
     key: "airtable",
     modelName: "AirtableSource",
@@ -16,7 +28,7 @@ export const externalDataSourceOptions: Record<string, {
     icon: AirtableIcon,
     logo: AirtableLogo,
     screenshot: "/airtable-screenshot.png",
-    supported: true
+    supported: true,
   },
   actionNetwork: {
     key: "action-network",
@@ -24,7 +36,7 @@ export const externalDataSourceOptions: Record<string, {
     name: "Action Network",
     logo: ActionNetworkLogo,
     screenshot: "/actionNetwork-screenshot.png",
-    supported: false
+    supported: false,
   },
   mailchimp: {
     key: "mailchimp",
@@ -33,7 +45,7 @@ export const externalDataSourceOptions: Record<string, {
     icon: MailchimpIcon,
     logo: MailchimpLogo,
     screenshot: "/mailchimp-screenshot.png",
-    supported: true
+    supported: true,
   },
   googleSheets: {
     key: "google-sheets",
@@ -41,7 +53,7 @@ export const externalDataSourceOptions: Record<string, {
     name: "Google Sheets",
     logo: GoogleSheetsLogo,
     screenshot: "/googleSheets-screenshot.png",
-    supported: false
+    supported: false,
   },
   civiCRM: {
     key: "civi-crm",
@@ -49,7 +61,7 @@ export const externalDataSourceOptions: Record<string, {
     name: "Civi CRM",
     logo: CiviCRMLogo,
     screenshot: "/civiCRM-screenshot.png",
-    supported: false
+    supported: false,
   },
   nationBuilder: {
     key: "nation-builder",
@@ -57,12 +69,9 @@ export const externalDataSourceOptions: Record<string, {
     name: "NationBuilder",
     logo: NationBuilderLogo,
     screenshot: "/nationBuilder-screenshot.png",
-    supported: false
+    supported: false,
   },
-
-  
 };
-
 
 export const getSourceOptionForTypename = (typename: string) => {
   return Object.values(externalDataSourceOptions).find(

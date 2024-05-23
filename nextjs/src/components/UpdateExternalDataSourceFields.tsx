@@ -1,7 +1,11 @@
 import { FieldPath, FormProvider, useForm } from "react-hook-form";
 import { Button } from "./ui/button";
-import { ExternalDataSourceInput, FieldDefinition, PostcodesIoGeographyTypes } from "@/__generated__/graphql";
-import { PreopulatedSelectField } from "./ExternalDataSourceFields";
+import {
+  ExternalDataSourceInput,
+  FieldDefinition,
+  PostcodesIoGeographyTypes,
+} from "@/__generated__/graphql";
+import { PrepopulatedSelectField } from "./ExternalDataSourceFields";
 import {
   FormControl,
   FormField,
@@ -17,43 +21,43 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import { DataSourceFieldLabel } from "./DataSourceIcon";
 import { Input } from "@/components/ui/input";
 
-type FormInputs = ExternalDataSourceInput
+type FormInputs = ExternalDataSourceInput;
 
-export function UpdateExternalDataSourceFields ({
+export function UpdateExternalDataSourceFields({
   initialData,
   crmType,
   fieldDefinitions,
-  onSubmit
+  onSubmit,
 }: {
   onSubmit: (
     data: ExternalDataSourceInput,
-    e?: React.BaseSyntheticEvent<object, any, any> | undefined
+    e?: React.BaseSyntheticEvent<object, any, any> | undefined,
   ) => void;
   crmType: string;
   initialData?: ExternalDataSourceInput;
   fieldDefinitions?: FieldDefinition[] | null;
 }) {
   const form = useForm<FormInputs>({
-    defaultValues: initialData
+    defaultValues: initialData,
   });
 
-  function FPreopulatedSelectField ({
+  function FPrepopulatedSelectField({
     name,
     label,
     placeholder,
-    required = false
+    required = false,
   }: {
-    name: FieldPath<FormInputs>,
-    label?: string,
-    placeholder?: string
-    required?: boolean
+    name: FieldPath<FormInputs>;
+    label?: string;
+    placeholder?: string;
+    required?: boolean;
   }) {
     return (
-      <PreopulatedSelectField
+      <PrepopulatedSelectField
         name={name}
         label={label}
         placeholder={placeholder}
@@ -62,7 +66,7 @@ export function UpdateExternalDataSourceFields ({
         crmType={crmType}
         required={required}
       />
-    )
+    );
   }
 
   return (
@@ -80,16 +84,25 @@ export function UpdateExternalDataSourceFields ({
               <FormControl>
                 {fieldDefinitions?.length ? (
                   // @ts-ignore
-                  <Select value={field.value} onValueChange={field.onChange} required>
-                    <SelectTrigger className='pl-1'>
-                      <SelectValue placeholder={`Choose ${form.watch('geographyColumnType') || 'geography'} field`} />
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    required
+                  >
+                    <SelectTrigger className="pl-1">
+                      <SelectValue
+                        placeholder={`Choose ${form.watch("geographyColumnType") || "geography"} field`}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Geography field</SelectLabel>
                         {fieldDefinitions?.map((field) => (
                           <SelectItem key={field.value} value={field.value}>
-                            <DataSourceFieldLabel fieldDefinition={field} crmType={crmType} />
+                            <DataSourceFieldLabel
+                              fieldDefinition={field}
+                              crmType={crmType}
+                            />
                           </SelectItem>
                         ))}
                       </SelectGroup>
@@ -119,10 +132,20 @@ export function UpdateExternalDataSourceFields ({
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Geography type</SelectLabel>
-                      <SelectItem value={PostcodesIoGeographyTypes.Postcode}>Postcode</SelectItem>
-                      <SelectItem value={PostcodesIoGeographyTypes.Ward}>Ward</SelectItem>
-                      <SelectItem value={PostcodesIoGeographyTypes.Council}>Council</SelectItem>
-                      <SelectItem value={PostcodesIoGeographyTypes.Constituency}>Constituency</SelectItem>
+                      <SelectItem value={PostcodesIoGeographyTypes.Postcode}>
+                        Postcode
+                      </SelectItem>
+                      <SelectItem value={PostcodesIoGeographyTypes.Ward}>
+                        Ward
+                      </SelectItem>
+                      <SelectItem value={PostcodesIoGeographyTypes.Council}>
+                        Council
+                      </SelectItem>
+                      <SelectItem
+                        value={PostcodesIoGeographyTypes.Constituency}
+                      >
+                        Constituency
+                      </SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -130,15 +153,17 @@ export function UpdateExternalDataSourceFields ({
               <FormMessage />
             </FormItem>
           )}
-      />
-        <FPreopulatedSelectField name="emailField" />
-        <FPreopulatedSelectField name="phoneField" />
-        <FPreopulatedSelectField name="addressField" />
-        <FPreopulatedSelectField name="fullNameField" />
-        <FPreopulatedSelectField name="firstNameField" />
-        <FPreopulatedSelectField name="lastNameField" />
-        <Button type='submit' className='mt-4'>Save settings</Button>
+        />
+        <FPrepopulatedSelectField name="emailField" />
+        <FPrepopulatedSelectField name="phoneField" />
+        <FPrepopulatedSelectField name="addressField" />
+        <FPrepopulatedSelectField name="fullNameField" />
+        <FPrepopulatedSelectField name="firstNameField" />
+        <FPrepopulatedSelectField name="lastNameField" />
+        <Button type="submit" className="mt-4">
+          Save settings
+        </Button>
       </form>
     </FormProvider>
-  )
+  );
 }

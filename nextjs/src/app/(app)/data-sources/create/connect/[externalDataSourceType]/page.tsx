@@ -23,7 +23,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { LoadingIcon } from "@/components/ui/loadingIcon";
 import {
@@ -34,11 +34,10 @@ import {
   PostcodesIoGeographyTypes,
   TestDataSourceQuery,
   TestDataSourceQueryVariables,
-  CreateSourceMutation
-
+  CreateSourceMutation,
 } from "@/__generated__/graphql";
 import { toastPromise } from "@/lib/toast";
-import { PreopulatedSelectField } from "@/components/ExternalDataSourceFields";
+import { PrepopulatedSelectField } from "@/components/ExternalDataSourceFields";
 
 const TEST_DATA_SOURCE = gql`
   query TestDataSource($input: TestDataSourceInput!) {
@@ -50,7 +49,7 @@ const TEST_DATA_SOURCE = gql`
         value
         description
       }
-      geographyColumn,
+      geographyColumn
       geographyColumnType
       healthcheck
       remoteName
@@ -59,8 +58,8 @@ const TEST_DATA_SOURCE = gql`
 `;
 
 const CREATE_DATA_SOURCE = gql`
-  mutation CreateSource ($input: CreateExternalDataSourceInput!) {
-    createExternalDataSource (input: $input) {
+  mutation CreateSource($input: CreateExternalDataSourceInput!) {
+    createExternalDataSource(input: $input) {
       code
       errors {
         message
@@ -75,8 +74,9 @@ const CREATE_DATA_SOURCE = gql`
   }
 `;
 
-
-type FormInputs = CreateExternalDataSourceInput & ExternalDataSourceInput & TestDataSourceInput
+type FormInputs = CreateExternalDataSourceInput &
+  ExternalDataSourceInput &
+  TestDataSourceInput;
 
 export default function Page({
   params: { externalDataSourceType },
@@ -86,31 +86,35 @@ export default function Page({
   const router = useRouter();
   const context = useContext(CreateAutoUpdateFormContext);
 
-
   useEffect(() => {
-    context.setStep(2)
-  }, [context])
+    context.setStep(2);
+  }, [context]);
 
   const form = useForm<FormInputs>({
     defaultValues: {
       geographyColumnType: PostcodesIoGeographyTypes.Postcode,
-      geographyColumn: externalDataSourceType === "mailchimp" ? 'ADDRESS.zip' : '',
+      geographyColumn:
+        externalDataSourceType === "mailchimp" ? "ADDRESS.zip" : "",
       dataType: context.dataType,
-      name: '',
+      name: "",
       airtable: {
-        apiKey: '',
-        baseId: '',
-        tableId: '',
+        apiKey: "",
+        baseId: "",
+        tableId: "",
       },
       mailchimp: {
-        apiKey: '',
-        listId: ''
-      }
+        apiKey: "",
+        listId: "",
+      },
     },
   });
 
-  const [createSource, createSourceResult] = useMutation<CreateSourceMutation>(CREATE_DATA_SOURCE);
-  const [testSource, testSourceResult] = useLazyQuery<TestDataSourceQuery, TestDataSourceQueryVariables>(TEST_DATA_SOURCE);
+  const [createSource, createSourceResult] =
+    useMutation<CreateSourceMutation>(CREATE_DATA_SOURCE);
+  const [testSource, testSourceResult] = useLazyQuery<
+    TestDataSourceQuery,
+    TestDataSourceQueryVariables
+  >(TEST_DATA_SOURCE);
 
   const currentSource = testSourceResult.data;
 
@@ -121,149 +125,185 @@ export default function Page({
   /**
    * For a field that maps a data source property (e.g. address_field) to
    * a field on the remote data source (e.g. "Address Line 1"), try to guess the
-   * remote field based on a list of likely options, while preventing bad matches 
+   * remote field based on a list of likely options, while preventing bad matches
    * (e.g. "Email address" for "Address").
-   * 
+   *
    * In this example, field = "addressField", guessKeys = ["address", "line1", ...],
    * badKeys = ["email"].
    */
   function useGuessedField(
     field: string,
     guessKeys: string[],
-    badKeys: string[] = []
+    badKeys: string[] = [],
   ) {
     useEffect(() => {
-      const guess = testSourceResult.data?.testDataSource.fieldDefinitions?.find(
-        (field: ({ label?: string | null, value: string })) => {
-          const isMatch = (fieldName: string|null|undefined, guessKey: string) => {
-            if (!fieldName) {
-              return false;
-            }
-            const match = fieldName.toLowerCase().replaceAll(' ', '').includes(guessKey.replaceAll(' ', ''))
-            if (!match) {
-              return false
-            }
-            for (const badKey of badKeys) {
-              const badMatch = fieldName.toLowerCase().replaceAll(' ', '').includes(badKey.replaceAll(' ', ''))
-              if (badMatch) {
-                return false
+      const guess =
+        testSourceResult.data?.testDataSource.fieldDefinitions?.find(
+          (field: { label?: string | null; value: string }) => {
+            const isMatch = (
+              fieldName: string | null | undefined,
+              guessKey: string,
+            ) => {
+              if (!fieldName) {
+                return false;
+              }
+              const match = fieldName
+                .toLowerCase()
+                .replaceAll(" ", "")
+                .includes(guessKey.replaceAll(" ", ""));
+              if (!match) {
+                return false;
+              }
+              for (const badKey of badKeys) {
+                const badMatch = fieldName
+                  .toLowerCase()
+                  .replaceAll(" ", "")
+                  .includes(badKey.replaceAll(" ", ""));
+                if (badMatch) {
+                  return false;
+                }
+              }
+              return true;
+            };
+            for (const guessKey of guessKeys) {
+              if (
+                isMatch(field.label, guessKey) ||
+                isMatch(field.value, guessKey)
+              ) {
+                return true;
               }
             }
-            return true
-          }
-          for (const guessKey of guessKeys) {
-            if (
-              isMatch(field.label, guessKey) ||
-              isMatch(field.value, guessKey)
-            ) {
-              return true
-            }
-          }
-        }
-      )
+          },
+        );
       if (guess?.value) {
-        setGuessed(guesses => ({ ...guesses, [field]: guess?.value }))
+        setGuessed((guesses) => ({ ...guesses, [field]: guess?.value }));
         // @ts-ignore
-        form.setValue(field, guess?.value)
+        form.setValue(field, guess?.value);
       }
-    }, [testSourceResult.data?.testDataSource.fieldDefinitions, form, setGuessed])
+    }, [
+      testSourceResult.data?.testDataSource.fieldDefinitions,
+      form,
+      setGuessed,
+    ]);
   }
 
-  useGuessedField('geographyColumn', ["postcode", "postal code", "zip code", "zip"])
-  useGuessedField('emailField', ["email"])
-  useGuessedField('phoneField', ["mobile", "phone"])
-  useGuessedField('addressField', ["street", "line1", "address"], ['email'])
-  useGuessedField('fullNameField', ["full name", "name"])
-  useGuessedField('firstNameField', ["first name", "given name"])
-  useGuessedField('lastNameField', ["last name", "family name", "surname", "second name"])
+  useGuessedField("geographyColumn", [
+    "postcode",
+    "postal code",
+    "zip code",
+    "zip",
+  ]);
+  useGuessedField("emailField", ["email"]);
+  useGuessedField("phoneField", ["mobile", "phone"]);
+  useGuessedField("addressField", ["street", "line1", "address"], ["email"]);
+  useGuessedField("fullNameField", ["full name", "name"]);
+  useGuessedField("firstNameField", ["first name", "given name"]);
+  useGuessedField("lastNameField", [
+    "last name",
+    "family name",
+    "surname",
+    "second name",
+  ]);
 
   async function submitTestConnection(formData: FormInputs) {
-    console.log('form data', formData)
+    console.log("form data", formData);
     if (!formData[externalDataSourceType]) {
-      throw Error("Need some CRM connection details to proceed!")
+      throw Error("Need some CRM connection details to proceed!");
     }
     // Get the nested data source key e.g. Airtable or Mailchimp
-    const dataSourceKey = externalDataSourceType
+    const dataSourceKey = externalDataSourceType;
 
     const dataSourceValue = formData[dataSourceKey] || {};
-   
+
     const input = {
-      "type": dataSourceKey, 
-      "apiKey": dataSourceValue?.apiKey || '',
-      "baseId": "baseId" in dataSourceValue ? dataSourceValue.baseId : '',
-      "tableId": "tableId" in dataSourceValue ? dataSourceValue.tableId : '',
-      "listId": "listId" in dataSourceValue ? dataSourceValue.listId : '',
-    }
+      type: dataSourceKey,
+      apiKey: dataSourceValue?.apiKey || "",
+      baseId: "baseId" in dataSourceValue ? dataSourceValue.baseId : "",
+      tableId: "tableId" in dataSourceValue ? dataSourceValue.tableId : "",
+      listId: "listId" in dataSourceValue ? dataSourceValue.listId : "",
+    };
 
     {
-      toastPromise(testSource({
-        variables: { input }
-      }), {
-        loading: "Testing connection...",
-        success: (d: FetchResult<TestDataSourceQuery>) => {
-          if (!d.errors && d.data?.testDataSource) {
-            return "Connection is healthy";
-          }
-          throw new Error(d.errors?.map(e => e.message).join(', ') || "Unknown error")
+      toastPromise(
+        testSource({
+          variables: { input },
+        }),
+        {
+          loading: "Testing connection...",
+          success: (d: FetchResult<TestDataSourceQuery>) => {
+            if (!d.errors && d.data?.testDataSource) {
+              return "Connection is healthy";
+            }
+            throw new Error(
+              d.errors?.map((e) => e.message).join(", ") || "Unknown error",
+            );
+          },
+          error: "Connection failed",
         },
-        error: "Connection failed",
-      });
+      );
     }
   }
 
   async function submitCreateSource(formData: FormInputs) {
     if (!formData[externalDataSourceType]) {
-      throw Error("Need some CRM connection details to proceed!")
+      throw Error("Need some CRM connection details to proceed!");
     }
     // To avoid mutation of the form data
-    const genericCRMData = Object.assign({}, formData)
-    const CRMSpecificData = formData[externalDataSourceType]
+    const genericCRMData = Object.assign({}, formData);
+    const CRMSpecificData = formData[externalDataSourceType];
 
     // Remove specific CRM data from the generic data
     // TODO: make this less fragile. Currently it assumes any nested
     // object is specific to a CRM.
     for (const key of Object.keys(formData)) {
       if (typeof formData[key as keyof FormInputs] === "object") {
-        delete genericCRMData[key as keyof FormInputs]
+        delete genericCRMData[key as keyof FormInputs];
       }
     }
 
     let input: CreateExternalDataSourceInput = {
       [externalDataSourceType]: {
         ...genericCRMData,
-        ...CRMSpecificData
-      }
-    }
-    toastPromise(createSource({ variables: { input }}),
-      {
-        loading: "Saving connection...",
-        success: (d) => {
-          const errors = d.errors || d.data?.createExternalDataSource.errors || []
-          if (!errors.length && d.data?.createExternalDataSource.result) {
-            if (d.data?.createExternalDataSource.result.dataType === DataSourceType.Member) {
-              router.push(
-                `/data-sources/create/configure/${d.data.createExternalDataSource.result.id}`,
-              );
-            } else {
-              router.push(
-                `/data-sources/inspect/${d.data.createExternalDataSource.result.id}`,
-              );
-            }
-            return "Connection successful";
-          }
-          throw new Error(errors.map(e => e.message).join(', ') || "Unknown error")
-        },
-        error(e) {
-          return {
-            title: "Connection failed",
-            description: e.message,
-          }
-        }
+        ...CRMSpecificData,
       },
-    )
+    };
+    toastPromise(createSource({ variables: { input } }), {
+      loading: "Saving connection...",
+      success: (d) => {
+        const errors =
+          d.errors || d.data?.createExternalDataSource.errors || [];
+        if (!errors.length && d.data?.createExternalDataSource.result) {
+          if (
+            d.data?.createExternalDataSource.result.dataType ===
+            DataSourceType.Member
+          ) {
+            router.push(
+              `/data-sources/create/configure/${d.data.createExternalDataSource.result.id}`,
+            );
+          } else {
+            router.push(
+              `/data-sources/inspect/${d.data.createExternalDataSource.result.id}`,
+            );
+          }
+          return "Connection successful";
+        }
+        throw new Error(
+          errors.map((e) => e.message).join(", ") || "Unknown error",
+        );
+      },
+      error(e) {
+        return {
+          title: "Connection failed",
+          description: e.message,
+        };
+      },
+    });
   }
 
-  if (createSourceResult.loading || createSourceResult.data?.createExternalDataSource.result) {
+  if (
+    createSourceResult.loading ||
+    createSourceResult.data?.createExternalDataSource.result
+  ) {
     return (
       <div className="space-y-6">
         <h1 className="text-hLg">Saving connection...</h1>
@@ -275,29 +315,31 @@ export default function Page({
     );
   }
 
-  function FPreopulatedSelectField ({
+  function FPrepopulatedSelectField({
     name,
     label,
     placeholder,
-    required = false
+    required = false,
   }: {
-    name: FieldPath<FormInputs>,
-    label?: string,
-    placeholder?: string
-    required?: boolean
+    name: FieldPath<FormInputs>;
+    label?: string;
+    placeholder?: string;
+    required?: boolean;
   }) {
     return (
-      <PreopulatedSelectField
+      <PrepopulatedSelectField
         name={name}
         label={label}
         placeholder={placeholder}
-        fieldDefinitions={testSourceResult.data?.testDataSource.fieldDefinitions}
+        fieldDefinitions={
+          testSourceResult.data?.testDataSource.fieldDefinitions
+        }
         control={form.control}
         crmType={testSourceResult.data?.testDataSource.crmType!}
         guess={guessed[name]}
         required={required}
       />
-    )
+    );
   }
 
   if (currentSource?.testDataSource?.healthcheck) {
@@ -321,7 +363,11 @@ export default function Page({
                     <FormLabel>Nickname</FormLabel>
                     <FormControl>
                       {/* @ts-ignore */}
-                      <Input placeholder="My members list" {...field} required />
+                      <Input
+                        placeholder="My members list"
+                        {...field}
+                        required
+                      />
                     </FormControl>
                     <FormDescription>
                       This will be visible to your team.
@@ -338,15 +384,23 @@ export default function Page({
                     <FormLabel>Data type</FormLabel>
                     <FormControl>
                       {/* @ts-ignore */}
-                      <Select onValueChange={field.onChange} defaultValue={field.value} required>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        required
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="What kind of data is this?" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Type of data source</SelectLabel>
-                            <SelectItem value={DataSourceType.Member}>A list of members</SelectItem>
-                            <SelectItem value={DataSourceType.Other}>Other data</SelectItem>
+                            <SelectItem value={DataSourceType.Member}>
+                              A list of members
+                            </SelectItem>
+                            <SelectItem value={DataSourceType.Other}>
+                              Other data
+                            </SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -355,8 +409,12 @@ export default function Page({
                   </FormItem>
                 )}
               />
-              <div className='grid grid-cols-2 gap-4 w-full'>
-                <FPreopulatedSelectField name="geographyColumn" label="geography" required />
+              <div className="grid grid-cols-2 gap-4 w-full">
+                <FPrepopulatedSelectField
+                  name="geographyColumn"
+                  label="geography"
+                  required
+                />
                 <FormField
                   control={form.control}
                   name="geographyColumnType"
@@ -365,18 +423,44 @@ export default function Page({
                       <FormLabel>Geography Type</FormLabel>
                       <FormControl>
                         {/* @ts-ignore */}
-                        <Select onValueChange={field.onChange} defaultValue={field.value} required>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          required
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select a geography type" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
                               <SelectLabel>Geography type</SelectLabel>
-                              <SelectItem value={PostcodesIoGeographyTypes.Postcode}>Postcode</SelectItem>
-                              <SelectItem value={PostcodesIoGeographyTypes.Ward}>Ward</SelectItem>
-                              <SelectItem value={PostcodesIoGeographyTypes.Council}>Council</SelectItem>
-                              <SelectItem value={PostcodesIoGeographyTypes.Constituency}>GE2010-2019 Constituency</SelectItem>
-                              <SelectItem value={PostcodesIoGeographyTypes.Constituency_2025}>GE2024 Constituency</SelectItem>
+                              <SelectItem
+                                value={PostcodesIoGeographyTypes.Postcode}
+                              >
+                                Postcode
+                              </SelectItem>
+                              <SelectItem
+                                value={PostcodesIoGeographyTypes.Ward}
+                              >
+                                Ward
+                              </SelectItem>
+                              <SelectItem
+                                value={PostcodesIoGeographyTypes.Council}
+                              >
+                                Council
+                              </SelectItem>
+                              <SelectItem
+                                value={PostcodesIoGeographyTypes.Constituency}
+                              >
+                                GE2010-2019 Constituency
+                              </SelectItem>
+                              <SelectItem
+                                value={
+                                  PostcodesIoGeographyTypes.Constituency_2025
+                                }
+                              >
+                                GE2024 Constituency
+                              </SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
@@ -385,25 +469,29 @@ export default function Page({
                     </FormItem>
                   )}
                 />
-                {form.watch('dataType') === DataSourceType.Member && (
+                {form.watch("dataType") === DataSourceType.Member && (
                   <>
-                    <FPreopulatedSelectField name="emailField" />
-                    <FPreopulatedSelectField name="phoneField" />
-                    <FPreopulatedSelectField name="addressField" />
-                    <FPreopulatedSelectField name="fullNameField" />
-                    <FPreopulatedSelectField name="firstNameField" />
-                    <FPreopulatedSelectField name="lastNameField" />
+                    <FPrepopulatedSelectField name="emailField" />
+                    <FPrepopulatedSelectField name="phoneField" />
+                    <FPrepopulatedSelectField name="addressField" />
+                    <FPrepopulatedSelectField name="fullNameField" />
+                    <FPrepopulatedSelectField name="firstNameField" />
+                    <FPrepopulatedSelectField name="lastNameField" />
                   </>
                 )}
               </div>
-              <Button type='submit' variant="reverse" disabled={createSourceResult.loading}>
+              <Button
+                type="submit"
+                variant="reverse"
+                disabled={createSourceResult.loading}
+              >
                 Save connection
               </Button>
             </form>
           </Form>
         </FormProvider>
       </div>
-    )
+    );
   }
 
   if (testSourceResult.loading) {
@@ -435,7 +523,7 @@ export default function Page({
             onSubmit={form.handleSubmit(submitTestConnection)}
             className="space-y-7 max-w-lg"
           >
-            <div className='text-hSm'>Connection details</div>
+            <div className="text-hSm">Connection details</div>
             <FormField
               control={form.control}
               name="airtable.apiKey"
@@ -535,9 +623,10 @@ export default function Page({
         <header>
           <h1 className="text-hLg">Connecting to your Mailchimp audience</h1>
           <p className="mt-6 text-meepGray-400 max-w-lg">
-            In order to send data across to your Mailchimp audience, we{"'"}ll need a few
-            details that gives us permission to make updates to your audience, as
-            well as tell us which audience to update in the first place.
+            In order to send data across to your Mailchimp audience, we{"'"}ll
+            need a few details that gives us permission to make updates to your
+            audience, as well as tell us which audience to update in the first
+            place.
           </p>
         </header>
         <Form {...form}>
@@ -545,7 +634,7 @@ export default function Page({
             onSubmit={form.handleSubmit(submitTestConnection)}
             className="space-y-7 max-w-lg"
           >
-            <div className='text-hSm'>Connection details</div>
+            <div className="text-hSm">Connection details</div>
             <FormField
               control={form.control}
               name="mailchimp.apiKey"
@@ -606,7 +695,11 @@ export default function Page({
               >
                 Back
               </Button>
-              <Button type="submit" variant={"reverse"} disabled={testSourceResult.loading}>
+              <Button
+                type="submit"
+                variant={"reverse"}
+                disabled={testSourceResult.loading}
+              >
                 Test connection
               </Button>
             </div>
@@ -615,7 +708,6 @@ export default function Page({
       </div>
     );
   }
-
 
   return null;
 }

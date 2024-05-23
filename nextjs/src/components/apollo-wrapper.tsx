@@ -7,7 +7,7 @@ import {
   NextSSRInMemoryCache,
   NextSSRApolloClient,
 } from "@apollo/experimental-nextjs-app-support/ssr";
-import { authenticationHeaders } from '@/lib/auth';
+import { authenticationHeaders } from "@/lib/auth";
 
 /**
  * Creates an apollo client that can be used in client components.

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   MapReportConstituencyStatsQuery,
@@ -13,93 +13,123 @@ import {
   MapReportWardStatsQueryVariables,
 } from "@/__generated__/graphql";
 import { Fragment, useContext, useEffect, useState } from "react";
-import Map, { Layer, Source, LayerProps, Popup, ViewState, MapboxGeoJSONFeature } from "react-map-gl";
+import Map, {
+  Layer,
+  Source,
+  LayerProps,
+  Popup,
+  ViewState,
+  MapboxGeoJSONFeature,
+} from "react-map-gl";
 import { gql, useQuery } from "@apollo/client";
 import { ReportContext } from "@/app/reports/[id]/context";
 import { LoadingIcon } from "@/components/ui/loadingIcon";
-import { scaleLinear, scaleSequential } from 'd3-scale'
-import { interpolateInferno } from 'd3-scale-chromatic'
-import { Point } from "geojson"
+import { scaleLinear, scaleSequential } from "d3-scale";
+import { interpolateInferno } from "d3-scale-chromatic";
+import { Point } from "geojson";
 import { atom, useAtom } from "jotai";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import { z } from "zod";
-import { layerColour, useLoadedMap, isConstituencyPanelOpenAtom } from "@/app/reports/[id]/lib";
+import {
+  layerColour,
+  useLoadedMap,
+  isConstituencyPanelOpenAtom,
+} from "@/app/reports/[id]/lib";
 import { constituencyPanelTabAtom } from "@/app/reports/[id]/ConstituenciesPanel";
 import { authenticationHeaders } from "@/lib/auth";
 
-const MAX_REGION_ZOOM = 8
-export const MAX_CONSTITUENCY_ZOOM = 10
-const MIN_MEMBERS_ZOOM = 12
+const MAX_REGION_ZOOM = 8;
+export const MAX_CONSTITUENCY_ZOOM = 10;
+const MIN_MEMBERS_ZOOM = 12;
 
 const viewStateAtom = atom<Partial<ViewState>>({
   longitude: -2.296605,
   latitude: 53.593349,
-  zoom: 6
-})
+  zoom: 6,
+});
 
-const selectedSourceMarkerAtom = atom<MapboxGeoJSONFeature | null>(null)
+const selectedSourceMarkerAtom = atom<MapboxGeoJSONFeature | null>(null);
 
-export const selectedConstituencyAtom = atom<string | null>(null)
+export const selectedConstituencyAtom = atom<string | null>(null);
 
-export function ReportMap () {
-  const { id, displayOptions } = useContext(ReportContext)
-  const analytics = useQuery<MapReportLayerAnalyticsQuery, MapReportLayerAnalyticsQueryVariables>(MAP_REPORT_LAYER_ANALYTICS, {
+export function ReportMap() {
+  const { id, displayOptions } = useContext(ReportContext);
+  const analytics = useQuery<
+    MapReportLayerAnalyticsQuery,
+    MapReportLayerAnalyticsQueryVariables
+  >(MAP_REPORT_LAYER_ANALYTICS, {
     variables: {
       reportID: id,
-    }
-  })
+    },
+  });
 
-  const regionAnalytics = useQuery<MapReportRegionStatsQuery, MapReportRegionStatsQueryVariables>(MAP_REPORT_REGION_STATS, {
+  const regionAnalytics = useQuery<
+    MapReportRegionStatsQuery,
+    MapReportRegionStatsQueryVariables
+  >(MAP_REPORT_REGION_STATS, {
     variables: {
       reportID: id,
-    }
-  })
+    },
+  });
 
-  const constituencyAnalytics = useQuery<MapReportConstituencyStatsQuery, MapReportConstituencyStatsQueryVariables>(MAP_REPORT_CONSTITUENCY_STATS, {
+  const constituencyAnalytics = useQuery<
+    MapReportConstituencyStatsQuery,
+    MapReportConstituencyStatsQueryVariables
+  >(MAP_REPORT_CONSTITUENCY_STATS, {
     variables: {
       reportID: id,
-    }
-  })
+    },
+  });
 
-  const wardAnalytics = useQuery<MapReportWardStatsQuery, MapReportWardStatsQueryVariables>(MAP_REPORT_WARD_STATS, {
+  const wardAnalytics = useQuery<
+    MapReportWardStatsQuery,
+    MapReportWardStatsQueryVariables
+  >(MAP_REPORT_WARD_STATS, {
     variables: {
       reportID: id,
-    }
-  })
+    },
+  });
 
-  const mapbox = useLoadedMap()
+  const mapbox = useLoadedMap();
 
   useEffect(() => {
-    console.log("Map", mapbox.loadedMap)
-  }, [mapbox.loadedMap])
+    console.log("Map", mapbox.loadedMap);
+  }, [mapbox.loadedMap]);
 
-  const TILESETS: Record<"EERs" | "constituencies" | "wards", {
-    name: string,
-    singular: string,
-    mapboxSourceId: string,
-    sourceLayerId?: string,
-    promoteId: string,
-    labelId: string,
-    mapboxSourceProps?: { maxzoom?: number },
-    mapboxLayerProps?: Omit<LayerProps, 'type' | 'url' | 'id' | 'paint' | 'layout'>,
-    data: MapReportRegionStatsQuery['mapReport']['importedDataCountByRegion'],
-    downloadUrl?: string
-  }> = {
+  const TILESETS: Record<
+    "EERs" | "constituencies" | "wards",
+    {
+      name: string;
+      singular: string;
+      mapboxSourceId: string;
+      sourceLayerId?: string;
+      promoteId: string;
+      labelId: string;
+      mapboxSourceProps?: { maxzoom?: number };
+      mapboxLayerProps?: Omit<
+        LayerProps,
+        "type" | "url" | "id" | "paint" | "layout"
+      >;
+      data: MapReportRegionStatsQuery["mapReport"]["importedDataCountByRegion"];
+      downloadUrl?: string;
+    }
+  > = {
     EERs: {
       name: "regions",
       singular: "region",
       mapboxSourceId: "commonknowledge.awsfhx20",
-      downloadUrl: "https://ckan.publishing.service.gov.uk/dataset/european-electoral-regions-december-2018-boundaries-uk-buc1/resource/b268c97f-2507-4477-9149-0a0c5d2bfbca",
+      downloadUrl:
+        "https://ckan.publishing.service.gov.uk/dataset/european-electoral-regions-december-2018-boundaries-uk-buc1/resource/b268c97f-2507-4477-9149-0a0c5d2bfbca",
       sourceLayerId: "European_Electoral_Regions_De-bxyqod",
       promoteId: "eer18cd",
       labelId: "eer18nm",
       data: regionAnalytics.data?.mapReport.importedDataCountByRegion || [],
       mapboxSourceProps: {
-      //   maxzoom: MAX_REGION_ZOOM
+        //   maxzoom: MAX_REGION_ZOOM
       },
       mapboxLayerProps: {
-        maxzoom: MAX_REGION_ZOOM
-      }
+        maxzoom: MAX_REGION_ZOOM,
+      },
     },
     constituencies: {
       name: "GE2019 constituencies",
@@ -108,12 +138,14 @@ export function ReportMap () {
       sourceLayerId: "Westminster_Parliamentary_Con-6i1rlq",
       promoteId: "pcon16cd",
       labelId: "pcon16nm",
-      data: constituencyAnalytics.data?.mapReport.importedDataCountByConstituency || [],
+      data:
+        constituencyAnalytics.data?.mapReport.importedDataCountByConstituency ||
+        [],
       mapboxSourceProps: {},
       mapboxLayerProps: {
         minzoom: MAX_REGION_ZOOM,
         maxzoom: MAX_CONSTITUENCY_ZOOM,
-      }
+      },
     },
     wards: {
       name: "wards",
@@ -126,9 +158,9 @@ export function ReportMap () {
       mapboxSourceProps: {},
       mapboxLayerProps: {
         minzoom: MAX_CONSTITUENCY_ZOOM,
-      }
-    }
-  }
+      },
+    },
+  };
 
   function addChloroplethDataToMapbox(
     gss: string,
@@ -136,107 +168,157 @@ export function ReportMap () {
     mapboxSourceId: string,
     sourceLayerId: string,
   ) {
-    mapbox.loadedMap?.setFeatureState({
-      source: mapboxSourceId,
-      sourceLayer: sourceLayerId,
-      id: gss,
-    }, {
-      count: count
-    })
+    mapbox.loadedMap?.setFeatureState(
+      {
+        source: mapboxSourceId,
+        sourceLayer: sourceLayerId,
+        id: gss,
+      },
+      {
+        count: count,
+      },
+    );
   }
 
-  useEffect(function setFeatureState() {
-    if (!mapbox.loadedMap) return
-    Object.values(TILESETS)?.forEach((tileset) => {
-      tileset.data?.forEach((area) => {
-        if (area?.gss && area?.count && tileset.sourceLayerId) {
-          try {
-            addChloroplethDataToMapbox(area.gss, area.count, tileset.mapboxSourceId, tileset.sourceLayerId)
-          } catch {
-            mapbox.loadedMap?.on('load', () => {
-              addChloroplethDataToMapbox(area.gss!, area.count, tileset.mapboxSourceId, tileset.sourceLayerId!) 
-            })
+  useEffect(
+    function setFeatureState() {
+      if (!mapbox.loadedMap) return;
+      Object.values(TILESETS)?.forEach((tileset) => {
+        tileset.data?.forEach((area) => {
+          if (area?.gss && area?.count && tileset.sourceLayerId) {
+            try {
+              addChloroplethDataToMapbox(
+                area.gss,
+                area.count,
+                tileset.mapboxSourceId,
+                tileset.sourceLayerId,
+              );
+            } catch {
+              mapbox.loadedMap?.on("load", () => {
+                addChloroplethDataToMapbox(
+                  area.gss!,
+                  area.count,
+                  tileset.mapboxSourceId,
+                  tileset.sourceLayerId!,
+                );
+              });
+            }
           }
-        }
-      })
-    })
-  }, [regionAnalytics, constituencyAnalytics, wardAnalytics, TILESETS, mapbox.loadedMap])
+        });
+      });
+    },
+    [
+      regionAnalytics,
+      constituencyAnalytics,
+      wardAnalytics,
+      TILESETS,
+      mapbox.loadedMap,
+    ],
+  );
 
   const requiredImages = [
     {
-      url: () => new URL('/markers/default.png', window.location.href).toString(),
-      name: 'meep-marker-0'
+      url: () =>
+        new URL("/markers/default.png", window.location.href).toString(),
+      name: "meep-marker-0",
     },
     {
-      url: () => new URL('/markers/default-2.png', window.location.href).toString(),
-      name: 'meep-marker-1'
+      url: () =>
+        new URL("/markers/default-2.png", window.location.href).toString(),
+      name: "meep-marker-1",
     },
     {
-      url: () => new URL('/markers/selected.png', window.location.href).toString(),
-      name: 'meep-marker-selected'
+      url: () =>
+        new URL("/markers/selected.png", window.location.href).toString(),
+      name: "meep-marker-selected",
     },
-  ]
+  ];
 
-  const [loadedImages, setLoadedImages] = useState<string[]>([])
+  const [loadedImages, setLoadedImages] = useState<string[]>([]);
 
-  useEffect(function loadIcons() {
-    if (!mapbox.loadedMap) return
-    requiredImages.forEach((requiredImage) => {
-      console.log("Loading", requiredImage.url())
-      // Load an image from an external URL.
-      mapbox.loadedMap!.loadImage(
-        requiredImage.url(),
-        (error, image) => {
+  useEffect(
+    function loadIcons() {
+      if (!mapbox.loadedMap) return;
+      requiredImages.forEach((requiredImage) => {
+        console.log("Loading", requiredImage.url());
+        // Load an image from an external URL.
+        mapbox.loadedMap!.loadImage(requiredImage.url(), (error, image) => {
           try {
             if (error) throw error;
-            if (!image) throw new Error('Marker icon did not load')
+            if (!image) throw new Error("Marker icon did not load");
             mapbox.loadedMap!.addImage(requiredImage.name, image);
-            setLoadedImages(loadedImages => [...loadedImages, requiredImage.name])
+            setLoadedImages((loadedImages) => [
+              ...loadedImages,
+              requiredImage.name,
+            ]);
           } catch (e) {
-            console.error("Failed to load image", e)
+            console.error("Failed to load image", e);
           }
-        }
-      )
-    })
-  }, [mapbox.loadedMap, setLoadedImages])
+        });
+      });
+    },
+    [mapbox.loadedMap, setLoadedImages],
+  );
 
-  const [selectedSourceMarker, setSelectedSourceMarker] = useAtom(selectedSourceMarkerAtom)
-  const [selectedConstituency, setSelectedConstituency] = useAtom(selectedConstituencyAtom)
-  const [tab, setTab] = useAtom(constituencyPanelTabAtom)
+  const [selectedSourceMarker, setSelectedSourceMarker] = useAtom(
+    selectedSourceMarkerAtom,
+  );
+  const [selectedConstituency, setSelectedConstituency] = useAtom(
+    selectedConstituencyAtom,
+  );
+  const [tab, setTab] = useAtom(constituencyPanelTabAtom);
   // const isConstituencyPanelOpenAtom
-  const [isConstituencyPanelOpen, setIsConstituencyPanelOpen] = useAtom(isConstituencyPanelOpenAtom)
+  const [isConstituencyPanelOpen, setIsConstituencyPanelOpen] = useAtom(
+    isConstituencyPanelOpenAtom,
+  );
 
-  useEffect(function selectConstituency() {
-    mapbox.loadedMap?.on('mouseover', `${TILESETS.constituencies.mapboxSourceId}-fill`, () => {
-      const canvas = mapbox.loadedMap?.getCanvas()
-      if (!canvas) return
-      canvas.style.cursor = 'pointer'
-    })
-    mapbox.loadedMap?.on('mouseleave', `${TILESETS.constituencies.mapboxSourceId}-fill`, () => {
-      const canvas = mapbox.loadedMap?.getCanvas()
-      if (!canvas) return
-      canvas.style.cursor = ''
-    })
-    mapbox.loadedMap?.on('click', `${TILESETS.constituencies.mapboxSourceId}-fill`, event => {
-      try {
-        const feature = event.features?.[0]
-        if (feature) {
-          if (feature.source === TILESETS.constituencies.mapboxSourceId) {
-            const id = feature.properties?.[TILESETS.constituencies.promoteId]
-            if (id) {
-              setSelectedConstituency(id)
-              setIsConstituencyPanelOpen(true)
-              setTab("selected")
+  useEffect(
+    function selectConstituency() {
+      mapbox.loadedMap?.on(
+        "mouseover",
+        `${TILESETS.constituencies.mapboxSourceId}-fill`,
+        () => {
+          const canvas = mapbox.loadedMap?.getCanvas();
+          if (!canvas) return;
+          canvas.style.cursor = "pointer";
+        },
+      );
+      mapbox.loadedMap?.on(
+        "mouseleave",
+        `${TILESETS.constituencies.mapboxSourceId}-fill`,
+        () => {
+          const canvas = mapbox.loadedMap?.getCanvas();
+          if (!canvas) return;
+          canvas.style.cursor = "";
+        },
+      );
+      mapbox.loadedMap?.on(
+        "click",
+        `${TILESETS.constituencies.mapboxSourceId}-fill`,
+        (event) => {
+          try {
+            const feature = event.features?.[0];
+            if (feature) {
+              if (feature.source === TILESETS.constituencies.mapboxSourceId) {
+                const id =
+                  feature.properties?.[TILESETS.constituencies.promoteId];
+                if (id) {
+                  setSelectedConstituency(id);
+                  setIsConstituencyPanelOpen(true);
+                  setTab("selected");
+                }
+              }
             }
+          } catch (e) {
+            console.error("Failed to select constituency", e);
           }
-        }
-      } catch (e) {
-        console.error("Failed to select constituency", e)
-      }
-    })
-  }, [mapbox.loadedMap])
+        },
+      );
+    },
+    [mapbox.loadedMap],
+  );
 
-  const [viewState, setViewState] = useAtom(viewStateAtom)
+  const [viewState, setViewState] = useAtom(viewStateAtom);
 
   const { data: selectedPointData, loading: selectedPointLoading } = useQuery<
     MapReportLayerGeoJsonPointQuery,
@@ -252,9 +334,9 @@ export function ReportMap () {
     { execution: analytics, label: "Report layers" },
     { execution: regionAnalytics, label: "Regional stats" },
     { execution: constituencyAnalytics, label: "Constituency stats" },
-    { execution: wardAnalytics, label: "Ward stats" }
-  ]
-  const loading = loadingLayers.some((query) => query.execution.loading)
+    { execution: wardAnalytics, label: "Ward stats" },
+  ];
+  const loading = loadingLayers.some((query) => query.execution.loading);
 
   return (
     <>
@@ -302,12 +384,12 @@ export function ReportMap () {
               const min =
                 tileset.data.reduce(
                   (min, p) => (p?.count! < min ? p?.count! : min),
-                  tileset.data?.[0]?.count!
+                  tileset.data?.[0]?.count!,
                 ) || 0;
               const max =
                 tileset.data.reduce(
                   (max, p) => (p?.count! > max ? p?.count! : max),
-                  tileset.data?.[0]?.count!
+                  tileset.data?.[0]?.count!,
                 ) || 1;
 
               // Uses 0-1 for easy interpolation
@@ -633,29 +715,52 @@ export function ReportMap () {
   );
 }
 
-function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { externalDataSourceId: string, index: number }) {
-  const mapbox = useLoadedMap()
-  const [selectedSourceMarker, setSelectedSourceMarker] =  useAtom(selectedSourceMarkerAtom)
+function ExternalDataSourcePointMarkers({
+  externalDataSourceId,
+  index,
+}: {
+  externalDataSourceId: string;
+  index: number;
+}) {
+  const mapbox = useLoadedMap();
+  const [selectedSourceMarker, setSelectedSourceMarker] = useAtom(
+    selectedSourceMarkerAtom,
+  );
 
-  useEffect(function selectMarker() {
-    mapbox.loadedMap?.on('mouseover', `${externalDataSourceId}-marker`, () => {
-      const canvas = mapbox.loadedMap?.getCanvas()
-      if (!canvas) return
-      canvas.style.cursor = 'pointer'
-    })
-    mapbox.loadedMap?.on('mouseleave', `${externalDataSourceId}-marker`, () => {
-      const canvas = mapbox.loadedMap?.getCanvas()
-      if (!canvas) return
-      canvas.style.cursor = ''
-    })
-    mapbox.loadedMap?.on('click', `${externalDataSourceId}-marker`, event => {
-      const feature = event.features?.[0]
-      if (feature?.properties?.id) {
-        setSelectedSourceMarker(feature)
-      }
-    })
-  }, [mapbox.loadedMap, externalDataSourceId])
-  
+  useEffect(
+    function selectMarker() {
+      mapbox.loadedMap?.on(
+        "mouseover",
+        `${externalDataSourceId}-marker`,
+        () => {
+          const canvas = mapbox.loadedMap?.getCanvas();
+          if (!canvas) return;
+          canvas.style.cursor = "pointer";
+        },
+      );
+      mapbox.loadedMap?.on(
+        "mouseleave",
+        `${externalDataSourceId}-marker`,
+        () => {
+          const canvas = mapbox.loadedMap?.getCanvas();
+          if (!canvas) return;
+          canvas.style.cursor = "";
+        },
+      );
+      mapbox.loadedMap?.on(
+        "click",
+        `${externalDataSourceId}-marker`,
+        (event) => {
+          const feature = event.features?.[0];
+          if (feature?.properties?.id) {
+            setSelectedSourceMarker(feature);
+          }
+        },
+      );
+    },
+    [mapbox.loadedMap, externalDataSourceId],
+  );
+
   return (
     <>
       <Source
@@ -676,14 +781,18 @@ function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { exte
               "icon-allow-overlap": true,
               "icon-ignore-placement": true,
               "icon-size": 0.75,
-              "icon-anchor": "bottom"
+              "icon-anchor": "bottom",
             }}
             minzoom={MIN_MEMBERS_ZOOM}
-            {...(
-              selectedSourceMarker?.properties?.id
-              ? { filter: ["!=", selectedSourceMarker?.properties?.id, ["get", "id"]] }
-              : {}
-            )}
+            {...(selectedSourceMarker?.properties?.id
+              ? {
+                  filter: [
+                    "!=",
+                    selectedSourceMarker?.properties?.id,
+                    ["get", "id"],
+                  ],
+                }
+              : {})}
           />
         ) : (
           <Layer
@@ -697,11 +806,15 @@ function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { exte
               "circle-color": layerColour(index, externalDataSourceId),
             }}
             minzoom={MIN_MEMBERS_ZOOM}
-            {...(
-              selectedSourceMarker?.properties?.id
-              ? { filter: ["!=", selectedSourceMarker?.properties?.id, ["get", "id"]] }
-              : {}
-            )}
+            {...(selectedSourceMarker?.properties?.id
+              ? {
+                  filter: [
+                    "!=",
+                    selectedSourceMarker?.properties?.id,
+                    ["get", "id"],
+                  ],
+                }
+              : {})}
           />
         )}
         {!!selectedSourceMarker?.properties?.id && (
@@ -716,7 +829,7 @@ function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { exte
               "icon-size": 0.75,
               "icon-anchor": "bottom",
               "icon-allow-overlap": true,
-              "icon-ignore-placement": true
+              "icon-ignore-placement": true,
             }}
             minzoom={MIN_MEMBERS_ZOOM}
             filter={["==", selectedSourceMarker.properties.id, ["get", "id"]]}
@@ -724,55 +837,55 @@ function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { exte
         )}
       </Source>
     </>
-  )
+  );
 }
 
 /**
  * Placeholder layer to refer to in `beforeId`.
  * See https://github.com/visgl/react-map-gl/issues/939#issuecomment-625290200
  */
-export function PlaceholderLayer (props: Partial<LayerProps>) {
+export function PlaceholderLayer(props: Partial<LayerProps>) {
   return (
     <Layer
       {...props}
-      type='background'
-      layout={{ visibility: 'none' }}
+      type="background"
+      layout={{ visibility: "none" }}
       paint={{}}
     />
-  )
+  );
 }
 
 const MAP_REPORT_LAYER_POINT = gql`
-query MapReportLayerGeoJSONPoint($genericDataId: String!) {
-  importedDataGeojsonPoint(genericDataId: $genericDataId) {
-    id
-    type
-    geometry {
-      type
-      coordinates
-    }
-    properties {
+  query MapReportLayerGeoJSONPoint($genericDataId: String!) {
+    importedDataGeojsonPoint(genericDataId: $genericDataId) {
       id
-      lastUpdate
-      name
-      phone
-      email
-      postcodeData {
-        postcode
+      type
+      geometry {
+        type
+        coordinates
       }
-      json
-      remoteUrl
-      dataType {
-        dataSet {
-          externalDataSource {
-            name
+      properties {
+        id
+        lastUpdate
+        name
+        phone
+        email
+        postcodeData {
+          postcode
+        }
+        json
+        remoteUrl
+        dataType {
+          dataSet {
+            externalDataSource {
+              name
+            }
           }
         }
       }
     }
   }
-}
-`
+`;
 
 export const MAP_REPORT_LAYER_ANALYTICS = gql`
   query MapReportLayerAnalytics($reportID: ID!) {
@@ -790,7 +903,7 @@ export const MAP_REPORT_LAYER_ANALYTICS = gql`
       }
     }
   }
-`
+`;
 
 const MAP_REPORT_REGION_STATS = gql`
   query MapReportRegionStats($reportID: ID!) {
@@ -813,7 +926,7 @@ const MAP_REPORT_REGION_STATS = gql`
       }
     }
   }
-`
+`;
 
 const MAP_REPORT_CONSTITUENCY_STATS = gql`
   query MapReportConstituencyStats($reportID: ID!) {
@@ -836,7 +949,7 @@ const MAP_REPORT_CONSTITUENCY_STATS = gql`
       }
     }
   }
-`
+`;
 
 const MAP_REPORT_WARD_STATS = gql`
   query MapReportWardStats($reportID: ID!) {
@@ -859,4 +972,4 @@ const MAP_REPORT_WARD_STATS = gql`
       }
     }
   }
-`
+`;

@@ -16,9 +16,8 @@ import {
 import { toast } from "sonner";
 import { UpdateMappingForm } from "@/components/UpdateMappingForm";
 import { LoadingIcon } from "@/components/ui/loadingIcon";
-import { UDPATE_EXTERNAL_DATA_SOURCE } from '@/graphql/mutations';
-import { triggerAnalyticsEvent } from "@/app/utils/posthogutils"; 
-
+import { UDPATE_EXTERNAL_DATA_SOURCE } from "@/graphql/mutations";
+import { triggerAnalyticsEvent } from "@/app/utils/posthogutils";
 
 const GET_UPDATE_CONFIG = gql`
   query GetSourceMapping($ID: ID!) {
@@ -57,18 +56,27 @@ export default function Page({
   const context = useContext(CreateAutoUpdateFormContext);
 
   useEffect(() => {
-    context.setStep(3)
-  }, [context])
+    context.setStep(3);
+  }, [context]);
 
-  const [updateSource, configResult] = useMutation<UpdateExternalDataSourceMutation, UpdateExternalDataSourceMutationVariables>(UDPATE_EXTERNAL_DATA_SOURCE);
+  const [updateSource, configResult] = useMutation<
+    UpdateExternalDataSourceMutation,
+    UpdateExternalDataSourceMutationVariables
+  >(UDPATE_EXTERNAL_DATA_SOURCE);
 
-  const externalDataSource = useQuery<GetSourceMappingQuery, GetSourceMappingQueryVariables>(GET_UPDATE_CONFIG, {
+  const externalDataSource = useQuery<
+    GetSourceMappingQuery,
+    GetSourceMappingQueryVariables
+  >(GET_UPDATE_CONFIG, {
     variables: {
       ID: externalDataSourceId,
     },
   });
 
-  function submit(input: ExternalDataSourceInput, e?: React.BaseSyntheticEvent<object, any, any> | undefined) {
+  function submit(
+    input: ExternalDataSourceInput,
+    e?: React.BaseSyntheticEvent<object, any, any> | undefined,
+  ) {
     e?.preventDefault();
     const create = updateSource({
       variables: { input: { id: externalDataSourceId, ...input } },
@@ -80,7 +88,7 @@ export default function Page({
           router.push(
             `/data-sources/create/review/${d.data.updateExternalDataSource.id}`,
           );
-        };
+        }
         triggerAnalyticsEvent("Data source created successfully", {
           datasource: d.data?.updateExternalDataSource.__typename,
           remoteName: d.data?.updateExternalDataSource.name,
@@ -89,7 +97,7 @@ export default function Page({
       },
       error: (e: any) => {
         triggerAnalyticsEvent("Data source creation failed", {
-          message: e.message, 
+          message: e.message,
         });
         return `Couldn't save`;
       },
@@ -115,16 +123,23 @@ export default function Page({
         <UpdateMappingForm
           crmType={externalDataSource.data?.externalDataSource.crmType}
           initialData={{
-            geographyColumn: externalDataSource.data?.externalDataSource.geographyColumn,
-            geographyColumnType: externalDataSource.data?.externalDataSource.geographyColumnType,
+            geographyColumn:
+              externalDataSource.data?.externalDataSource.geographyColumn,
+            geographyColumnType:
+              externalDataSource.data?.externalDataSource.geographyColumnType,
             // Trim out the __typenames
-            updateMapping: externalDataSource.data?.externalDataSource.updateMapping?.map((m) => ({
-              source: m.source,
-              sourcePath: m.sourcePath,
-              destinationColumn: m.destinationColumn,
-            })),
+            updateMapping:
+              externalDataSource.data?.externalDataSource.updateMapping?.map(
+                (m) => ({
+                  source: m.source,
+                  sourcePath: m.sourcePath,
+                  destinationColumn: m.destinationColumn,
+                }),
+              ),
           }}
-          fieldDefinitions={externalDataSource.data?.externalDataSource.fieldDefinitions}
+          fieldDefinitions={
+            externalDataSource.data?.externalDataSource.fieldDefinitions
+          }
           onSubmit={submit}
           saveButtonLabel="Continue"
         >
