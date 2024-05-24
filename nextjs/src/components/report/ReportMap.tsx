@@ -299,16 +299,25 @@ export function ReportMap () {
         {mapbox.loaded && (
           <>
             {Object.entries(TILESETS).map(([key, tileset]) => {
-              const min =
+              let min =
                 tileset.data.reduce(
                   (min, p) => (p?.count! < min ? p?.count! : min),
                   tileset.data?.[0]?.count!
                 ) || 0;
-              const max =
+              let max =
                 tileset.data.reduce(
                   (max, p) => (p?.count! > max ? p?.count! : max),
                   tileset.data?.[0]?.count!
                 ) || 1;
+
+              // Ensure min and max are different to fix interpolation errors
+              if (min === max) {
+                if (min >= 1) {
+                  min = min - 1
+                } else {
+                  max = max + 1
+                }
+              }
 
               // Uses 0-1 for easy interpolation
               // go from 0-100% and return real numbers
@@ -334,10 +343,12 @@ export function ReportMap () {
 
               let steps = Math.min(max, 30); // Max 30 steps
               steps = Math.max(steps, 3); // Min 3 steps (for valid Mapbox fill-color rule)
-              const colourStops = new Array(steps - 1)
+              const colourStops = new Array(steps)
                 .fill(0)
                 .map((_, i) => i / steps)
-                .map((n) => [legendScale(n), colourScale(legendScale(n))])
+                .map((n) => {
+                  return [legendScale(n), colourScale(legendScale(n))]
+                })
                 .flat();
 
               const SOURCE_FILL = `${tileset.name}_SOURCE_FILL`;
