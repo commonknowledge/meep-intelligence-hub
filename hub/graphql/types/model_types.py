@@ -536,6 +536,8 @@ class Area:
 @strawberry.type
 class GroupedDataCount:
     label: Optional[str]
+    # Provide area_type if gss code is not unique (e.g. WMC and WMC23 constituencies)
+    area_type: Optional[str] = None
     gss: Optional[str]
     count: int
     area_data: Optional[strawberry.Private[Area]] = None
@@ -544,7 +546,13 @@ class GroupedDataCount:
     async def gss_area(self, info: Info) -> Optional[Area]:
         if self.area_data is not None:
             return self.area_data
-        loader = FieldDataLoaderFactory.get_loader_class(models.Area, field="gss")
+        if self.area_type is not None:
+            filters = {"area_type__code": self.area_type}
+        else:
+            filters = {}
+        loader = FieldDataLoaderFactory.get_loader_class(
+            models.Area, field="gss", filters=filters
+        )
         return await loader(context=info.context).load(self.gss)
 
 
@@ -602,24 +610,17 @@ class Analytics:
     @strawberry_django.field
     def imported_data_count_by_region(self) -> List[GroupedDataCount]:
         data = self.imported_data_count_by_region()
-        # areas = models.Area.objects.filter(gss__in=[datum["gss"] for datum in data])
-        return [
-            GroupedDataCount(
-                **datum
-                # area_data=next((area for area in areas if area.gss == datum.get("gss", None)), None),
-            )
-            for datum in data
-        ]
+        return [GroupedDataCount(**datum) for datum in data]
 
     @strawberry_django.field
     def imported_data_count_by_constituency(self) -> List[GroupedDataCount]:
         data = self.imported_data_count_by_constituency()
-        return [GroupedDataCount(**datum) for datum in data]
+        return [GroupedDataCount(**datum, area_type="WMC") for datum in data]
 
     @strawberry_django.field
     def imported_data_count_by_constituency_2024(self) -> List[GroupedDataCount]:
         data = self.imported_data_count_by_constituency_2024()
-        return [GroupedDataCount(**datum) for datum in data]
+        return [GroupedDataCount(**datum, area_type="WMC23") for datum in data]
 
     @strawberry_django.field
     def imported_data_count_by_council(self) -> List[GroupedDataCount]:
@@ -649,6 +650,7 @@ class Analytics:
                             sources=[
                                 GroupedDataCountForSource(
                                     **source,
+                                    area_type="WMC",
                                     gss=gss,
                                 )
                                 for source in group
@@ -664,7 +666,7 @@ class Analytics:
         res = self.imported_data_count_by_constituency(gss=gss)
         if len(res) == 0:
             return None
-        return GroupedDataCount(**res[0])
+        return GroupedDataCount(**res[0], area_type="WMC")
 
     @strawberry_django.field
     def imported_data_count_for_constituency_2024(
@@ -673,7 +675,7 @@ class Analytics:
         res = self.imported_data_count_by_constituency_2024(gss=gss)
         if len(res) == 0:
             return None
-        return GroupedDataCount(**res[0])
+        return GroupedDataCount(**res[0], area_type="WMC23")
 
 
 @strawberry.type
