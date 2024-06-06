@@ -968,6 +968,7 @@ class ExternalDataSource(PolymorphicModel, Analytics):
         and are uppercased versions of the PostcodesIO terms
         (for ease of mapping).
         """
+
         ADDRESS = "ADDRESS", "Address"
         POSTCODE = "POSTCODE", "Postcode"
         WARD = "WARD", "Ward"
@@ -975,7 +976,7 @@ class ExternalDataSource(PolymorphicModel, Analytics):
         PARLIAMENTARY_CONSTITUENCY = "PARLIAMENTARY_CONSTITUENCY", "Constituency"
         PARLIAMENTARY_CONSTITUENCY_2025 = (
             "PARLIAMENTARY_CONSTITUENCY_2025",
-        "Constituency (2024)",
+            "Constituency (2024)",
         )
         # TODO: LNG_LAT = "LNG_LAT", "Longitude and Latitude"
 
