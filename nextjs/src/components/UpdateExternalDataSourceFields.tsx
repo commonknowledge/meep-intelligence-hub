@@ -128,7 +128,7 @@ export function UpdateExternalDataSourceFields ({
                       <SelectLabel>Geography type</SelectLabel>
                       <SelectItem value={GeographyTypes.Postcode}>Postcode</SelectItem>
                       <SelectItem value={GeographyTypes.Ward}>Ward</SelectItem>
-                      <SelectItem value={GeographyTypes.Council}>Council</SelectItem>
+                      <SelectItem value={GeographyTypes.AdminDistrict}>Council</SelectItem>
                       <SelectItem value={GeographyTypes.ParliamentaryConstituency}>Constituency</SelectItem>
                       <SelectItem value={GeographyTypes.ParliamentaryConstituency_2025}>Constituency (2024)</SelectItem>
                       <SelectItem value={GeographyTypes.Address}>Address</SelectItem>

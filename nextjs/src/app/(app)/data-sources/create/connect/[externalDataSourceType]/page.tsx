@@ -438,7 +438,7 @@ export default function Page({
                                 <SelectLabel>Geography type</SelectLabel>
                                 <SelectItem value={GeographyTypes.Postcode}>Postcode</SelectItem>
                                 <SelectItem value={GeographyTypes.Ward}>Ward</SelectItem>
-                                <SelectItem value={GeographyTypes.Council}>Council</SelectItem>
+                                <SelectItem value={GeographyTypes.AdminDistrict}>Council</SelectItem>
                                 <SelectItem value={GeographyTypes.ParliamentaryConstituency}>GE2010-2019 Constituency</SelectItem>
                                 <SelectItem value={GeographyTypes.ParliamentaryConstituency_2025}>GE2024 Constituency</SelectItem>
                               </SelectGroup>

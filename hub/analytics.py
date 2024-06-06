@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional, TypedDict, Union
+from typing import TYPE_CHECKING, List, Optional, TypedDict
 
 from django.db.models import Count, F, QuerySet
 from django.db.models.manager import BaseManager
@@ -43,7 +43,7 @@ class Analytics:
 
         if gss:
             try:
-                qs = qs.filter(**{ f"postcode_data__codes__{postcode_io_key}": gss })
+                qs = qs.filter(**{f"postcode_data__codes__{postcode_io_key}": gss})
             except Exception:
                 return []
 
