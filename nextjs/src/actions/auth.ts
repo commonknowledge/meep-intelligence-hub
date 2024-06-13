@@ -2,11 +2,13 @@
  * Client-side actions for user login and logout.
  */
 
+import Cookies from 'js-cookie';
+
 export const login = (jwt: string, expiresISODate: string) => {
   localStorage.setItem("jwt", jwt);
   console.log({ "Authorization": "JWT " + jwt })
   const cookieExpires = new Date(expiresISODate).toUTCString();
-  document.cookie = `jwt=${jwt}; path=/; expires=${cookieExpires}`;
+  Cookies.set('jwt', jwt, { expires: new Date(expiresISODate) });
   window.location.href = "/";
 };
 
