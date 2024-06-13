@@ -5,12 +5,11 @@ import {
   NextSSRApolloClient,
 } from "@apollo/experimental-nextjs-app-support/ssr";
 import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rsc";
-import { cookies } from "next/headers";
 import { authLink, httpLink } from "./apollo";
+import Cookies from 'js-cookie'
 
 const getJwt = (): string | undefined => {
-  const cookieStore = cookies();
-  return cookieStore.get("jwt")?.value;
+  return Cookies.get("jwt");
 };
 
 /**

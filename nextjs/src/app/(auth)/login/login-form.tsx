@@ -1,7 +1,7 @@
 "use client";
 
 import { gql, useMutation } from "@apollo/client";
-import { login } from "../../../actions/auth";
+// import { login } from "../../../actions/auth";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -18,7 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input";
-
+import { signIn } from "next-auth/react"
 
 export const LOGIN_MUTATION = gql`
   mutation Login($username: String!, $password: String!) {
@@ -50,7 +50,7 @@ export default function LoginForm() {
   const token = data?.tokenAuth?.token?.token;
   const authError = data?.tokenAuth?.errors;
   if (token) {
-    login(token, data?.tokenAuth?.token?.payload?.exp);
+    // login(token, data?.tokenAuth?.token?.payload?.exp);
   }
 
   let errorMessage = "";
@@ -63,7 +63,7 @@ export default function LoginForm() {
 
   const handleSubmit: SubmitHandler<any> = async (values: any, e) => {
     e?.preventDefault()
-    doLogin({ variables: values });
+    signIn("credentials", values);
   };
 
   return (

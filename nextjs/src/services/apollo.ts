@@ -1,10 +1,9 @@
 import { HttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import { cookies } from "next/headers";
+import Cookies from 'js-cookie'
 
 export const getJwt = (): string | undefined => {
-    const cookieStore = cookies();
-    return cookieStore.get("jwt")?.value;
+    return Cookies.get("jwt");
 };
 
 export const httpLink = new HttpLink({

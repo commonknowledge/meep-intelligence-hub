@@ -6,8 +6,7 @@ import dynamic from 'next/dynamic'
 import { Metadata } from 'next'
 import { openGraphImage } from './shared-metadata'
 import { Suspense } from "react";
-import { useAuth } from "@/hooks/auth";
-
+import { SessionProvider } from "next-auth/react"
 
 const PostHogPageView = dynamic(() => import('./PostHogPageView'), {
   ssr: false,
@@ -21,19 +20,21 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ApolloWrapper>
-      <html lang="en">
-        <PHProvider>
-          <body>
-            <Suspense>
-              <PostHogPageView />
-            </Suspense>
-            <NextTopLoader />
-            {children}
-          </body>
-        </PHProvider>
-      </html>
-    </ApolloWrapper>
+    <SessionProvider>
+      <ApolloWrapper>
+        <html lang="en">
+          <PHProvider>
+            <body>
+              <Suspense>
+                <PostHogPageView />
+              </Suspense>
+              <NextTopLoader />
+              {children}
+            </body>
+          </PHProvider>
+        </html>
+      </ApolloWrapper>
+    </SessionProvider>
   );
 }
 
