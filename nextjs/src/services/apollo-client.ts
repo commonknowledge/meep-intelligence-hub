@@ -6,6 +6,7 @@ import {
 } from "@apollo/experimental-nextjs-app-support/ssr";
 import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rsc";
 import { cookies } from "next/headers";
+import { authLink, httpLink } from "./apollo";
 
 const getJwt = (): string | undefined => {
   const cookieStore = cookies();
@@ -38,22 +39,8 @@ const getJwt = (): string | undefined => {
  * This will not work if "use client" is present. For client components,
  * use the useQuery() hook (see components/apollo-wrapper.tsx).
  */
+
 const makeBackEndClient = () => {
-  const httpLink = new HttpLink({
-    uri: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/graphql`,
-  });
-
-  const authLink = setContext((_, { headers }) => {
-    const token = getJwt();
-    const config = {
-      headers: {
-        ...headers,
-        authorization: token ? `JWT ${token}` : "",
-      },
-    };
-    return config;
-  });
-
   return new NextSSRApolloClient({
     cache: new NextSSRInMemoryCache(),
     link: ApolloLink.from([authLink, httpLink]),

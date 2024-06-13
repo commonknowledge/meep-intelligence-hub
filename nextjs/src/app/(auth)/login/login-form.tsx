@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 
-const LOGIN_MUTATION = gql`
+export const LOGIN_MUTATION = gql`
   mutation Login($username: String!, $password: String!) {
     tokenAuth(username: $username, password: $password) {
       errors

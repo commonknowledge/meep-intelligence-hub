@@ -41,6 +41,8 @@ const documents = {
     "\n  mutation ResetPassword($email: String!) {\n    requestPasswordReset(email: $email) {\n      errors\n      success\n    }\n  }\n": types.ResetPasswordDocument,
     "\n  mutation Register($email: String!, $password1: String!, $password2: String!, $username: String!) {\n    register(email: $email, password1: $password1, password2: $password2, username: $username) {\n      errors\n      success\n    }\n  }\n": types.RegisterDocument,
     "\n  query ListExternalDataSources {\n    myOrganisations {\n      id\n      externalDataSources {\n        id\n      }\n    }\n  }\n": types.ListExternalDataSourcesDocument,
+    "\n              mutation LoginBackend($username: String!, $password: String!) {\n                tokenAuth(username: $username, password: $password) {\n                  errors\n                  success\n                  token {\n                    token\n                    payload {\n                      exp\n                    }\n                  }\n                }\n              }\n            ": types.LoginBackendDocument,
+    "\n              query AuthUser {\n                me {\n                  id\n                  email\n                  username\n                }\n              }\n            ": types.AuthUserDocument,
     "\n  query GetPublicMapReport($orgSlug: String!, $reportSlug: String!) {\n    publicMapReport(orgSlug: $orgSlug, reportSlug: $reportSlug) {\n      id\n      name\n    }\n  }\n": types.GetPublicMapReportDocument,
     "\n  query GetPublicMapReportForLayout($orgSlug: String!, $reportSlug: String!) {\n    publicMapReport(orgSlug: $orgSlug, reportSlug: $reportSlug) {\n      id\n      name\n      displayOptions\n      organisation {\n        id\n        slug\n        name\n      }\n      layers {\n        id\n        name\n      }\n    }\n  }\n": types.GetPublicMapReportForLayoutDocument,
     "\n      query GetEditableHubs {\n        hubHomepages {\n          id\n        }\n      }\n    ": types.GetEditableHubsDocument,
@@ -212,6 +214,14 @@ export function gql(source: "\n  mutation Register($email: String!, $password1: 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query ListExternalDataSources {\n    myOrganisations {\n      id\n      externalDataSources {\n        id\n      }\n    }\n  }\n"): (typeof documents)["\n  query ListExternalDataSources {\n    myOrganisations {\n      id\n      externalDataSources {\n        id\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n              mutation LoginBackend($username: String!, $password: String!) {\n                tokenAuth(username: $username, password: $password) {\n                  errors\n                  success\n                  token {\n                    token\n                    payload {\n                      exp\n                    }\n                  }\n                }\n              }\n            "): (typeof documents)["\n              mutation LoginBackend($username: String!, $password: String!) {\n                tokenAuth(username: $username, password: $password) {\n                  errors\n                  success\n                  token {\n                    token\n                    payload {\n                      exp\n                    }\n                  }\n                }\n              }\n            "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n              query AuthUser {\n                me {\n                  id\n                  email\n                  username\n                }\n              }\n            "): (typeof documents)["\n              query AuthUser {\n                me {\n                  id\n                  email\n                  username\n                }\n              }\n            "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
