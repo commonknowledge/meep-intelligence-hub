@@ -5,8 +5,8 @@ import { QueryResult } from "@apollo/client";
 import { createContext, useContext, useState } from "react";
 
 export const defaultDisplayOptions = {
-  showLastElectionData: false,
-  showMPs: false,
+  showLastElectionData: true,
+  showMPs: true,
   showStreetDetails: false,
   analyticalAreaType: AnalyticalAreaType.ParliamentaryConstituency_2025
 }

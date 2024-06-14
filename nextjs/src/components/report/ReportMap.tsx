@@ -31,7 +31,7 @@ import { authenticationHeaders } from "@/lib/auth";
 
 const MAX_REGION_ZOOM = 8
 export const MAX_CONSTITUENCY_ZOOM = 10
-const MIN_MEMBERS_ZOOM = 12
+const MIN_MEMBERS_ZOOM = 7
 
 const viewStateAtom = atom<Partial<ViewState>>({
   longitude: -2.296605,
@@ -275,7 +275,7 @@ export function ReportMap () {
         mapStyle={
           displayOptions.showStreetDetails
             ? "mapbox://styles/commonknowledge/clubx087l014y01mj1bv63yg8"
-            : "mapbox://styles/commonknowledge/clty3prwh004601pr4nqn7l9s"
+            : "mapbox://styles/commonknowledge/clo78ruww00uj01qv9n68h8a0"
         }
         onClick={() => setSelectedSourceMarker(null)}
         transformRequest={(url, resourceType) => {

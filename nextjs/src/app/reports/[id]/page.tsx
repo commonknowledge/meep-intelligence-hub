@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { BarChart3, Layers, MoreVertical, RefreshCcw, Trash } from "lucide-react"
+import { ArrowLeft, BarChart3, Layers, MoreVertical, RefreshCcw, Trash } from "lucide-react"
 import { Toggle } from "@/components/ui/toggle"
 import DataConfigPanel from "@/components/dataConfig";
 import { FetchResult, gql, useApolloClient, useQuery } from "@apollo/client";
@@ -49,6 +49,8 @@ import { MapProvider } from "react-map-gl";
 import { twMerge } from "tailwind-merge";
 import { merge } from 'lodash'
 import { currentOrganisationIdAtom } from "@/data/organisation";
+import Link from "next/link";
+import { MappedIcon } from "@/components/navbar";
 
 type Params = {
   id: string
@@ -57,7 +59,7 @@ type Params = {
 export default function Page({ params: { id } }: { params: Params }) {
   const client = useApolloClient();
   const router = useRouter();
-  
+
   const report = useQuery<GetMapReportQuery, GetMapReportQueryVariables>(GET_MAP_REPORT, {
     variables: { id },
   });
@@ -79,7 +81,7 @@ export default function Page({ params: { id } }: { params: Params }) {
   return (
     <MapProvider>
       <JotaiProvider key={id}>
-        <ReportContext.Provider value={{ 
+        <ReportContext.Provider value={{
           id,
           report,
           updateReport: updateMutation,
@@ -94,7 +96,7 @@ export default function Page({ params: { id } }: { params: Params }) {
     </MapProvider>
   )
 
-  function refreshReportDataQueries () {
+  function refreshReportDataQueries() {
     toastPromise(
       client.refetchQueries({
         include: [
@@ -115,7 +117,7 @@ export default function Page({ params: { id } }: { params: Params }) {
     )
   }
 
-  function updateMutation (input: MapReportInput) {
+  function updateMutation(input: MapReportInput) {
     const update = client.mutate<UpdateMapReportMutation, UpdateMapReportMutationVariables>({
       mutation: UPDATE_MAP_REPORT,
       variables: {
@@ -146,7 +148,7 @@ export default function Page({ params: { id } }: { params: Params }) {
     });
   }
 
-  function del () {
+  function del() {
     const deleteMutation = client.mutate<DeleteMapReportMutation, DeleteMapReportMutationVariables>({
       mutation: DELETE_MAP_REPORT,
       variables: {
@@ -227,78 +229,80 @@ function ReportPage() {
 
   return (
     <>
-      <div className="absolute w-full h-full flex flex-row pointer-events-none">
-        <div className='w-full h-full pointer-events-auto'>
-          <ReportMap />
-        </div>
-        {/* Layer card */}
-        <aside className="absolute top-0 left-0 p-5 w-[200px] h-full pointer-events-auto">
-          <div className="flex flex-col items-start gap-4 max-h-full">
-            <Card className="w-[200px] p-3 bg-white border-1 border-meepGray-700 text-meepGray-800">
-              <CardHeader className="flex flex-row items-start">
-                {report?.loading && !report?.data?.mapReport ? (
-                  <CardTitle className="text-hMd grow font-IBMPlexSansMedium">
-                    Loading...
-                  </CardTitle>
-                ) : (
-                  <>
-                    <CardTitle
-                      id="nickname"
-                      className="text-hMd grow font-IBMPlexSansMedium"
-                      {...contentEditableMutation(updateReport, "name", "Untitled Report")}
-                    >
-                      {report?.data?.mapReport.name}
-                    </CardTitle>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <MoreVertical className='w-3' />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent side="right" align="start">
-                        {report?.data?.mapReport && (
-                          <DropdownMenuItem onClick={refreshReportDataQueries}>
-                            <RefreshCcw className='w-4 mr-2' />
-                            Refresh
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => setDeleteOpen(true)} className='text-red-400'>
-                          <Trash className='w-4 mr-2' />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </>
-                )}
-              </CardHeader>
-            {report?.data?.mapReport && (
-              <CardContent className='mt-4 grid grid-cols-1 gap-2'>
-                {toggles.map(({ icon: Icon, label, enabled, toggle }) => (
-                  <div
-                    key={label}
-                    className='hover:bg-meepGray-100 px-0 flex flex-row gap-2 items-center overflow-hidden text-nowrap text-ellipsis cursor-pointer'
-                    onClick={toggle}>
-                    <div className={twMerge(
-                      'relative rounded inline-block h-9 w-9',
-                      enabled ? "bg-meepGray-800" : "bg-meepGray-100"
-                    )}>
-                      <Icon className={twMerge(
-                        "w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", 
-                        enabled && "text-white"
-                      )} />
-                    </div>
-                    {label}
-                  </div>
-                ))}
-              </CardContent>
+      <nav className='sticky top-0 shrink-0 flex flex-row justify-between  items-center gap-md font-IBMPlexSans border-b border-meepGray-700 px-sm'>
+        <div className='flex gap-4 items-center'>
+          <Link href='/' className="py-sm w-12 border-r border-meepGray-700"><MappedIcon /></Link>
+          <div className='flex gap-2 text-meepGray-300'>
+            {report?.loading && !report?.data?.mapReport ? (
+              <p>
+                Loading...
+              </p>
+            ) : (
+              <>
+                <div
+                  id="nickname"
+                  className=""
+                  {...contentEditableMutation(updateReport, "name", "Untitled Report")}
+                >
+                  {report?.data?.mapReport.name}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <MoreVertical className='w-3' />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="right" align="start">
+                    {report?.data?.mapReport && (
+                      <DropdownMenuItem onClick={refreshReportDataQueries}>
+                        <RefreshCcw className='w-4 mr-2' />
+                        Refresh
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={() => setDeleteOpen(true)} className='text-red-400'>
+                      <Trash className='w-4 mr-2' />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             )}
-            </Card>
+          </div>
+        </div>
+        <div className='flex gap-4 items-center'>
+          {toggles.map(({ icon: Icon, label, enabled, toggle }) => (
+            <div
+              key={label}
+              className='text-sm text-white flex flex-row gap-2 overflow-hidden text-nowrap text-ellipsis cursor-pointer '
+              onClick={toggle}>
+              <div className={twMerge(
+                ' rounded flex gap-2 items-center  px-3 py-1 border ',
+                enabled ? "bg-meepGray-500 border-meepGray-400" : "bg-meepGray-600 border-meepGray-500"
+              )}>
+                <Icon className={twMerge(
+                  "w-4 text-meeGray-300 ",
+                  enabled && "text-white"
+                )} />
+                {label}
+              </div>
+            </div>
+          ))}
+
+        </div>
+        <a href="/reports/" className='rounded px-3 py-1 border bg-meepGray-800 border-meepGray-700 items-center text-sm text-white flex flex-row gap-2 overflow-hidden text-nowrap text-ellipsis cursor-pointer '><ArrowLeft></ArrowLeft>Back to Maps</a>
+
+      </nav>
+      <div className="absolute w-full h-[calc(100%-74px)] flex flex-row pointer-events-none">
+        <aside className="h-full pointer-events-auto">
             {/* Data config card */}
             {report?.data?.mapReport && isDataConfigOpen && (
               <DataConfigPanel />
             )}
-          </div>
         </aside>
+        <div className='w-full h-full pointer-events-auto'>
+          <ReportMap />
+        </div>
+        {/* Layer card */}
         {report?.data?.mapReport && isConstituencyPanelOpen && (
-          <aside className="absolute top-0 right-0 p-5 w-[400px] h-full">
+          <aside className="h-full">
             <ConstituenciesPanel />
           </aside>
         )}
@@ -378,3 +382,4 @@ const DELETE_MAP_REPORT = gql`
     }
   }
 `
+

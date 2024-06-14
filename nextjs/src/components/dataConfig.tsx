@@ -50,7 +50,8 @@ import { useAtom } from "jotai"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { CRMSelection } from "./CRMButtonItem"
-import { Select, SelectItem, SelectValue , SelectContent, SelectGroup, SelectTrigger } from "@/components/ui/select";
+import { Select, SelectItem, SelectValue, SelectContent, SelectGroup, SelectTrigger } from "@/components/ui/select";
+
 
 export default function DataConfigPanel() {
   const router = useRouter()
@@ -78,226 +79,233 @@ export default function DataConfigPanel() {
   const [open, setOpen] = useAtom(isDataConfigOpenAtom)
   const shareURL = () => new URL(`/data-sources/share/${report?.data?.mapReport.organisation.slug}`, window.location.toString()).toString()
 
+
   return (
-    <Card className="bg-meepGray-800 border-1 text-meepGray-200 border border-meepGray-700 max-w-xs overflow-y-auto min-h-0">
+    <div className="h-full w-[250px] flex flex-col bg-meepGray-800 border-r text-meepGray-200 border-meepGray-700 max-w-xs overflow-y-auto min-h-0">
       <CardHeader className='p-3 flex flex-row justify-between items-center'>
-        <CardTitle className="text-hSm font-semibold">Map layers</CardTitle>
+        <h2 className="">Map layers</h2>
         <X className='w-4 cursor-pointer' onClick={() => { setOpen(false) }} />
       </CardHeader>
-      <CardContent>
-        <div className="p-3 flex flex-col gap-2 border-t border-meepGray-700 ">
-          <span className="text-sm mb-2">Your member lists</span>
-          {layers.data.layers
-            ?.filter(d => d?.source?.dataType === DataSourceType.Member)
+      <CardContent className="flex flex-col justify-between grow">
+        <div className="p-3 flex flex-col gap-2 border-t border-meepGray-700">
+          <span className="text-dataName text-meepGray-300 font-semibold uppercase mb-2">Your member lists</span>
+          
+
+
+          {layers.data.layers?.filter(d => d?.source?.dataType === DataSourceType.Member)
             .map((layer, index) => layer?.source && (
-            <div key={layer?.source?.id || index} className="flex gap-2 items-center">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button className="border-l-4 bg-none p-3 text-sm flex flex-row items-center gap-2 text-left justify-start overflow-hidden text-nowrap text-ellipsis h-14" style={{
-                    borderColor: layerIdColour(layer?.source?.id)
-                  }} 
-                >
-                  <CRMSelection
-                    // @ts-ignore: Property 'id' is optional in type 'DeepPartialObject - a silly Fragment typing
-                    source={layer.source}
-                    isShared={!!layer.sharingPermission}
-                  />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className='space-y-4'>
-                  {!!layer?.source?.id && (
-                    !layer.sharingPermission ? (
-                      <>
-                        <div>{layer.source.importedDataCount || 0} records imported</div>
-                        <Link href={`/data-sources/inspect/${layer?.source?.id}`} className='underline py-2 text-sm'>
-                          Inspect data source <ArrowRight />
-                        </Link>
-                        <Button disabled={layer.source.isImportScheduled} onClick={() => importData(client, layer.source!.id)}>
-                          {!layer.source.isImportScheduled ? "Import data" : <span className='flex flex-row gap-2 items-center'>
-                            <LoadingIcon size={"18"} />
-                            <span>Importing...</span>
-                          </span>}
-                        </Button>
-                      </>
-                    ) : (
-                      <div className='text-sm'>
-                        <div>This data source is managed by {layer.source.organisation?.name}.</div>
-                        <div className='flex flex-col gap-2 mt-4'>
-                          <div className='flex flex-row gap-1 uppercase font-semibold text-sm text-meepGray-400'>
-                            <span>Their share settings</span>
-                          </div>
-                          <div className='flex flex-row gap-1 items-start'>
-                            <Checkbox
-                              checked={!!layer.sharingPermission?.visibilityRecordCoordinates}
-                              disabled
-                            />
-                            <label className='-mt-1'>
-                              <span>
-                                Precise record locations
-                              </span>
-                              <p className='text-meepGray-400 text-xs'>
-                                If enabled, pins will be placed on a map for each record. If disabled, only aggregate ward / constituency / region data will be shared.  
-                              </p>
-                            </label>
-                          </div>
-                          <div className='flex flex-row gap-1 items-start'>
-                            <Checkbox
-                              checked={!!layer.sharingPermission?.visibilityRecordDetails}
-                              disabled
-                            />
-                            <label className='-mt-1'>
-                              <span>
-                                Record details
-                              </span>
-                              <p className='text-meepGray-400 text-xs'>
-                                Specific data like {'"'}name{'"'}</p>
-                            </label>
+              <div key={layer?.source?.id || index} className="flex gap-2 items-center">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button className="border-l-4 hover:bg-meepGray-700 outline outline-1 outline-meepGray-600 bg-meepGray-800 p-3 text-sm flex flex-row items-center gap-2 text-left justify-start overflow-hidden text-nowrap text-ellipsis h-14 w-full" style={{
+                      borderColor: layerIdColour(layer?.source?.id)
+                    }}
+                    >
+                      <CRMSelection
+                        // @ts-ignore: Property 'id' is optional in type 'DeepPartialObject - a silly Fragment typing
+                        source={layer.source}
+                        isShared={!!layer.sharingPermission}
+                      />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className='space-y-4'>
+                    {!!layer?.source?.id && (
+                      !layer.sharingPermission ? (
+                        <>
+                          <div>{layer.source.importedDataCount || 0} records imported</div>
+                          <Link href={`/data-sources/inspect/${layer?.source?.id}`} className='underline py-2 text-sm'>
+                            Inspect data source <ArrowRight />
+                          </Link>
+                          <Button disabled={layer.source.isImportScheduled} onClick={() => importData(client, layer.source!.id)}>
+                            {!layer.source.isImportScheduled ? "Import data" : <span className='flex flex-row gap-2 items-center'>
+                              <LoadingIcon size={"18"} />
+                              <span>Importing...</span>
+                            </span>}
+                          </Button>
+                        </>
+                      ) : (
+                        <div className='text-sm'>
+                          <div>This data source is managed by {layer.source.organisation?.name}.</div>
+                          <div className='flex flex-col gap-2 mt-4'>
+                            <div className='flex flex-row gap-1 uppercase font-semibold text-sm text-meepGray-400'>
+                              <span>Their share settings</span>
+                            </div>
+                            <div className='flex flex-row gap-1 items-start'>
+                              <Checkbox
+                                checked={!!layer.sharingPermission?.visibilityRecordCoordinates}
+                                disabled
+                              />
+                              <label className='-mt-1'>
+                                <span>
+                                  Precise record locations
+                                </span>
+                                <p className='text-meepGray-400 text-xs'>
+                                  If enabled, pins will be placed on a map for each record. If disabled, only aggregate ward / constituency / region data will be shared.
+                                </p>
+                              </label>
+                            </div>
+                            <div className='flex flex-row gap-1 items-start'>
+                              <Checkbox
+                                checked={!!layer.sharingPermission?.visibilityRecordDetails}
+                                disabled
+                              />
+                              <label className='-mt-1'>
+                                <span>
+                                  Record details
+                                </span>
+                                <p className='text-meepGray-400 text-xs'>
+                                  Specific data like {'"'}name{'"'}</p>
+                              </label>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  )}
-                  <Button className="ml-1" onClick={() => {
-                    removeLayer(layer?.source?.id!)
-                  }} variant='destructive'>Remove layer</Button>
-                </PopoverContent>
-              </Popover>
-            </div>
-          ))}
+                      )
+                    )}
+                    <Button className="ml-1" onClick={() => {
+                      removeLayer(layer?.source?.id!)
+                    }} variant='destructive'>Remove layer</Button>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            ))}
           <div className="flex gap-2 items-center">
             <AddMapLayerButton addLayer={addLayer} filter={source => source.dataType === DataSourceType.Member} />
           </div>
         </div>
         <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 ">
-          <span className="label mb-2 text-labelLg">Campaign map layers</span>
+          <span className="text-dataName text-meepGray-300 font-semibold uppercase mb-3">Campaign map layers</span>
           {layers.data.layers
             ?.filter(d => d?.source?.dataType !== DataSourceType.Member)
             .map((layer, index) => layer?.source && (
-            <div key={layer?.source?.id || index} className="flex gap-2 items-center">
-              <Popover>
-                <PopoverTrigger>
-                  <Button className="border-l-4 bg-none p-3 text-sm flex flex-row items-center gap-2 text-left justify-start overflow-hidden text-nowrap text-ellipsis h-14" style={{
-                    borderColor: layerIdColour(layer?.source?.id)
-                  }} 
-                >
-                  <CRMSelection
-                    // @ts-ignore: Property 'id' is optional in type 'DeepPartialObject - a silly Fragment typing
-                    source={layer.source}
-                    isShared={!!layer.sharingPermission}
-                  />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className='space-y-4'>
-                  {!!layer?.source?.id && (
-                    !layer.sharingPermission ? (
-                      <>
-                        <div>{layer.source.importedDataCount || 0} records imported</div>
-                        <Link href={`/data-sources/inspect/${layer?.source?.id}`} className='underline py-2 text-sm'>
-                          Inspect data source <ArrowRight />
-                        </Link>
-                        <Button disabled={layer.source.isImportScheduled} onClick={() => importData(client, layer.source!.id)}>
-                          {!layer.source.isImportScheduled ? "Import data" : <span className='flex flex-row gap-2 items-center'>
-                            <LoadingIcon size={"18"} />
-                            <span>Importing...</span>
-                          </span>}
-                        </Button>
-                      </>
-                    ) : (
-                      <div className='text-sm'>
-                        <div>This data source is managed by {layer.source.organisation?.name}.</div>
-                        <div className='flex flex-col gap-2 mt-4'>
-                          <div className='flex flex-row gap-1 uppercase font-semibold text-sm text-meepGray-400'>
-                            <span>Their share settings</span>
-                          </div>
-                          <div className='flex flex-row gap-1 items-start'>
-                            <Checkbox
-                              checked={!!layer.sharingPermission?.visibilityRecordCoordinates}
-                              disabled
-                            />
-                            <label className='-mt-1'>
-                              <span>
-                                Precise record locations
-                              </span>
-                              <p className='text-meepGray-400 text-xs'>
-                                If enabled, pins will be placed on a map for each record. If disabled, only aggregate ward / constituency / region data will be shared.  
-                              </p>
-                            </label>
-                          </div>
-                          <div className='flex flex-row gap-1 items-start'>
-                            <Checkbox
-                              checked={!!layer.sharingPermission?.visibilityRecordDetails}
-                              disabled
-                            />
-                            <label className='-mt-1'>
-                              <span>
-                                Record details
-                              </span>
-                              <p className='text-meepGray-400 text-xs'>
-                                Specific data like {'"'}name{'"'}</p>
-                            </label>
+              <div key={layer?.source?.id || index} className="flex gap-2 items-center">
+                <Popover>
+                  <PopoverTrigger>
+                    <Button className="border-l-4 hover:bg-meepGray-700 outline outline-1 outline-meepGray-600 bg-meepGray-800e p-3 text-sm flex flex-row items-center gap-2 text-left justify-start overflow-hidden text-nowrap text-ellipsis h-14 w-full" style={{
+                      borderColor: layerIdColour(layer?.source?.id)
+                    }}
+                    >
+                      <CRMSelection
+                        // @ts-ignore: Property 'id' is optional in type 'DeepPartialObject - a silly Fragment typing
+                        source={layer.source}
+                        isShared={!!layer.sharingPermission}
+                      />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className='space-y-4'>
+                    {!!layer?.source?.id && (
+                      !layer.sharingPermission ? (
+                        <>
+                          <div>{layer.source.importedDataCount || 0} records imported</div>
+                          <Link href={`/data-sources/inspect/${layer?.source?.id}`} className='underline py-2 text-sm'>
+                            Inspect data source <ArrowRight />
+                          </Link>
+                          <Button disabled={layer.source.isImportScheduled} onClick={() => importData(client, layer.source!.id)}>
+                            {!layer.source.isImportScheduled ? "Import data" : <span className='flex flex-row gap-2 items-center'>
+                              <LoadingIcon size={"18"} />
+                              <span>Importing...</span>
+                            </span>}
+                          </Button>
+                        </>
+                      ) : (
+                        <div className='text-sm'>
+                          <div>This data source is managed by {layer.source.organisation?.name}.</div>
+                          <div className='flex flex-col gap-2 mt-4'>
+                            <div className='flex flex-row gap-1 uppercase font-semibold text-sm text-meepGray-400'>
+                              <span>Their share settings</span>
+                            </div>
+                            <div className='flex flex-row gap-1 items-start'>
+                              <Checkbox
+                                checked={!!layer.sharingPermission?.visibilityRecordCoordinates}
+                                disabled
+                              />
+                              <label className='-mt-1'>
+                                <span>
+                                  Precise record locations
+                                </span>
+                                <p className='text-meepGray-400 text-xs'>
+                                  If enabled, pins will be placed on a map for each record. If disabled, only aggregate ward / constituency / region data will be shared.
+                                </p>
+                              </label>
+                            </div>
+                            <div className='flex flex-row gap-1 items-start'>
+                              <Checkbox
+                                checked={!!layer.sharingPermission?.visibilityRecordDetails}
+                                disabled
+                              />
+                              <label className='-mt-1'>
+                                <span>
+                                  Record details
+                                </span>
+                                <p className='text-meepGray-400 text-xs'>
+                                  Specific data like {'"'}name{'"'}</p>
+                              </label>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  )}
-                  <Button onClick={() => {
-                    removeLayer(layer?.source?.id!)
-                  }} variant='destructive'>Remove layer</Button>
-                </PopoverContent>
-              </Popover>
-            </div>
-          ))}
+                      )
+                    )}
+                    <Button onClick={() => {
+                      removeLayer(layer?.source?.id!)
+                    }} variant='destructive'>Remove layer</Button>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            ))}
           <div className="flex gap-2 items-center">
             <AddMapLayerButton addLayer={addLayer} filter={source => source.dataType !== DataSourceType.Member} />
           </div>
         </div>
-        <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 ">
-          <span className="label mb-2 text-labelLg">Map settings</span>
-          {/* Choose analytical area type */}
-          <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
-            <Switch
-              checked={displayOptions.showStreetDetails}
-              onCheckedChange={(showStreetDetails) => { setDisplayOptions({ showStreetDetails }) }}
-            />Street details
+        <div>
+
+          <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 ">
+            <span className=" text-dataName uppercase mb-2 text-meepGray-300">Map settings</span>
+            {/* Choose analytical area type */}
+            <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
+              <Checkbox
+                checked={displayOptions.showStreetDetails}
+                onCheckedChange={(showStreetDetails) => { setDisplayOptions({ showStreetDetails }) }}
+
+              />Street details
+            </div>
           </div>
-        </div>
-        <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 ">
-          <span className="label mb-2 text-labelLg">Westminster politics</span>
-          <Select
-            value={displayOptions.analyticalAreaType}
-            onValueChange={(analyticalAreaType: AnalyticalAreaType) => { setDisplayOptions({ analyticalAreaType }) }}
-          >
-            <SelectTrigger>
-              <SelectValue>
-                {displayOptions.analyticalAreaType === AnalyticalAreaType.ParliamentaryConstituency_2025 ? "2024 constituencies" : "Old constituencies"}  
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="z-100">
-              <SelectGroup>
-                <SelectItem value={AnalyticalAreaType.ParliamentaryConstituency_2025}>2024 constituencies</SelectItem>
-                <SelectItem value={AnalyticalAreaType.ParliamentaryConstituency}>Old constituencies</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
-            <Switch
-              checked={displayOptions.showMPs}
-              onCheckedChange={toggleMps}
-            />Current MP
-          </div>
-          <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
-            <Switch
-              checked={displayOptions.showLastElectionData}
-              onCheckedChange={toggleElectionData}
-            />
-            Last GE election results
+          <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 ">
+            <span className=" text-dataName uppercase mb-2 text-meepGray-300">Westminster politics</span>
+            <Select
+              value={displayOptions.analyticalAreaType}
+              onValueChange={(analyticalAreaType: AnalyticalAreaType) => { setDisplayOptions({ analyticalAreaType }) }}
+            >
+              <SelectTrigger>
+                <SelectValue>
+                  {displayOptions.analyticalAreaType === AnalyticalAreaType.ParliamentaryConstituency_2025 ? "2024 constituencies" : "Old constituencies"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="z-100">
+                <SelectGroup>
+                  <SelectItem value={AnalyticalAreaType.ParliamentaryConstituency_2025}>2024 constituencies</SelectItem>
+                  <SelectItem value={AnalyticalAreaType.ParliamentaryConstituency}>Old constituencies</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
+              <Checkbox
+                checked={displayOptions.showMPs}
+                onCheckedChange={toggleMps}
+              />Current MP
+            </div>
+            <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
+              <Checkbox
+                checked={displayOptions.showLastElectionData}
+                onCheckedChange={toggleElectionData}
+              />
+              Last GE election results
+            </div>
           </div>
         </div>
       </CardContent>
       <div className='bg-meepGray-700 p-3'>
         <CardHeader>
           <h2 className='text-meepGray-400 flex flex-row gap-1 items-center text-sm'>
-            <Shuffle className='w-4'/> Collaborative area
+            <Shuffle className='w-4' /> Collaborative area
           </h2>
         </CardHeader>
         <CardContent>
@@ -338,7 +346,7 @@ export default function DataConfigPanel() {
           </div>
         </CardContent>
       </div>
-    </Card>
+    </div>
   )
 
   function addLayer(source: { name: string, id: string }) {

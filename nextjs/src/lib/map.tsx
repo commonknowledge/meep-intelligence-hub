@@ -60,7 +60,7 @@ export function layerIdColour (id: string) {
 }
 
 export const mapHasLoaded = atom(false)
-export const isDataConfigOpenAtom = atom(false)
+export const isDataConfigOpenAtom = atom(true)
 export const isConstituencyPanelOpenAtom = atom(false)
 
 export type MapLoader = {

@@ -54,9 +54,10 @@ export const ConstituencyElectionDeepDive = ({ gss, analyticalAreaType = Analyti
     .map((l, index)=> ({...l, index}))
     .filter(l => !!l.source.importedDataCountForConstituency?.count)
 
+    console.log(data)
   return (
     <div key={data.constituency.id} className='divide-y space-y-4'>
-      <h1 className='font-PPRightGrotesk text-hLgPP'>{data.constituency.name}</h1>
+      <h2 className='text-xl'>{data.constituency.name}</h2>
       {data.constituency.mp && displayOptions.showMPs && (
         <section className='mb-8'>
           <div className='uppercase font-IBMPlexMono text-xs text-meepGray-400 mb-1'>

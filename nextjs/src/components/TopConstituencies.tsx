@@ -12,6 +12,25 @@ import { constituencyPanelTabAtom } from "@/app/reports/[id]/ConstituenciesPanel
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { twMerge } from "tailwind-merge"
 
+
+import { Check, ChevronsUpDown } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { ConstituenciesDropdown } from "./ui/ConstituenciesDropdown"
+
 export function TopConstituencies() {
   const sortOptions = {
     totalCount: "Total Membership",
@@ -44,7 +63,7 @@ export function TopConstituencies() {
       }
       return 0
     })
-  
+
   if (constituencyAnalytics.loading && !constituencyAnalytics.data) return <div className='flex flex-row items-center justify-center p-4 gap-2'>
     <LoadingIcon size={"20px"} className='inline-block' />
     <span>Loading constituencies...</span>
@@ -54,29 +73,41 @@ export function TopConstituencies() {
     // List of them here
     <div className='grid grid-cols-1 gap-4'>
       <div className='text-meepGray-400 text-xs'>
-        <Select
-          value={sortBy}
-          onValueChange={(value) => setSortBy(value as keyof typeof sortOptions)}
-        >
-          <SelectTrigger
-            className={twMerge(
-              "h-7 w-full max-w-[200px] text-xs [&_svg]:h-4 [&_svg]:w-4"
-            )}
+        <div className='flex justify-between items-center gap-2'>
+
+          <ConstituenciesDropdown
+            constituencies={constituencies}
+            setSelectedConstituency={setSelectedConstituency}
+            setTab={setTab}
+            map={map}
+          />
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as keyof typeof sortOptions)}
+            
           >
-            <span className="text-muted-foreground">Sort by: </span>
-            <SelectValue placeholder="Select style" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(sortOptions).map(([value, label]) => (
-              <SelectItem key={value} value={value} className="text-xs">
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+            <div>
+              <SelectTrigger
+                className={twMerge(
+                  " w-full max-w-[200px] text-xs [&_svg]:h-4 [&_svg]:w-4 h-full"
+                )}
+              >
+                <span className="text-muted-foreground">Sort by:</span>
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(sortOptions).map(([value, label]) => (
+                  <SelectItem key={value} value={value} className="text-xs">
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </div>
+          </Select>
+        </div>
       </div>
       {constituencies?.map((constituency) => (
-        <div 
+        <div
           key={constituency.gss}
           onClick={() => {
             setSelectedConstituency(constituency.gss!)
@@ -97,7 +128,7 @@ export function TopConstituencies() {
   )
 }
 
-export function ConstituencySummaryCard ({ count, constituency }: {
+export function ConstituencySummaryCard({ count, constituency }: {
   constituency: NonNullable<
     ConstituencyStatsOverviewQuery["mapReport"]["importedDataCountByConstituency"][0]['gssArea']
   >
@@ -107,7 +138,7 @@ export function ConstituencySummaryCard ({ count, constituency }: {
 
   return (
     <div className='p-3 '>
-      <h2 className='font-PPRightGrotesk text-hLgPP mb-3'>{constituency.name}</h2>
+      <h2 className='text-xl mb-3'>{constituency.name}</h2>
       {!!constituency.mp?.name && displayOptions.showMPs && (
         <div className='mb-5 mt-4'>
           <Person
