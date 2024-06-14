@@ -275,7 +275,7 @@ function ReportPage() {
               onClick={toggle}>
               <div className={twMerge(
                 ' rounded flex gap-2 items-center  px-3 py-1 border ',
-                enabled ? "bg-meepGray-500 border-meepGray-400" : "bg-meepGray-600 border-meepGray-500"
+                enabled ? "bg-meepGray-500 border-meepGray-500" : "bg-meepGray-700 border-meepGray-500"
               )}>
                 <Icon className={twMerge(
                   "w-4 text-meeGray-300 ",

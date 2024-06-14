@@ -27,7 +27,7 @@ interface Constituency {
     }
 }
 
-import { MAX_CONSTITUENCY_ZOOM } from "../report/ReportMap"
+import { MAX_CONSTITUENCY_ZOOM } from "./report/ReportMap"
 
 
 interface ConstituenciesDropdownProps {
@@ -39,7 +39,7 @@ interface ConstituenciesDropdownProps {
 
 
 
-export function ConstituenciesDropdown({
+export default function ConstituenciesDropdown({
     constituencies,
     setSelectedConstituency,
     setTab,

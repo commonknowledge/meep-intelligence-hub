@@ -54,7 +54,6 @@ export const ConstituencyElectionDeepDive = ({ gss, analyticalAreaType = Analyti
     .map((l, index)=> ({...l, index}))
     .filter(l => !!l.source.importedDataCountForConstituency?.count)
 
-    console.log(data)
   return (
     <div key={data.constituency.id} className='divide-y space-y-4'>
       <h2 className='text-xl'>{data.constituency.name}</h2>

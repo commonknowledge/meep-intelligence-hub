@@ -29,7 +29,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { ConstituenciesDropdown } from "./ui/ConstituenciesDropdown"
+import ConstituenciesDropdown from "./ConstituenciesDropdown"
 
 export function TopConstituencies() {
   const sortOptions = {

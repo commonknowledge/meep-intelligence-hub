@@ -17,7 +17,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowRight, ClipboardCopy, File, Plus, Shuffle, X } from "lucide-react"
+import { ArrowRight, ClipboardCopy, File, Plus, Shuffle, User, X } from "lucide-react"
 import { gql, useApolloClient, useFragment, useQuery } from "@apollo/client"
 import { AddMapLayerButton } from "./report/AddMapLayerButton"
 import { AnalyticalAreaType, DataSourceType, MapReportLayersSummaryFragment } from "@/__generated__/graphql"
@@ -87,11 +87,9 @@ export default function DataConfigPanel() {
         <X className='w-4 cursor-pointer' onClick={() => { setOpen(false) }} />
       </CardHeader>
       <CardContent className="flex flex-col justify-between grow">
-        <div className="p-3 flex flex-col gap-2 border-t border-meepGray-700">
-          <span className="text-dataName text-meepGray-300 font-semibold uppercase mb-2">Your member lists</span>
-          
-
-
+        <div className="p-3 flex flex-col gap-2 border-t border-meepGray-700 bg-meepGray-700 grow">
+          <span className="text-dataName text-meepGray-300 font-semibold uppercase "><User className="text-brandBlue mb-2"/>Member lists</span>
+          <p className="text-tiny text-meepGray-400 mb-2">Add member lists from your data source library to the map.</p>
           {layers.data.layers?.filter(d => d?.source?.dataType === DataSourceType.Member)
             .map((layer, index) => layer?.source && (
               <div key={layer?.source?.id || index} className="flex gap-2 items-center">
@@ -168,12 +166,58 @@ export default function DataConfigPanel() {
                 </Popover>
               </div>
             ))}
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center mt-2 ">
             <AddMapLayerButton addLayer={addLayer} filter={source => source.dataType === DataSourceType.Member} />
           </div>
+          <div className="grow"></div>
+          <div className='bg-meepGray-600 p-3 rounded'>
+            <CardHeader>
+              <h2 className='text-meepGray-400 flex flex-row gap-2 items-center text-sm'>
+                <Shuffle className='w-4' />Invite orgs to share lists
+              </h2>
+            </CardHeader>
+            <CardContent>
+              <p className='text-meepGray-300 text-xs py-4'>
+                Invite to organisations to share membership lists and collaborate on a campaign together.
+              </p>
+              <div className="flex gap-2 items-center">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size={'sm'} variant='outline' className='text-sm'>
+                      <Plus /> Invite
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Request data from other campaigns</DialogTitle>
+                      <DialogDescription>
+                        Share this URL to request data from other campaigns. They{"'"}ll be able to pick and choose which data sources to share with you, with some data privacy options.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex w-full max-w-sm items-center space-x-2">
+                      <Input value={shareURL()} />
+                      <Button onClick={() => {
+                        navigator.clipboard.writeText(shareURL())
+                        toast.success("Copied to clipboard")
+                      }}><ClipboardCopy /></Button>
+                    </div>
+                    <DialogFooter>
+                      <DialogClose onClick={() => {
+                        navigator.clipboard.writeText(shareURL())
+                        toast.success("Copied to clipboard")
+                      }}>
+                        Copy and close
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardContent>
+          </div>
         </div>
-        <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 ">
-          <span className="text-dataName text-meepGray-300 font-semibold uppercase mb-3">Campaign map layers</span>
+        <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 grow">
+          <span className="text-dataName text-meepGray-300 font-semibold uppercase">Campaign map layers</span>
+          <p className="text-tiny text-meepGray-400 mb-2">Add custom data such as events, locations and more to the map.</p>
           {layers.data.layers
             ?.filter(d => d?.source?.dataType !== DataSourceType.Member)
             .map((layer, index) => layer?.source && (
@@ -251,13 +295,13 @@ export default function DataConfigPanel() {
                 </Popover>
               </div>
             ))}
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center mt-2">
             <AddMapLayerButton addLayer={addLayer} filter={source => source.dataType !== DataSourceType.Member} />
           </div>
         </div>
         <div>
 
-          <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 ">
+          <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700">
             <span className=" text-dataName uppercase mb-2 text-meepGray-300">Map settings</span>
             {/* Choose analytical area type */}
             <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
@@ -267,85 +311,12 @@ export default function DataConfigPanel() {
 
               />Street details
             </div>
+            
           </div>
-          <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 ">
-            <span className=" text-dataName uppercase mb-2 text-meepGray-300">Westminster politics</span>
-            <Select
-              value={displayOptions.analyticalAreaType}
-              onValueChange={(analyticalAreaType: AnalyticalAreaType) => { setDisplayOptions({ analyticalAreaType }) }}
-            >
-              <SelectTrigger>
-                <SelectValue>
-                  {displayOptions.analyticalAreaType === AnalyticalAreaType.ParliamentaryConstituency_2025 ? "2024 constituencies" : "Old constituencies"}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="z-100">
-                <SelectGroup>
-                  <SelectItem value={AnalyticalAreaType.ParliamentaryConstituency_2025}>2024 constituencies</SelectItem>
-                  <SelectItem value={AnalyticalAreaType.ParliamentaryConstituency}>Old constituencies</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
-              <Checkbox
-                checked={displayOptions.showMPs}
-                onCheckedChange={toggleMps}
-              />Current MP
-            </div>
-            <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
-              <Checkbox
-                checked={displayOptions.showLastElectionData}
-                onCheckedChange={toggleElectionData}
-              />
-              Last GE election results
-            </div>
-          </div>
+          
+
         </div>
       </CardContent>
-      <div className='bg-meepGray-700 p-3'>
-        <CardHeader>
-          <h2 className='text-meepGray-400 flex flex-row gap-1 items-center text-sm'>
-            <Shuffle className='w-4' /> Collaborative area
-          </h2>
-        </CardHeader>
-        <CardContent>
-          <p className='text-meepGray-300 text-xs py-4'>
-            Invite to organisations to share membership lists and collaborate on a campaign together.
-          </p>
-          <div className="flex gap-2 items-center">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button size={'sm'} variant='outline' className='text-sm'>
-                  <Plus /> Invite
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Request data from other campaigns</DialogTitle>
-                  <DialogDescription>
-                    Share this URL to request data from other campaigns. They{"'"}ll be able to pick and choose which data sources to share with you, with some data privacy options.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex w-full max-w-sm items-center space-x-2">
-                  <Input value={shareURL()} />
-                  <Button onClick={() => {
-                    navigator.clipboard.writeText(shareURL())
-                    toast.success("Copied to clipboard")
-                  }}><ClipboardCopy /></Button>
-                </div>
-                <DialogFooter>
-                  <DialogClose onClick={() => {
-                    navigator.clipboard.writeText(shareURL())
-                    toast.success("Copied to clipboard")
-                  }}>
-                    Copy and close
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </CardContent>
-      </div>
     </div>
   )
 
