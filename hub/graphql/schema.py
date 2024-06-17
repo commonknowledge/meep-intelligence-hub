@@ -112,7 +112,7 @@ class Query(UserQueries):
         )
     )
     generic_data_by_external_data_source: List[model_types.GenericData] = (
-        public_queries.generic_data_by_external_data_source
+        model_types.generic_data_by_external_data_source
     )
 
     @strawberry.field

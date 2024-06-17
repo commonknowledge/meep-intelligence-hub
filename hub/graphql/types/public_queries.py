@@ -128,26 +128,6 @@ def postcode_search(postcode: str, info: Info) -> UnauthenticatedPostcodeQueryRe
     return UnauthenticatedPostcodeQueryResponse(postcode=postcode, loaders=loaders)
 
 
-@strawberry_django.field()
-def generic_data_by_external_data_source(
-    external_data_source_id: str, info: Info
-) -> List[model_types.GenericData]:
-    user = get_current_user(info)
-    external_data_source: models.ExternalDataSource = (
-        models.ExternalDataSource.objects.get(pk=external_data_source_id)
-    )
-    permissions = models.ExternalDataSource.user_permissions(user, external_data_source)
-    if not permissions.get("can_display_points") or not permissions.get(
-        "can_display_details"
-    ):
-        raise ValueError(f"User {user} does not have permission to view points")
-    return models.GenericData.objects.filter(
-        data_type__data_set__external_data_source=external_data_source,
-        data_type__data_set__external_data_source__can_display_points_publicly=True,
-        data_type__data_set__external_data_source__can_display_details_publicly=True,
-    )
-
-
 ########################
 # API token management
 ########################
