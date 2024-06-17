@@ -75,7 +75,7 @@ export default function ConstituenciesDropdown({
                                 onSelect={() => {
                                     setValue(constituency.gss)
                                     setSelectedConstituency(constituency.gss)
-                                    setTab("selected")
+                                    // setTab("selected")
                                     map.loadedMap?.fitBounds(constituency.gssArea.fitBounds, {
                                         maxZoom: MAX_CONSTITUENCY_ZOOM - 0.1,
                                     })
