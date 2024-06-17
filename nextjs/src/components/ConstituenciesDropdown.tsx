@@ -55,7 +55,7 @@ export default function ConstituenciesDropdown({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-[170px] justify-between bg-meepGray-700"
+                    className=" justify-between bg-meepGray-700"
                 >
                     {value
                         ? constituencies.find((constituency) => constituency.gss === value)?.gssArea.name

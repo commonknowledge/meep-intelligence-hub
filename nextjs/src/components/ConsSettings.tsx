@@ -26,6 +26,7 @@ export default function ConsSettings() {
                 type="single"
                 value={displayOptions.analyticalAreaType}
                 onValueChange={handleAnalyticalAreaTypeChange}
+                defaultValue={AnalyticalAreaType.ParliamentaryConstituency_2025}
             >
                 <ToggleGroupItem variant="outline" value={AnalyticalAreaType.ParliamentaryConstituency_2025}>
                     2024 constituencies

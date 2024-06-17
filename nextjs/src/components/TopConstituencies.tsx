@@ -71,14 +71,13 @@ export function TopConstituencies() {
 
   return (
     // List of them here
-    <div className='grid grid-cols-1 gap-4'>
+    <div className='flex flex-col gap-4 w-1/3 border-r border-meepGray-700 pr-4'>
       <div className='text-meepGray-400 text-xs'>
-        <div className='flex justify-between items-center gap-2'>
+        <div className='flex flex-col items-stretch gap-2'>
 
           <ConstituenciesDropdown
             constituencies={constituencies}
             setSelectedConstituency={setSelectedConstituency}
-            setTab={setTab}
             map={map}
           />
           <Select
@@ -111,12 +110,11 @@ export function TopConstituencies() {
           key={constituency.gss}
           onClick={() => {
             setSelectedConstituency(constituency.gss!)
-            setTab("selected")
             map.loadedMap?.fitBounds(constituency.gssArea?.fitBounds, {
               maxZoom: MAX_CONSTITUENCY_ZOOM - 0.1
             })
           }}
-          className='cursor-pointer bg-meepGray-700 group hover:bg-meepGray-600 rounded-lg'
+          className='cursor-pointer bg-meepGray-800 border border-meepGray-700 group hover:bg-meepGray-700 rounded'
         >
           <ConstituencySummaryCard
             constituency={constituency.gssArea!}
@@ -138,7 +136,7 @@ export function ConstituencySummaryCard({ count, constituency }: {
 
   return (
     <div className='p-3 '>
-      <h2 className='text-xl mb-3'>{constituency.name}</h2>
+      <h2 className='text-xl mb-1'>{constituency.name}</h2>
       {!!constituency.mp?.name && displayOptions.showMPs && (
         <div className='mb-5 mt-4'>
           <Person

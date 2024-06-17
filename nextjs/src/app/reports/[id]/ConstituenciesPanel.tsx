@@ -36,16 +36,16 @@ export function ConstituenciesPanel() {
   const { displayOptions: { analyticalAreaType } } = useReportContext()
 
   const lastCons = useRef(selectedConstituencyId)
-  useEffect(() => {
-    if (selectedConstituencyId && selectedConstituencyId !== lastCons.current) {
-      return setTab("selected")
-    } else if (!selectedConstituencyId) {
-      return setTab("list")
-    }
-  }, [selectedConstituencyId, setTab])
+  // useEffect(() => {
+  //   if (selectedConstituencyId && selectedConstituencyId !== lastCons.current) {
+  //     return setTab("selected")
+  //   } else if (!selectedConstituencyId) {
+  //     return setTab("list")
+  //   }
+  // }, [selectedConstituencyId, setTab])
 
   return (
-    <div className="bg-meepGray-800 text-meepGray-200 border-l border-meepGray-700 max-h-full flex flex-col pointer-events-auto w-[300px]">
+    <div className="bg-meepGray-800 text-meepGray-200 border-l border-meepGray-700 max-h-full flex flex-col pointer-events-auto w-[600px]">
       <div className='p-3 flex flex-row justify-between items-center'>
         <div className="flex gap-2">
           <DropdownMenu>
@@ -58,7 +58,7 @@ export function ConstituenciesPanel() {
           </DropdownMenu>
           <h2 className="">Constituency Data</h2>
         </div>
-        
+
 
         {/* <X className='w-4 cursor-pointer' onClick={() => { setOpen(false) }} /> */}
 
@@ -78,7 +78,15 @@ export function ConstituenciesPanel() {
         {/* Don't stretch, grow at most to height of window, scroll internally */}
         <div className='overflow-y-auto max-h-full px-4 w-full'>
           <TabsContent value="list" className="pb-4">
-            <TopConstituencies />
+            <div className="flex gap-4">
+
+              <TopConstituencies />
+              <div>
+                {!!selectedConstituencyId && (
+                  <ConstituencyElectionDeepDive gss={selectedConstituencyId} analyticalAreaType={analyticalAreaType} />
+                )}
+              </div>
+            </div>
           </TabsContent>
           {!!selectedConstituencyId && (
             <TabsContent value="selected" className="pb-4">
