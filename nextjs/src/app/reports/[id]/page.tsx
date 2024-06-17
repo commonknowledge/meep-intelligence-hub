@@ -18,7 +18,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ArrowLeft, BarChart3, Layers, MoreVertical, RefreshCcw, Trash } from "lucide-react"
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
+import { ArrowLeft, BarChart3, Layers, MoreVertical, RefreshCcw, Settings, Trash } from "lucide-react"
 import { Toggle } from "@/components/ui/toggle"
 import DataConfigPanel from "@/components/dataConfig";
 import { FetchResult, gql, useApolloClient, useQuery } from "@apollo/client";
@@ -213,12 +223,12 @@ function ReportPage() {
   }
 
   const toggles = [
-    {
-      icon: Layers,
-      label: "Map layers",
-      enabled: isDataConfigOpen,
-      toggle: toggleDataConfig
-    },
+    // {
+    //   icon: Layers,
+    //   label: "Map layers",
+    //   enabled: isDataConfigOpen,
+    //   toggle: toggleDataConfig
+    // },
     {
       icon: BarChart3,
       label: "Constituency data",
@@ -268,36 +278,53 @@ function ReportPage() {
           </div>
         </div>
         <div className='flex gap-4 items-center'>
-          {toggles.map(({ icon: Icon, label, enabled, toggle }) => (
-            <div
-              key={label}
-              className='text-sm text-white flex flex-row gap-2 overflow-hidden text-nowrap text-ellipsis cursor-pointer '
-              onClick={toggle}>
-              <div className={twMerge(
-                ' rounded flex gap-2 items-center  px-3 py-1 border ',
-                enabled ? "bg-meepGray-500 border-meepGray-500" : "bg-meepGray-700 border-meepGray-500"
-              )}>
-                <Icon className={twMerge(
-                  "w-4 text-meeGray-300 ",
-                  enabled && "text-white"
-                )} />
-                {label}
-              </div>
-            </div>
-          ))}
+
 
         </div>
-        <a href="/reports/" className='rounded px-3 py-1 border bg-meepGray-800 border-meepGray-700 items-center text-sm text-white flex flex-row gap-2 overflow-hidden text-nowrap text-ellipsis cursor-pointer '><ArrowLeft></ArrowLeft>Back to Maps</a>
+        <Dialog>
+          <DialogTrigger className="bg-meepGray-700 rounded border  flex gap-2 items-center  px-3 py-1 border-meepGray-600 text-sm text-white flex-row overflow-hidden text-nowrap text-ellipsis cursor-pointer">
+            <Settings />Settings</DialogTrigger>
+          <DialogContent className="w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Map Settings</DialogTitle> 
+              <DialogDescription>
+                <DataConfigPanel />
+                Struggling to find what you're looking for? Provide feedback <a href="" className="underline">here</a>
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+        {/* <a href="/reports/" className='rounded px-3 py-1 border bg-meepGray-800 border-meepGray-700 items-center text-sm text-white flex flex-row gap-2 overflow-hidden text-nowrap text-ellipsis cursor-pointer '><ArrowLeft></ArrowLeft>Back to Maps</a> */}
 
       </nav>
       <div className="absolute w-full h-[calc(100%-74px)] flex flex-row pointer-events-none">
         <aside className="h-full pointer-events-auto">
-            {/* Data config card */}
-            {report?.data?.mapReport && isDataConfigOpen && (
-              <DataConfigPanel />
-            )}
+          {/* Data config card */}
+          {report?.data?.mapReport && isDataConfigOpen && (
+            <DataConfigPanel />
+          )}
         </aside>
         <div className='w-full h-full pointer-events-auto'>
+          <div className="absolute z-20 top-4 left-4">
+            {toggles.map(({ icon: Icon, label, enabled, toggle }) => (
+              <div
+                key={label}
+                className='text-sm text-white flex flex-row gap-2 overflow-hidden text-nowrap text-ellipsis cursor-pointer '
+                onClick={toggle}>
+                <div className={twMerge(
+                  ' rounded flex gap-2 items-center  px-3 py-1 border ',
+                  enabled ? "bg-meepGray-500 border-meepGray-500" : "bg-meepGray-700 border-meepGray-500"
+                )}>
+                  <Icon className={twMerge(
+                    "w-4 text-meeGray-300 ",
+                    enabled && "text-white"
+                  )} />
+                  {label}
+                </div>
+              </div>
+            ))}
+          </div>
+
           <ReportMap />
         </div>
         {/* Layer card */}

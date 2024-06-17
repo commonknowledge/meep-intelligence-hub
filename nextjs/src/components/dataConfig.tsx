@@ -81,141 +81,93 @@ export default function DataConfigPanel() {
 
 
   return (
-    <div className="h-full w-[250px] flex flex-col bg-meepGray-800 border-r text-meepGray-200 border-meepGray-700 max-w-xs overflow-y-auto min-h-0">
-      <CardHeader className='p-3 flex flex-row justify-between items-center'>
-        <h2 className="">Map layers</h2>
-        <X className='w-4 cursor-pointer' onClick={() => { setOpen(false) }} />
-      </CardHeader>
-      <CardContent className="flex flex-col justify-between grow">
-        <div className="p-3 flex flex-col gap-2 border-t border-meepGray-700 bg-meepGray-700 grow">
-          <span className="text-dataName text-meepGray-300 font-semibold uppercase "><User className="text-brandBlue mb-2"/>Member lists</span>
-          <p className="text-tiny text-meepGray-400 mb-2">Add member lists from your data source library to the map.</p>
-          {layers.data.layers?.filter(d => d?.source?.dataType === DataSourceType.Member)
-            .map((layer, index) => layer?.source && (
-              <div key={layer?.source?.id || index} className="flex gap-2 items-center">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button className="border-l-4 hover:bg-meepGray-700 outline outline-1 outline-meepGray-600 bg-meepGray-800 p-3 text-sm flex flex-row items-center gap-2 text-left justify-start overflow-hidden text-nowrap text-ellipsis h-14 w-full" style={{
-                      borderColor: layerIdColour(layer?.source?.id)
-                    }}
-                    >
-                      <CRMSelection
-                        // @ts-ignore: Property 'id' is optional in type 'DeepPartialObject - a silly Fragment typing
-                        source={layer.source}
-                        isShared={!!layer.sharingPermission}
-                      />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className='space-y-4'>
-                    {!!layer?.source?.id && (
-                      !layer.sharingPermission ? (
-                        <>
-                          <div>{layer.source.importedDataCount || 0} records imported</div>
-                          <Link href={`/data-sources/inspect/${layer?.source?.id}`} className='underline py-2 text-sm'>
-                            Inspect data source <ArrowRight />
-                          </Link>
-                          <Button disabled={layer.source.isImportScheduled} onClick={() => importData(client, layer.source!.id)}>
-                            {!layer.source.isImportScheduled ? "Import data" : <span className='flex flex-row gap-2 items-center'>
-                              <LoadingIcon size={"18"} />
-                              <span>Importing...</span>
-                            </span>}
-                          </Button>
-                        </>
-                      ) : (
-                        <div className='text-sm'>
-                          <div>This data source is managed by {layer.source.organisation?.name}.</div>
-                          <div className='flex flex-col gap-2 mt-4'>
-                            <div className='flex flex-row gap-1 uppercase font-semibold text-sm text-meepGray-400'>
-                              <span>Their share settings</span>
-                            </div>
-                            <div className='flex flex-row gap-1 items-start'>
-                              <Checkbox
-                                checked={!!layer.sharingPermission?.visibilityRecordCoordinates}
-                                disabled
-                              />
-                              <label className='-mt-1'>
-                                <span>
-                                  Precise record locations
-                                </span>
-                                <p className='text-meepGray-400 text-xs'>
-                                  If enabled, pins will be placed on a map for each record. If disabled, only aggregate ward / constituency / region data will be shared.
-                                </p>
-                              </label>
-                            </div>
-                            <div className='flex flex-row gap-1 items-start'>
-                              <Checkbox
-                                checked={!!layer.sharingPermission?.visibilityRecordDetails}
-                                disabled
-                              />
-                              <label className='-mt-1'>
-                                <span>
-                                  Record details
-                                </span>
-                                <p className='text-meepGray-400 text-xs'>
-                                  Specific data like {'"'}name{'"'}</p>
-                              </label>
-                            </div>
+    <div className=" py-4 grid grid-cols-2 gap-10 text-meepGray-200 border-meepGray-700 min-h-0">
+      <div className="p-4 rounded bg-meepGray-700 col-span-2">
+        <span className="text-dataName text-meepGray-300 font-semibold uppercase "><User className="text-brandBlue mb-2" />Member lists</span>
+        <p className="text-tiny text-meepGray-400 mb-2">Add member lists from your data source library to the map.</p>
+        {layers.data.layers?.filter(d => d?.source?.dataType === DataSourceType.Member)
+          .map((layer, index) => layer?.source && (
+            <div key={layer?.source?.id || index} className="flex gap-2 items-center">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button className="border-l-4 hover:bg-meepGray-700 outline outline-1 outline-meepGray-600 bg-meepGray-800 p-3 text-sm flex flex-row items-center gap-2 text-left justify-start overflow-hidden text-nowrap text-ellipsis h-14 w-full" style={{
+                    borderColor: layerIdColour(layer?.source?.id)
+                  }}
+                  >
+                    <CRMSelection
+                      // @ts-ignore: Property 'id' is optional in type 'DeepPartialObject - a silly Fragment typing
+                      source={layer.source}
+                      isShared={!!layer.sharingPermission}
+                    />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='space-y-4'>
+                  {!!layer?.source?.id && (
+                    !layer.sharingPermission ? (
+                      <>
+                        <div>{layer.source.importedDataCount || 0} records imported</div>
+                        <Link href={`/data-sources/inspect/${layer?.source?.id}`} className='underline py-2 text-sm'>
+                          Inspect data source <ArrowRight />
+                        </Link>
+                        <Button disabled={layer.source.isImportScheduled} onClick={() => importData(client, layer.source!.id)}>
+                          {!layer.source.isImportScheduled ? "Import data" : <span className='flex flex-row gap-2 items-center'>
+                            <LoadingIcon size={"18"} />
+                            <span>Importing...</span>
+                          </span>}
+                        </Button>
+                      </>
+                    ) : (
+                      <div className='text-sm'>
+                        <div>This data source is managed by {layer.source.organisation?.name}.</div>
+                        <div className='flex flex-col gap-2 mt-4'>
+                          <div className='flex flex-row gap-1 uppercase font-semibold text-sm text-meepGray-400'>
+                            <span>Their share settings</span>
+                          </div>
+                          <div className='flex flex-row gap-1 items-start'>
+                            <Checkbox
+                              checked={!!layer.sharingPermission?.visibilityRecordCoordinates}
+                              disabled
+                            />
+                            <label className='-mt-1'>
+                              <span>
+                                Precise record locations
+                              </span>
+                              <p className='text-meepGray-400 text-xs'>
+                                If enabled, pins will be placed on a map for each record. If disabled, only aggregate ward / constituency / region data will be shared.
+                              </p>
+                            </label>
+                          </div>
+                          <div className='flex flex-row gap-1 items-start'>
+                            <Checkbox
+                              checked={!!layer.sharingPermission?.visibilityRecordDetails}
+                              disabled
+                            />
+                            <label className='-mt-1'>
+                              <span>
+                                Record details
+                              </span>
+                              <p className='text-meepGray-400 text-xs'>
+                                Specific data like {'"'}name{'"'}</p>
+                            </label>
                           </div>
                         </div>
-                      )
-                    )}
-                    <Button className="ml-1" onClick={() => {
-                      removeLayer(layer?.source?.id!)
-                    }} variant='destructive'>Remove layer</Button>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            ))}
-          <div className="flex gap-2 items-center mt-2 ">
-            <AddMapLayerButton addLayer={addLayer} filter={source => source.dataType === DataSourceType.Member} />
-          </div>
-          <div className="grow"></div>
-          <div className='bg-meepGray-600 p-3 rounded'>
-            <CardHeader>
-              <h2 className='text-meepGray-400 flex flex-row gap-2 items-center text-sm'>
-                <Shuffle className='w-4' />Invite orgs to share lists
-              </h2>
-            </CardHeader>
-            <CardContent>
-              <p className='text-meepGray-300 text-xs py-4'>
-                Invite to organisations to share membership lists and collaborate on a campaign together.
-              </p>
-              <div className="flex gap-2 items-center">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button size={'sm'} variant='outline' className='text-sm'>
-                      <Plus /> Invite
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Request data from other campaigns</DialogTitle>
-                      <DialogDescription>
-                        Share this URL to request data from other campaigns. They{"'"}ll be able to pick and choose which data sources to share with you, with some data privacy options.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex w-full max-w-sm items-center space-x-2">
-                      <Input value={shareURL()} />
-                      <Button onClick={() => {
-                        navigator.clipboard.writeText(shareURL())
-                        toast.success("Copied to clipboard")
-                      }}><ClipboardCopy /></Button>
-                    </div>
-                    <DialogFooter>
-                      <DialogClose onClick={() => {
-                        navigator.clipboard.writeText(shareURL())
-                        toast.success("Copied to clipboard")
-                      }}>
-                        Copy and close
-                      </DialogClose>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardContent>
-          </div>
+                      </div>
+                    )
+                  )}
+                  <Button className="ml-1" onClick={() => {
+                    removeLayer(layer?.source?.id!)
+                  }} variant='destructive'>Remove layer</Button>
+                </PopoverContent>
+              </Popover>
+            </div>
+          ))}
+        <div className="flex gap-2 items-center mt-2 ">
+          <AddMapLayerButton addLayer={addLayer} filter={source => source.dataType === DataSourceType.Member} />
         </div>
-        <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700 grow">
+      </div>
+
+      <div>
+        <div className="p-3 pb-4 flex flex-col gap-2 border-meepGray-700 grow">
           <span className="text-dataName text-meepGray-300 font-semibold uppercase">Campaign map layers</span>
           <p className="text-tiny text-meepGray-400 mb-2">Add custom data such as events, locations and more to the map.</p>
           {layers.data.layers
@@ -299,24 +251,52 @@ export default function DataConfigPanel() {
             <AddMapLayerButton addLayer={addLayer} filter={source => source.dataType !== DataSourceType.Member} />
           </div>
         </div>
-        <div>
-
-          <div className="p-3 pb-4 flex flex-col gap-2 border-t border-meepGray-700">
-            <span className=" text-dataName uppercase mb-2 text-meepGray-300">Map settings</span>
-            {/* Choose analytical area type */}
-            <div className="text-labelLg text-meepGray-200 flex items-center gap-2">
-              <Checkbox
-                checked={displayOptions.showStreetDetails}
-                onCheckedChange={(showStreetDetails) => { setDisplayOptions({ showStreetDetails }) }}
-
-              />Street details
-            </div>
-            
+      </div>
+      <div className="col-span-">
+        <CardHeader>
+          <h2 className='text-meepGray-400 flex flex-row gap-2 items-center text-sm'>
+            <Shuffle className='w-4' />Invite orgs to share lists
+          </h2>
+        </CardHeader>
+        <CardContent>
+          <p className='text-meepGray-300 text-xs py-4'>
+            Invite to organisations to share membership lists and collaborate on a campaign together.
+          </p>
+          <div className="flex gap-2 items-center">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size={'sm'} variant='outline' className='text-sm'>
+                  <Plus /> Invite
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Request data from other campaigns</DialogTitle>
+                  <DialogDescription>
+                    Share this URL to request data from other campaigns. They{"'"}ll be able to pick and choose which data sources to share with you, with some data privacy options.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex w-full max-w-sm items-center space-x-2">
+                  <Input value={shareURL()} />
+                  <Button onClick={() => {
+                    navigator.clipboard.writeText(shareURL())
+                    toast.success("Copied to clipboard")
+                  }}><ClipboardCopy /></Button>
+                </div>
+                <DialogFooter>
+                  <DialogClose onClick={() => {
+                    navigator.clipboard.writeText(shareURL())
+                    toast.success("Copied to clipboard")
+                  }}>
+                    Copy and close
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
-          
+        </CardContent>
 
-        </div>
-      </CardContent>
+      </div>
     </div>
   )
 
