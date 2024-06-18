@@ -291,6 +291,7 @@ export function ReportMap () {
           }
           return { url };
         }}
+        // padding={{ top: 0, right: 0, bottom: 0, left: 0 }}
       >
         {mapbox.loaded && (
           <>
@@ -351,6 +352,8 @@ export function ReportMap () {
               const SOURCE_STROKE = `${tileset.name}_SOURCE_STROKE`;
               const SOURCE_LABEL = `${tileset.name}_SOURCE_LABEL`;
               const SOURCE_POINTS = `${tileset.name}_SOURCE_POINTS`;
+
+              
 
               return (
                 <Fragment key={tileset.mapboxSourceId}>

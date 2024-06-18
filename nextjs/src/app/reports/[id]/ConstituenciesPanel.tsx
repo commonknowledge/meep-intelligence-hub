@@ -45,59 +45,24 @@ export function ConstituenciesPanel() {
   // }, [selectedConstituencyId, setTab])
 
   return (
-    <div className="bg-meepGray-800 text-meepGray-200 border-l border-meepGray-700 max-h-full flex flex-col pointer-events-auto w-[600px]">
-      <div className='p-3 flex flex-row justify-between items-center'>
-        <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <MoreVertical className='w-3' />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="left" align="start">
-              <ConsSettings />
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <h2 className="">Constituency Data</h2>
+    <div className="text-meepGray-200 flex flex-col pointer-events-auto w-[600px] h-full">
+      <div className="flex h-full">
+        <div className="p-4 w-1/3 border-r border-meepGray-600 h-full bg-meepGray-800">
+          <div className="flex gap-2 mb-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <MoreVertical className='w-3' />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="left" align="start">
+                <ConsSettings />
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <h2 className="text-sm text-meepGray-300">Constituencies</h2>
+          </div>
+          <TopConstituencies />
         </div>
-
-
-        {/* <X className='w-4 cursor-pointer' onClick={() => { setOpen(false) }} /> */}
-
+        <ConstituencyElectionDeepDive gss={selectedConstituencyId} analyticalAreaType={analyticalAreaType} />
       </div>
-      <Tabs value={tab} onValueChange={setTab} className='border-meepGray-700 flex flex-col max-h-full overflow-hidden items-start justify-start'>
-        <TabsList className='w-full p-0 pt-2 px-2 justify-start rounded-none'>
-          <TabsTrigger value="list" className="text-white data-[state=active]:text-white data-[state=active]:rounded-none data-[state=active]:rounded-t data-[state=active]:bg-meepGray-800 text-dataName uppercase">All</TabsTrigger>
-          {!!selectedConstituencyId && (
-            <TabsTrigger value="selected" className="text-white data-[state=active]:text-white data-[state=active]:rounded-none data-[state=active]:rounded-t data-[state=active]:bg-meepGray-800 text-dataName uppercase">
-              Selected
-            </TabsTrigger>
-          )}
-          <TabsTrigger value="members" className="text-white data-[state=active]:text-white data-[state=active]:rounded-none data-[state=active]:rounded-t data-[state=active]:bg-meepGray-800 text-dataName uppercase">
-            Members
-          </TabsTrigger>
-        </TabsList>
-        {/* Don't stretch, grow at most to height of window, scroll internally */}
-        <div className='overflow-y-auto max-h-full px-4 w-full'>
-          <TabsContent value="list" className="pb-4">
-            <div className="flex gap-4">
-
-              <TopConstituencies />
-              <div>
-                {!!selectedConstituencyId && (
-                  <ConstituencyElectionDeepDive gss={selectedConstituencyId} analyticalAreaType={analyticalAreaType} />
-                )}
-              </div>
-            </div>
-          </TabsContent>
-          {!!selectedConstituencyId && (
-            <TabsContent value="selected" className="pb-4">
-              <ConstituencyElectionDeepDive gss={selectedConstituencyId} analyticalAreaType={analyticalAreaType} />
-            </TabsContent>
-          )}
-          <TabsContent value="members" className="pb-4">
-            <MembersList />
-          </TabsContent>
-        </div>
-      </Tabs>
     </div>
   )
 }

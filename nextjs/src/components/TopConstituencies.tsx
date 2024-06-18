@@ -10,6 +10,8 @@ import { LoadingIcon } from "./ui/loadingIcon"
 import { useLoadedMap } from "@/lib/map"
 import { constituencyPanelTabAtom } from "@/app/reports/[id]/ConstituenciesPanel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 import { twMerge } from "tailwind-merge"
 
 
@@ -71,7 +73,7 @@ export function TopConstituencies() {
 
   return (
     // List of them here
-    <div className='flex flex-col gap-4 w-1/3 border-r border-meepGray-700 pr-4'>
+    <div className='flex flex-col gap-4 border-meepGray-700 w-full'>
       <div className='text-meepGray-400 text-xs'>
         <div className='flex flex-col items-stretch gap-2'>
 
@@ -83,7 +85,7 @@ export function TopConstituencies() {
           <Select
             value={sortBy}
             onValueChange={(value) => setSortBy(value as keyof typeof sortOptions)}
-            
+
           >
 
             <div>
@@ -95,16 +97,19 @@ export function TopConstituencies() {
                 <span className="text-muted-foreground">Sort by:</span>
               </SelectTrigger>
               <SelectContent>
+                <ScrollArea className="h-72" >
                 {Object.entries(sortOptions).map(([value, label]) => (
                   <SelectItem key={value} value={value} className="text-xs">
                     {label}
                   </SelectItem>
                 ))}
+                </ScrollArea>
               </SelectContent>
             </div>
           </Select>
         </div>
       </div>
+      
       {constituencies?.map((constituency) => (
         <div
           key={constituency.gss}
@@ -114,7 +119,7 @@ export function TopConstituencies() {
               maxZoom: MAX_CONSTITUENCY_ZOOM - 0.1
             })
           }}
-          className='cursor-pointer bg-meepGray-800 border border-meepGray-700 group hover:bg-meepGray-700 rounded'
+          className='cursor-pointer text-lg border border-meepGray-600 group hover:bg-meepGray-600 rounded'
         >
           <ConstituencySummaryCard
             constituency={constituency.gssArea!}
@@ -135,8 +140,8 @@ export function ConstituencySummaryCard({ count, constituency }: {
   const { displayOptions } = useReportContext()
 
   return (
-    <div className='p-3 '>
-      <h2 className='text-xl mb-1'>{constituency.name}</h2>
+    <div className='p-3'>
+      <h2 className='mb-2 text-base '>{constituency.name}</h2>
       {!!constituency.mp?.name && displayOptions.showMPs && (
         <div className='mb-5 mt-4'>
           <Person
@@ -146,7 +151,7 @@ export function ConstituencySummaryCard({ count, constituency }: {
           />
         </div>
       )}
-      {!!constituency.lastElection?.stats && displayOptions.showLastElectionData && (
+      {/* {!!constituency.lastElection?.stats && displayOptions.showLastElectionData && (
         <div className='flex justify-between mb-6'>
           <div className="flex flex-col gap-1">
             <p className="text-dataName font-IBMPlexSansCondensed uppercase text-meepGray-300">
@@ -175,12 +180,12 @@ export function ConstituencySummaryCard({ count, constituency }: {
             </div>
           </div>
         </div>
-      )}
+      )} */}
       <div>
         <MemberElectoralInsights
           totalCount={count}
           electionStats={constituency.lastElection?.stats}
-          bg="bg-meepGray-700 group-hover:bg-meepGray-600"
+          bg=" group-hover:bg-meepGray-600 border border-meepGray-700"
         />
       </div>
     </div>

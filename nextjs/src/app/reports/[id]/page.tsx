@@ -28,7 +28,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { ArrowLeft, BarChart3, Layers, MoreVertical, RefreshCcw, Settings, Trash } from "lucide-react"
+import { ArrowLeft, BarChart3, Layers, MoreVertical, RefreshCcw, Settings, Trash, Database, Text } from "lucide-react"
 import { Toggle } from "@/components/ui/toggle"
 import DataConfigPanel from "@/components/dataConfig";
 import { FetchResult, gql, useApolloClient, useQuery } from "@apollo/client";
@@ -49,7 +49,7 @@ import { useRouter } from "next/navigation";
 import spaceCase from 'to-space-case'
 import { toastPromise } from "@/lib/toast";
 import { MAP_REPORT_LAYER_ANALYTICS, ReportMap, selectedConstituencyAtom } from "@/components/report/ReportMap";
-import { MAP_REPORT_FRAGMENT, isConstituencyPanelOpenAtom, isDataConfigOpenAtom } from "@/lib/map";
+import { MAP_REPORT_FRAGMENT, isConstituencyPanelOpenAtom, isDataConfigOpenAtom, isNavigatorPanelOpenAtom } from "@/lib/map";
 import { DisplayOptionsType, ReportContext, defaultDisplayOptions } from "./context";
 import { LoadingIcon } from "@/components/ui/loadingIcon";
 import { contentEditableMutation } from "@/lib/html";
@@ -61,6 +61,7 @@ import { merge } from 'lodash'
 import { currentOrganisationIdAtom } from "@/data/organisation";
 import Link from "next/link";
 import { MappedIcon } from "@/components/navbar";
+import Navigator from "@/components/navigator/Navigator";
 
 type Params = {
   id: string
@@ -98,7 +99,8 @@ export default function Page({ params: { id } }: { params: Params }) {
           deleteReport: del,
           refreshReportDataQueries,
           displayOptions,
-          setDisplayOptions: updateDisplayOptions
+          setDisplayOptions: updateDisplayOptions,
+          selectedMember: null,
         }}>
           <ReportPage />
         </ReportContext.Provider>
@@ -181,10 +183,11 @@ export default function Page({ params: { id } }: { params: Params }) {
 function ReportPage() {
   const { report, updateReport, deleteReport, refreshReportDataQueries } = useContext(ReportContext);
   const [deleteOpen, setDeleteOpen] = useState(false);
+
   const [isDataConfigOpen, setDataConfigOpen] = useAtom(isDataConfigOpenAtom);
-  const toggleDataConfig = () => setDataConfigOpen(b => !b);
+  const toggleDataConfig = () => setDataConfigOpen(b => !b)
+
   const [isConstituencyPanelOpen, setConstituencyPanelOpen] = useAtom(isConstituencyPanelOpenAtom);
-  const [selectedConstituency, setSelectedConstituency] = useAtom(selectedConstituencyAtom);
   const toggleConsData = () => {
     setConstituencyPanelOpen(b => {
       if (b) {
@@ -193,6 +196,11 @@ function ReportPage() {
       return !b
     })
   }
+
+  const [selectedConstituency, setSelectedConstituency] = useAtom(selectedConstituencyAtom);
+
+  const [isNavigatorPanelOpen, setNavigatorPanelOpen] = useAtom(isNavigatorPanelOpenAtom);
+  const toggleNavigator = () => setNavigatorPanelOpen(b => !b)
 
   useEffect(() => {
     // @ts-ignore
@@ -229,11 +237,17 @@ function ReportPage() {
     //   enabled: isDataConfigOpen,
     //   toggle: toggleDataConfig
     // },
+    // {
+    //   icon: BarChart3,
+    //   label: "Constituency data",
+    //   enabled: isConstituencyPanelOpen,
+    //   toggle: toggleConsData
+    // },
     {
-      icon: BarChart3,
-      label: "Constituency data",
-      enabled: isConstituencyPanelOpen,
-      toggle: toggleConsData
+      icon: Text,
+      label: "Navigator",
+      enabled: isNavigatorPanelOpen,
+      toggle: toggleNavigator
     }
   ]
 
@@ -281,19 +295,40 @@ function ReportPage() {
 
 
         </div>
-        <Dialog>
-          <DialogTrigger className="bg-meepGray-700 rounded border  flex gap-2 items-center  px-3 py-1 border-meepGray-600 text-sm text-white flex-row overflow-hidden text-nowrap text-ellipsis cursor-pointer">
-            <Settings />Settings</DialogTrigger>
-          <DialogContent className="w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Map Settings</DialogTitle> 
-              <DialogDescription>
-                <DataConfigPanel />
-                Struggling to find what you're looking for? Provide feedback <a href="" className="underline">here</a>
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+
+          <Dialog>
+            <DialogTrigger className="bg-meepGray-700 rounded border  flex gap-2 items-center  px-4 py-2 border-meepGray-600 text-sm text-white flex-row overflow-hidden text-nowrap text-ellipsis cursor-pointer">
+              <Settings className="text-meepGray-400"/>Settings</DialogTrigger>
+            <DialogContent className="w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Map Settings</DialogTitle>
+                <DialogDescription>
+                  <DataConfigPanel />
+                  Struggling to find what you're looking for? Provide feedback <a href="" className="underline">here</a>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+          {toggles.map(({ icon: Icon, label, enabled, toggle }) => (
+            <div
+              key={label}
+              className='text-sm text-white flex flex-row gap-2 overflow-hidden text-nowrap text-ellipsis cursor-pointer '
+              onClick={toggle}>
+              <div className={twMerge(
+                ' rounded flex gap-2 items-center  px-4 py-2 border ',
+                enabled ? "bg-meepGray-500 border-meepGray-500" : "bg-meepGray-700 border-meepGray-600"
+              )}>
+                <Icon className={twMerge(
+                  "w-4 text-meepGray-400 ",
+                  enabled && "text-white"
+                )} />
+                {label}
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* <a href="/reports/" className='rounded px-3 py-1 border bg-meepGray-800 border-meepGray-700 items-center text-sm text-white flex flex-row gap-2 overflow-hidden text-nowrap text-ellipsis cursor-pointer '><ArrowLeft></ArrowLeft>Back to Maps</a> */}
 
       </nav>
@@ -304,35 +339,14 @@ function ReportPage() {
             <DataConfigPanel />
           )}
         </aside>
-        <div className='w-full h-full pointer-events-auto'>
-          <div className="absolute z-20 top-4 left-4">
-            {toggles.map(({ icon: Icon, label, enabled, toggle }) => (
-              <div
-                key={label}
-                className='text-sm text-white flex flex-row gap-2 overflow-hidden text-nowrap text-ellipsis cursor-pointer '
-                onClick={toggle}>
-                <div className={twMerge(
-                  ' rounded flex gap-2 items-center  px-3 py-1 border ',
-                  enabled ? "bg-meepGray-500 border-meepGray-500" : "bg-meepGray-700 border-meepGray-500"
-                )}>
-                  <Icon className={twMerge(
-                    "w-4 text-meeGray-300 ",
-                    enabled && "text-white"
-                  )} />
-                  {label}
-                </div>
-              </div>
-            ))}
-          </div>
-
+        <div className='w-full h-full pointer-events-auto flex'>
           <ReportMap />
+          {report?.data?.mapReport && isNavigatorPanelOpen && (
+            <aside className=" w-screen flex bg-meepGray-700">
+              <Navigator />
+            </aside>
+          )}
         </div>
-        {/* Layer card */}
-        {report?.data?.mapReport && isConstituencyPanelOpen && (
-          <aside className="h-full">
-            <ConstituenciesPanel />
-          </aside>
-        )}
       </div>
       <AlertDialog open={deleteOpen} onOpenChange={() => setDeleteOpen(false)}>
         <AlertDialogContent>

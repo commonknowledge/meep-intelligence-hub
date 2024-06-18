@@ -21,6 +21,7 @@ export const ReportContext = createContext<{
   refreshReportDataQueries: () => void,
   displayOptions: DisplayOptionsType,
   setDisplayOptions: (options: Partial<DisplayOptionsType>) => void,
+  selectedMember: any,
 }>({
   id: '?',
   updateReport: () => ({} as any),
@@ -28,6 +29,7 @@ export const ReportContext = createContext<{
   refreshReportDataQueries: () => {},
   displayOptions: defaultDisplayOptions,
   setDisplayOptions: () => {},
+  selectedMember: null,
 });
 
 export const useReportContext = () => {

@@ -55,11 +55,11 @@ export default function ConstituenciesDropdown({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className=" justify-between bg-meepGray-700"
+                    className=" justify-between bg-meepGray-600"
                 >
                     {value
                         ? constituencies.find((constituency) => constituency.gss === value)?.gssArea.name
-                        : "Select constituency..."}
+                        : "Search constituency..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
