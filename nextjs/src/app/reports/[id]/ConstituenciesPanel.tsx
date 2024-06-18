@@ -47,8 +47,8 @@ export function ConstituenciesPanel() {
   return (
     <div className="text-meepGray-200 flex flex-col pointer-events-auto w-[600px] h-full">
       <div className="flex h-full">
-        <div className="p-4 w-1/3 border-r border-meepGray-600 h-full bg-meepGray-800">
-          <div className="flex gap-2 mb-2">
+        <div className="w-1/3 border-r border-meepGray-600 h-full bg-meepGray-800">
+          <div className="flex gap-2 mb-2 p-4">
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <MoreVertical className='w-3' />
