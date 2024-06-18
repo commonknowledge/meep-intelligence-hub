@@ -28,6 +28,7 @@ import { z } from "zod";
 import { layerColour, useLoadedMap, isConstituencyPanelOpenAtom, MAP_REPORT_LAYERS_SUMMARY, layerIdColour, useMapIcons, PlaceholderLayer } from "@/lib/map";
 import { constituencyPanelTabAtom } from "@/app/reports/[id]/ConstituenciesPanel";
 import { authenticationHeaders } from "@/lib/auth";
+import { selectedConstituencyAtom } from "@/app/reports/[id]/page";
 
 const MAX_REGION_ZOOM = 8
 export const MAX_CONSTITUENCY_ZOOM = 10
@@ -40,8 +41,6 @@ const viewStateAtom = atom<Partial<ViewState>>({
 })
 
 const selectedSourceMarkerAtom = atom<MapboxGeoJSONFeature | null>(null)
-
-export const selectedConstituencyAtom = atom<string | null>(null)
 
 export function ReportMap () {
   const { id, displayOptions } = useContext(ReportContext)

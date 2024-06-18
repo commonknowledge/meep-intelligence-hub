@@ -5,7 +5,7 @@ import { useContext, useState } from "react"
 import { MemberElectoralInsights, Person } from "./reportsConstituencyItem"
 import { getYear } from "date-fns"
 import { useAtom } from "jotai"
-import { MAX_CONSTITUENCY_ZOOM, selectedConstituencyAtom } from "./report/ReportMap"
+import { MAX_CONSTITUENCY_ZOOM } from "./report/ReportMap"
 import { LoadingIcon } from "./ui/loadingIcon"
 import { useLoadedMap } from "@/lib/map"
 import { constituencyPanelTabAtom } from "@/app/reports/[id]/ConstituenciesPanel"
@@ -32,6 +32,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import ConstituenciesDropdown from "./ConstituenciesDropdown"
+import { selectedConstituencyAtom } from "@/app/reports/[id]/page"
 
 export function TopConstituencies() {
   const sortOptions = {
