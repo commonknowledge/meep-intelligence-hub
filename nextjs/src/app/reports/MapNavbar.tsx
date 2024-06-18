@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { MappedIcon } from '@/components/navbar'
 import { Provider as JotaiProvider, atom, useAtom, useAtomValue } from "jotai";
 import { MAP_REPORT_FRAGMENT, isConstituencyPanelOpenAtom, isDataConfigOpenAtom } from "@/lib/map";
-import { MAP_REPORT_LAYER_ANALYTICS, ReportMap, selectedConstituencyAtom } from "@/components/report/ReportMap";
+import { MAP_REPORT_LAYER_ANALYTICS, ReportMap } from "@/components/report/ReportMap";
+import { selectedConstituencyAtom } from './[id]/page';
 
 import { BarChart3, Layers, MoreVertical, RefreshCcw, Trash } from "lucide-react"
 import { twMerge } from "tailwind-merge";

@@ -1,4 +1,3 @@
-import { selectedConstituencyAtom } from "@/components/report/ReportMap"
 import { atom, useAtom } from "jotai"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MoreVertical } from "lucide-react"
@@ -22,6 +21,7 @@ import { useEffect, useRef, useState } from "react";
 import { useReportContext } from "./context";
 import MembersList from "@/components/MembersList"
 import ConsSettings from "@/components/ConsSettings"
+import { selectedConstituencyAtom } from "./page"
 
 
 export const constituencyPanelTabAtom = atom("list")
