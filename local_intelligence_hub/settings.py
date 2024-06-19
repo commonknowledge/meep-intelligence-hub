@@ -29,10 +29,12 @@ env = environ.Env(
     MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET=(bool, True),
     MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET=(bool, True),
     EMAIL_BACKEND=(str, "django.core.mail.backends.console.EmailBackend"),
-    BACKEND_HOST=(str, False),
     BACKEND_PROTOCOL=(str, "https"),
+    BACKEND_HOST=(str, False),
     BASE_URL=(str, False),
+    FRONTEND_PROTOCOL=(str, "https"),
     FRONTEND_HOST=(str, False),
+    FRONTEND_URL=(str, False),
     FRONTEND_SITE_TITLE=(str, False),
     SCHEDULED_UPDATE_SECONDS_DELAY=(int, 3),
     DEBUG=(bool, False),
@@ -91,8 +93,18 @@ if ENCRYPTION_SECRET_KEY is None:
 MAPBOX_ACCESS_TOKEN = env("MAPBOX_ACCESS_TOKEN")
 GOOGLE_MAPS_API_KEY = env("GOOGLE_MAPS_API_KEY")
 ELECTORAL_COMMISSION_API_KEY = env("ELECTORAL_COMMISSION_API_KEY")
+BASE_URL = env("BASE_URL")
 BACKEND_HOST = env("BACKEND_HOST")
+BACKEND_PROTOCOL = env("BACKEND_PROTOCOL")
 FRONTEND_HOST = env("FRONTEND_HOST")
+FRONTEND_PROTOCOL = env("FRONTEND_PROTOCOL")
+FRONTEND_URL = env("FRONTEND_URL")
+
+from urllib.parse import urlunparse
+BASE_URL = urlunparse((BACKEND_PROTOCOL, BACKEND_HOST, "", "", "", "")) if BASE_URL is False else BASE_URL
+BACKEND_URL = BASE_URL
+FRONTEND_URL = urlunparse((FRONTEND_PROTOCOL, FRONTEND_HOST, "", "", "", "")) if FRONTEND_URL is False else FRONTEND_URL
+
 FRONTEND_SITE_TITLE = env("FRONTEND_SITE_TITLE")
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
@@ -502,9 +514,7 @@ CACHES = {
 }
 
 WAGTAIL_SITE_NAME = "Mapped hub page editor"
-from urllib.parse import urlunparse
-BASE_URL = urlunparse((env("BACKEND_PROTOCOL"), env("BACKEND_HOST"), "", "", "", ""))
-BASE_URL = env("BASE_URL", str, BASE_URL) or BASE_URL
+
 WAGTAILADMIN_BASE_URL = BASE_URL
 WAGTAILDOCS_EXTENSIONS = []
 WAGTAILIMAGES_IMAGE_MODEL = "hub.HubImage"

@@ -1,13 +1,4 @@
 version: "1"
-previewsEnabled: true
-previewsExpireAfterDays: 3
-envVarGroups:
-- name: MEEP production environment
-  envVars:
-    - key: CONCURRENCY
-      value: 2
-    - key: SHARED_SECRET
-      generateValue: true
 databases:
 - name: meep-database
   databaseName: meep_database
@@ -28,58 +19,45 @@ services:
   previewPlan: starter
   envVars:
   - key: SCHEDULED_UPDATE_SECONDS_DELAY
-    sync: false
+    value: 0
   - key: MINIO_STORAGE_STATIC_BUCKET_NAME
-    sync: false
   - key: MINIO_STORAGE_SECRET_KEY
-    sync: false
   - key: MINIO_STORAGE_MEDIA_BUCKET_NAME
-    sync: false
   - key: MINIO_STORAGE_ENDPOINT
-    sync: false
   - key: MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET
-    sync: false
   - key: MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET
-    sync: false
   - key: MINIO_STORAGE_ACCESS_KEY
-    sync: false
   - key: GOOGLE_SITE_VERIFICATION
     sync: false
   - key: GOOGLE_ANALYTICS
     sync: false
   - key: FRONTEND_SITE_TITLE
-    sync: false
-  - key: FRONTEND_BASE_URL
-    sync: false
+  - key: BACKEND_HOST
+    fromService:
+      name: meep-intelligence-hub-backend
+      property: host
+  - key: FRONTEND_HOST
+    fromService:
+      name: meep-intelligence-hub-worker
+      property: host
   - key: EMAIL_USE_TLS
-    sync: false
   - key: EMAIL_PORT
-    sync: false
   - key: EMAIL_HOST_USER
-    sync: false
   - key: EMAIL_HOST_PASSWORD
-    sync: false
   - key: EMAIL_HOST
-    sync: false
   - key: EMAIL_BACKEND
-    sync: false
   - key: ELECTORAL_COMMISSION_API_KEY
-    sync: false
   - key: DEFAULT_FROM_EMAIL
-    sync: false
   - key: DATABASE_URL
     fromDatabase:
       name: meep-database
       property: connectionString
   - key: CORS_ALLOWED_ORIGINS
-    sync: false
-  - key: CACHE_FILE
-    sync: false
-  - key: BASE_URL
-    sync: false
+    sync: false # Prompt for value during deploy
   - key: ALLOWED_HOSTS
-    sync: false
-    value: "api.mapped.commonknowledge.coop,mapped-api.commonknowledge.coop,meep-intelligence-hub-backend-fpiw.onrender.com,unitedfor.org,peopleclimatenature.org"
+    sync: false # Prompt for value during deploy
+  - key: CACHE_FILE
+    value: /tmp/meep
   - fromGroup: MEEP production environment
   region: frankfurt
   buildCommand: poetry install
@@ -89,6 +67,7 @@ services:
   healthCheckPath: /
   domains:
   - api.mapped.commonknowledge.coop
+  # Only in production
   scaling:
     minInstances: 1
     maxInstances: 2
@@ -114,12 +93,14 @@ services:
   - key: MAPIT_API_KEY
   - key: CACHE_FILE
     value: /tmp/meep
-  - key: BASE_URL_HOST
+  - key: BACKEND_HOST
     fromService:
       name: meep-intelligence-hub-backend
       property: host
-  - key: BASE_URL_PROTOCOL
-    value: "https"
+  - key: FRONTEND_HOST
+    fromService:
+      name: meep-intelligence-hub-worker
+      property: host
   - fromGroup: MEEP production environment
   region: frankfurt
   buildCommand: poetry install
@@ -143,6 +124,7 @@ services:
   - www.peopleclimatenature.org
   - peopleclimatenature.org
   - prototype.mapped.commonknowledge.coop
+  # Only in production
   scaling:
     minInstances: 1
     maxInstances: 2
@@ -152,56 +134,58 @@ services:
     paths:
     - nextjs/**
   rootDir: nextjs
-- type: web
-  name: minio-server
-  runtime: image
-  image:
-    url: docker.io/minio/minio:latest
-  plan: starter
-  previewPlan: starter
-  envVars:
-  - key: CONSOLE_PORT
-    sync: false
-  - key: PORT
-    sync: false
-  - key: HOST
-    sync: false
-  - key: MINIO_ROOT_USER
-    sync: false
-  - key: MINIO_ROOT_PASSWORD
-    sync: false
-  - key: MINIO_BROWSER
-    sync: false
-  region: frankfurt
-  healthCheckPath: /minio/health/live
-  dockerCommand: minio server /data --address $HOST:$PORT --console-address $HOST:$CONSOLE_PORT
-  domains:
-  - uploads.commonknowledge.coop
-  disk:
-    name: data
-    mountPath: /data
-    sizeGB: 10
-  autoDeploy: false
-- type: web
-  name: minio-console
-  runtime: image
-  image:
-    url: docker.io/minio/console:v0.30.0
-  plan: starter
-  previewPlan: starter
-  envVars:
-  - key: MINIO_HOST
-    fromService:
-      name: minio-server
-      type: ""
-      property: host
-  - key: PORT
-    sync: false
-  - key: CONSOLE_PBKDF_SALT
-    sync: false
-  - key: CONSOLE_PBKDF_PASSPHRASE
-    sync: false
-  region: frankfurt
-  dockerCommand: /bin/bash -c CONSOLE_MINIO_SERVER=https://$MINIO_HOST.onrender.com
-    ./console server --port $PORT
-  autoDeploy: false
+# Reuse the production MinIO to save on services.
+# Also because we can't hardcode credentials right now.
+# - type: web
+#   name: minio-server
+#   runtime: image
+#   image:
+#     url: docker.io/minio/minio:latest
+#   plan: starter
+#   previewPlan: starter
+#   envVars:
+#   - key: CONSOLE_PORT
+#     sync: false
+#   - key: PORT
+#     sync: false
+#   - key: HOST
+#     sync: false
+#   - key: MINIO_ROOT_USER
+#     sync: false
+#   - key: MINIO_ROOT_PASSWORD
+#     sync: false
+#   - key: MINIO_BROWSER
+#     sync: false
+#   region: frankfurt
+#   healthCheckPath: /minio/health/live
+#   dockerCommand: minio server /data --address $HOST:$PORT --console-address $HOST:$CONSOLE_PORT
+#   domains:
+#   - uploads.commonknowledge.coop
+#   disk:
+#     name: data
+#     mountPath: /data
+#     sizeGB: 10
+#   autoDeploy: false
+# - type: web
+#   name: minio-console
+#   runtime: image
+#   image:
+#     url: docker.io/minio/console:v0.30.0
+#   plan: starter
+#   previewPlan: starter
+#   envVars:
+#   - key: MINIO_HOST
+#     fromService:
+#       name: minio-server
+#       type: ""
+#       property: host
+#   - key: PORT
+#     sync: false
+#   - key: CONSOLE_PBKDF_SALT
+#     sync: false
+#   - key: CONSOLE_PBKDF_PASSPHRASE
+#     sync: false
+#   region: frankfurt
+#   dockerCommand: /bin/bash -c CONSOLE_MINIO_SERVER=https://$MINIO_HOST.onrender.com
+#     ./console server --port $PORT
+#   autoDeploy: false
