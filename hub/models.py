@@ -122,7 +122,7 @@ class Membership(models.Model):
     organisation = models.ForeignKey(
         Organisation, on_delete=models.CASCADE, related_name="members"
     )
-    role = models.CharField(max_length=250)
+    role = models.CharField(max_length=250, default="owner")
 
     def __str__(self):
         return f"{self.user}: {self.role} in {self.organisation}"
@@ -1647,18 +1647,11 @@ class ExternalDataSource(PolymorphicModel, Analytics):
             for key in keys
         ]
 
-    @classmethod
-    def _get_import_data(self, id: str):
-        """
-        For use by views to query data without having to instantiate the class / query the database for the CRM first
-        """
-        logger.debug(f"getting import data where external data source id is {id}")
-        return GenericData.objects.filter(
-            data_type__data_set__external_data_source_id=id
-        )
-
     def get_import_data(self):
-        return self._get_import_data(self.id)
+        logger.debug(f"getting import data where external data source id is {self.id}")
+        return GenericData.objects.filter(
+            data_type__data_set__external_data_source_id=self.id
+        )
 
     def get_analytics_queryset(self):
         return self.get_import_data()
@@ -3156,6 +3149,7 @@ class ActionNetworkSource(ExternalDataSource):
                 "osdi:submission",
                 "osdi:donation",
                 "osdi:outreach",
+                "osdi:signature",
             ]
             for key in payload_keys:
                 if item.get(key):
@@ -3298,6 +3292,16 @@ class ActionNetworkSource(ExternalDataSource):
         for record in records:
             created_records.append(self.create_one(record))
         return created_records
+
+    def get_import_data(self):
+        logger.debug(f"getting import data where action network source id is {self.id}")
+        return GenericData.objects.filter(
+            models.Q(data_type__data_set__external_data_source_id=self.id)
+            & (
+                models.Q(json__email_addresses__0__status="subscribed")
+                | models.Q(json__phone_numbers__0__status="subscribed")
+            )
+        )
 
 
 class TicketTailorSource(ExternalDataSource):
@@ -3481,7 +3485,17 @@ class MapReport(Report, Analytics):
             layer["source"] for layer in self.get_layers() if layer.get("visible", True)
         ]
         return GenericData.objects.filter(
-            data_type__data_set__external_data_source_id__in=visible_layer_ids
+            models.Q(data_type__data_set__external_data_source_id__in=visible_layer_ids)
+            & (
+                (
+                    models.Q(data__startswith="action_network")
+                    & (
+                        models.Q(json__email_addresses__0__status="subscribed")
+                        | models.Q(json__phone_numbers__0__status="subscribed")
+                    )
+                )
+                | (~models.Q(data__startswith="action_network"))
+            )
         )
 
     def get_analytics_queryset(self):
@@ -3489,7 +3503,7 @@ class MapReport(Report, Analytics):
 
 
 def generate_puck_json_content():
-    return {"content": [], "root": {}, "zones": {}}
+    return {"content": [], "root": {"props": {}}, "zones": {}}
 
 
 class HubImage(AbstractImage):
@@ -3503,6 +3517,13 @@ class HubImageRendition(AbstractRendition):
 
     class Meta:
         unique_together = (("image", "filter_spec", "focal_point_key"),)
+
+
+puck_wagtail_root_fields = [
+    "title",
+    "slug",
+    "search_description",
+]
 
 
 class HubHomepage(Page):

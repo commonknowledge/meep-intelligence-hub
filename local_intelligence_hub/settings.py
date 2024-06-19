@@ -202,7 +202,7 @@ MIDDLEWARE = [
     "hub.middleware.django_jwt_middleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "hub.middleware.record_last_seen_middleware",
+    "hub.middleware.record_last_seen_middleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 

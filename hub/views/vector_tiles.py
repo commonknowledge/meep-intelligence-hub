@@ -1,7 +1,7 @@
 import logging
 
 from django.db.models.query import QuerySet
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseServerError
 from django.urls import reverse
 from django.views.generic import DetailView
 
@@ -42,9 +42,11 @@ class GenericDataVectorLayer(VectorLayer):
         super().__init__(*args, **kwargs)
 
     def get_queryset(self) -> QuerySet:
-        return ExternalDataSource._get_import_data(self.external_data_source_id).filter(
-            **self.filter
+        source: ExternalDataSource = ExternalDataSource.objects.get(
+            id=self.external_data_source_id
         )
+        source = source.get_real_instance()
+        return source.get_import_data().filter(**self.filter)
 
 
 class ExternalDataSourceTileView(MVTView, DetailView):
@@ -67,7 +69,7 @@ class ExternalDataSourceTileView(MVTView, DetailView):
         except Exception as e:
             logger.warning(f"Could not view location data: {e}")
             logger.exception(e)
-            return HttpResponseForbidden(e)
+            return HttpResponseServerError(e)
 
     def get_id(self):
         return self.kwargs.get(self.pk_url_kwarg)

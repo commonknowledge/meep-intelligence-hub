@@ -22,11 +22,11 @@ from django.urls import include, path, re_path
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import RedirectView
 
-from strawberry_django_dataloaders.views import DataloaderAsyncGraphQLView
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
+from hub.graphql.context import CustomSchemaView
 from hub.graphql.schema import schema
 from hub.sitemap import hub_sitemap
 from hub.views import accounts, area, core, explore, landingpages, vector_tiles
@@ -125,7 +125,7 @@ urlpatterns = [
         {"sitemaps": hub_sitemap},
         name="django.contrib.sitemaps.views.sitemap",
     ),
-    path("graphql", DataloaderAsyncGraphQLView.as_view(schema=schema), name="graphql"),
+    path("graphql", CustomSchemaView.as_view(schema=schema), name="graphql"),
     path(
         f"{ExternalDataSourceWebhook.base_path}/<str:external_data_source_id>",
         csrf_exempt(ExternalDataSourceWebhook.as_view()),

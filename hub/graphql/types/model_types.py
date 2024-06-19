@@ -21,6 +21,7 @@ from wagtail.models import Site
 
 from hub import models
 from hub.enrichment.sources import builtin_mapping_sources
+from hub.graphql.context import HubDataLoaderContext
 from hub.graphql.dataloaders import (
     FieldDataLoaderFactory,
     FieldReturningListDataLoaderFactory,
@@ -557,6 +558,12 @@ class Area:
             )
         return data
 
+    @strawberry_django.field
+    async def sample_postcode(
+        self, info: Info[HubDataLoaderContext]
+    ) -> Optional[PostcodesIOResult]:
+        return await info.context.area_coordinate_loader.load(self.point)
+
 
 @strawberry.type
 class GroupedDataCount:
@@ -633,7 +640,8 @@ class GenericData(CommonData):
             return None
 
         # TODO: data loader for this
-        return models.Area.objects.filter(polygon__contains=self.point)
+        # Convert to list to make deeper async resolvers work
+        return list(models.Area.objects.filter(polygon__contains=self.point))
 
     @strawberry_django.field
     def area(self, area_type: str, info: Info) -> Optional[Area]:
@@ -643,7 +651,7 @@ class GenericData(CommonData):
         # TODO: data loader for this
         return models.Area.objects.filter(
             polygon__contains=self.point, area_type__code=area_type
-        )
+        ).first()
 
 
 @strawberry.type
@@ -1227,7 +1235,14 @@ class HubPage:
     def puck_json_content(self) -> JSON:
         specific = self.specific
         if hasattr(specific, "puck_json_content"):
-            return specific.puck_json_content
+            json = specific.puck_json_content
+            try:
+                if "root" in json and "props" in json["root"]:
+                    for field in models.puck_wagtail_root_fields:
+                        json["root"]["props"][field] = getattr(specific, field)
+            except Exception as e:
+                logger.error(f"Error adding root fields to puck json: {e}")
+            return json
         return {}
 
     @strawberry_django.field
