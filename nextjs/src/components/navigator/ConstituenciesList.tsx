@@ -5,11 +5,11 @@ import { useContext, useState } from "react"
 import { MemberElectoralInsights, Person } from "./reportsConstituencyItem"
 import { getYear } from "date-fns"
 import { useAtom } from "jotai"
-import { MAX_CONSTITUENCY_ZOOM } from "./report/ReportMap"
-import { LoadingIcon } from "./ui/loadingIcon"
+import { MAX_CONSTITUENCY_ZOOM } from "../report/ReportMap"
+import { LoadingIcon } from "../ui/loadingIcon"
 import { useLoadedMap } from "@/lib/map"
 import { constituencyPanelTabAtom } from "@/app/reports/[id]/ConstituenciesPanel"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { twMerge } from "tailwind-merge"
@@ -34,7 +34,7 @@ import {
 import ConstituenciesDropdown from "./ConstituenciesDropdown"
 import { selectedConstituencyAtom } from "@/app/reports/[id]/page"
 
-export function TopConstituencies() {
+export function ConstituenciesList() {
   const sortOptions = {
     totalCount: "Total Membership",
     electoralPower: "Electoral Power",
@@ -91,10 +91,10 @@ export function TopConstituencies() {
                 " w-full max-w-[200px] text-xs [&_svg]:h-4 [&_svg]:w-4 h-full"
               )}
             >
-              <span className="text-muted-foreground">Sort by:</span>
+              <span className="text-muted-foreground">Sort by</span>
             </SelectTrigger>
             <SelectContent>
-              <ScrollArea className="h-72" >
+              <ScrollArea  >
                 {Object.entries(sortOptions).map(([value, label]) => (
                   <SelectItem key={value} value={value} className="text-xs">
                     {label}
@@ -111,6 +111,7 @@ export function TopConstituencies() {
           key={constituency.gss}
           onClick={() => {
             setSelectedConstituency(constituency.gss!)
+
             map.loadedMap?.fitBounds(constituency.gssArea?.fitBounds, {
               maxZoom: MAX_CONSTITUENCY_ZOOM - 0.1
             })
@@ -137,7 +138,7 @@ export function ConstituencySummaryCard({ count, constituency }: {
 
   return (
     <div className='p-4'>
-      <h2 className='text-md mb-1'>{constituency.name}</h2>
+      <h2 className='text-sm  mb-1'>{constituency.name}</h2>
       <div className="text-meepGray-400">
         <MemberElectoralInsights
           totalCount={count}

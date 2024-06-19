@@ -15,7 +15,7 @@ export default function Navigator() {
                     <TabsTrigger value="members"><User className='text-brandBlue'/>Members</TabsTrigger>
                     <TabsTrigger value="constituency"><LocateFixed />Constituencies</TabsTrigger>
                 </TabsList>
-                <TabsContent value="members"><MembersList /></TabsContent>
+                <TabsContent value="members"><div className='p-4'><MembersList /></div></TabsContent>
                 <TabsContent value="constituency" className="h-full"><ConstituenciesPanel /></TabsContent>
             </Tabs>
 

@@ -66,7 +66,12 @@ const config = {
         hLgPP: ['36px', {
           lineHeight: '100%',
           fontWeight: '700',
-          letterSpacing: '0.05rem'
+          letterSpacing: '0.04rem'
+        }],
+        hMdPP: ['31px', {
+          lineHeight: '100%',
+          fontWeight: '700',
+          letterSpacing: '0.04rem'
         }],
         hLg: ['36px', {
           lineHeight: '120%',

@@ -26,8 +26,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { LoadingIcon } from "./ui/loadingIcon";
+import { LoadingIcon } from "../ui/loadingIcon";
 import { twMerge } from "tailwind-merge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ConstituencyItem-Tabs";
+import MembersList from "../MembersList";
+
 
 type Party = {
   name: string;
@@ -55,90 +58,110 @@ export const ConstituencyElectionDeepDive = ({ gss, analyticalAreaType = Analyti
     .filter(l => !!l.source.importedDataCountForConstituency?.count)
 
   return (
-    <div key={data.constituency.id} className='divide-y space-y-4 p-4'>
-      <h2 className='text-xl'>{data.constituency.name}</h2>
-      {data.constituency.mp && displayOptions.showMPs && (
-        <section className='mb-8'>
-          <div className='uppercase font-IBMPlexMono text-xs text-meepGray-400 mb-1'>
-            MP
-          </div>
-          <Person
-            img={data.constituency.mp.photo?.url}
-            name={data.constituency.mp.name}
-            subtitle={data.constituency.mp.party?.name}
-          />
-        </section>
-      )}
-      {!!data.constituency.lastElection && displayOptions.showLastElectionData && (
-        <section className='font-IBMPlexMono mb-10'>
-          <section>
-            {/* First and second parties */}
-            <article className='relative z-10 space-y-1'>
-              <div className='uppercase text-xs text-meepGray-400'>
-                1st in {getYear(data.constituency.lastElection.stats.date)}
+    <div key={data.constituency.id} className=' space-y-4 p-4 w-full'>
+      <h2 className=' font-PPRightGrotesk text-hMdPP text-'>{data.constituency.name}</h2>
+      <Tabs defaultValue="overview" className=''>
+        <TabsList className='bg-meepGray-700 pb-4 border-b border-meepGray-600 w-full justify-start'>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="constituency">Members</TabsTrigger>
+          <TabsTrigger value="demographics">Demographics</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview">
+          {data.constituency.mp && displayOptions.showMPs && (
+            <section className='mb-8'>
+              <div className='uppercase font-IBMPlexMono text-xs text-meepGray-400 mb-1'>
+                MP
               </div>
-              <div>{data.constituency.lastElection.stats.firstPartyResult.party}</div>
-              <div className='rounded w-full h-4' style={{ backgroundColor: data.constituency.lastElection.stats.firstPartyResult.shade }} />
-            </article>
-            <article className='relative z-10 pt-6'>
-              <div
-                aria-roledescription="Margin between first and second party votes"
-                className='bg-meepGray-700 border-l border-r border-meepGray-400 absolute right-0 top-0 h-full z-0'
-                style={{
-                  width: format(".0%")(
-                    1 - (
-                      data.constituency.lastElection.stats.secondPartyResult.votes /
-                      data.constituency.lastElection.stats.firstPartyResult.votes
-                    )
-                  )
-                }}
+              <Person
+                img={data.constituency.mp.photo?.url}
+                name={data.constituency.mp.name}
+                subtitle={data.constituency.mp.party?.name}
               />
-              <div className='relative z-10 space-y-1'>
-                <div className='uppercase text-xs text-meepGray-400'>
-                  2nd in {getYear(data.constituency.lastElection.stats.date)}
-                </div>
-                <div>{data.constituency.lastElection.stats.secondPartyResult.party}</div>
-                <div className='rounded h-4' style={{
-                  backgroundColor: data.constituency.lastElection.stats.secondPartyResult.shade,
-                  width: format(".0%")(
-                    data.constituency.lastElection.stats.secondPartyResult.votes /
-                    data.constituency.lastElection.stats.firstPartyResult.votes
-                  )
-                }} />
-              </div>
-            </article>
-          </section>
-          <section className='grid grid-cols-2 gap-6 mt-8'>
-            {/* Voting stats */}
-            <article>
-              <div className='uppercase text-xs text-meepGray-400'>Majority</div>
-              <div>{format(",")(data.constituency.lastElection.stats.majority)}</div>
-            </article>
-            <article>
-              <div className='uppercase text-xs text-meepGray-400'>Swing to lose</div>
-              <div>{format(".2%")(data.constituency.lastElection.stats.majority / data.constituency.lastElection.stats.electorate)}</div>
-            </article>
-            <article>
-              <div className='uppercase text-xs text-meepGray-400'>Electorate</div>
-              <div>{format(",")(data.constituency.lastElection.stats.electorate)}</div>
-            </article>
-            <article>
-              <div className='uppercase text-xs text-meepGray-400'>Turnout</div>
-              <div>{format(".2%")(data.constituency.lastElection.stats.validVotes / data.constituency.lastElection.stats.electorate)}</div>
-            </article>
-          </section>
-        </section>
-      )}
-      {!!data.mapReport.importedDataCountForConstituency && (
-        <MemberElectoralInsights
-          totalCount={data.mapReport.importedDataCountForConstituency.count}
-          layersInThisConstituency={layersInThisConstituency}
-          electionStats={data.constituency.lastElection?.stats}
-        />
-      )}
+            </section>
+          )}
+          {!!data.constituency.lastElection && displayOptions.showLastElectionData && (
+            <section className='font-IBMPlexMono mb-10'>
+              <section>
+                {/* First and second parties */}
+                <article className='relative z-10 space-y-1'>
+                  <div className='uppercase text-xs text-meepGray-400'>
+                    1st in {getYear(data.constituency.lastElection.stats.date)}
+                  </div>
+                  <div>{data.constituency.lastElection.stats.firstPartyResult.party}</div>
+                  <div className='rounded w-full h-4' style={{ backgroundColor: data.constituency.lastElection.stats.firstPartyResult.shade }} />
+                </article>
+                <article className='relative z-10 pt-6'>
+                  <div
+                    aria-roledescription="Margin between first and second party votes"
+                    className='bg-meepGray-700 border-l border-r border-meepGray-400 absolute right-0 top-0 h-full z-0'
+                    style={{
+                      width: format(".0%")(
+                        1 - (
+                          data.constituency.lastElection.stats.secondPartyResult.votes /
+                          data.constituency.lastElection.stats.firstPartyResult.votes
+                        )
+                      )
+                    }}
+                  />
+                  <div className='relative z-10 space-y-1'>
+                    <div className='uppercase text-xs text-meepGray-400'>
+                      2nd in {getYear(data.constituency.lastElection.stats.date)}
+                    </div>
+                    <div>{data.constituency.lastElection.stats.secondPartyResult.party}</div>
+                    <div className='rounded h-4' style={{
+                      backgroundColor: data.constituency.lastElection.stats.secondPartyResult.shade,
+                      width: format(".0%")(
+                        data.constituency.lastElection.stats.secondPartyResult.votes /
+                        data.constituency.lastElection.stats.firstPartyResult.votes
+                      )
+                    }} />
+                  </div>
+                </article>
+              </section>
+              <section className='grid grid-cols-2 gap-6 mt-8'>
+                {/* Voting stats */}
+                <article>
+                  <div className='uppercase text-xs text-meepGray-400'>Majority</div>
+                  <div>{format(",")(data.constituency.lastElection.stats.majority)}</div>
+                </article>
+                <article>
+                  <div className='uppercase text-xs text-meepGray-400'>Swing to lose</div>
+                  <div>{format(".2%")(data.constituency.lastElection.stats.majority / data.constituency.lastElection.stats.electorate)}</div>
+                </article>
+                <article>
+                  <div className='uppercase text-xs text-meepGray-400'>Electorate</div>
+                  <div>{format(",")(data.constituency.lastElection.stats.electorate)}</div>
+                </article>
+                <article>
+                  <div className='uppercase text-xs text-meepGray-400'>Turnout</div>
+                  <div>{format(".2%")(data.constituency.lastElection.stats.validVotes / data.constituency.lastElection.stats.electorate)}</div>
+                </article>
+              </section>
+            </section>
+          )}
+          {!!data.mapReport.importedDataCountForConstituency && (
+            <MemberElectoralInsights
+              totalCount={data.mapReport.importedDataCountForConstituency.count}
+              layersInThisConstituency={layersInThisConstituency}
+              electionStats={data.constituency.lastElection?.stats}
+            />
+          )}
+
+        </TabsContent>
+        <TabsContent value="constituency" className="h-full">
+          <MembersList constituenciesFilter={data.constituency.name} />
+        </TabsContent>
+
+        <TabsContent value="demographics" className="h-full">Show demographics in this constituency here</TabsContent>
+      </Tabs>
+
+
+
     </div>
   )
 }
+
+
 
 export function MemberElectoralInsights({
   totalCount,
@@ -176,9 +199,9 @@ export function MemberElectoralInsights({
 
   return (
     <>
-      <div className='text-xs'>
-          {format(",")(totalCount)} {pluralize("member", totalCount)} in this report
-        </div>
+      <div className='text-xs '>
+        {format(",")(totalCount)} {pluralize("member", totalCount)} in this report
+      </div>
       {/* <section className='border border-meepGray-500 rounded relative p-2 mt-2'>
       
 

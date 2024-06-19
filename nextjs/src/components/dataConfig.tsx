@@ -51,6 +51,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { CRMSelection } from "./CRMButtonItem"
 import { Select, SelectItem, SelectValue, SelectContent, SelectGroup, SelectTrigger } from "@/components/ui/select";
+import PulsingDot from "./PulsingDot";
 
 
 export default function DataConfigPanel() {
@@ -163,6 +164,7 @@ export default function DataConfigPanel() {
           ))}
         <div className="flex gap-2 items-center mt-2 ">
           <AddMapLayerButton addLayer={addLayer} filter={source => source.dataType === DataSourceType.Member} />
+            <PulsingDot />
         </div>
       </div>
 

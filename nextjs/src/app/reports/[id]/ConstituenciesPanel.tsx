@@ -15,8 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ConstituencyElectionDeepDive } from "@/components/reportsConstituencyItem";
-import { TopConstituencies } from "@/components/TopConstituencies";
+import { ConstituencyElectionDeepDive } from "@/components/navigator/reportsConstituencyItem";
+import { ConstituenciesList } from "@/components/navigator/ConstituenciesList";
 import { useEffect, useRef, useState } from "react";
 import { useReportContext } from "./context";
 import MembersList from "@/components/MembersList"
@@ -46,7 +46,7 @@ export function ConstituenciesPanel() {
 
   return (
     <div className="text-meepGray-200 flex flex-col pointer-events-auto w-[600px] h-full">
-      <div className="flex h-full">
+      <div className="flex h-full w-f">
         <div className="w-1/3 border-r border-meepGray-600 h-full bg-meepGray-800">
           <div className="flex gap-2 mb-2 p-4">
             <DropdownMenu>
@@ -59,7 +59,7 @@ export function ConstituenciesPanel() {
             </DropdownMenu>
             <h2 className="text-sm text-meepGray-300">Constituencies</h2>
           </div>
-          <TopConstituencies />
+          <ConstituenciesList />
         </div>
         <ConstituencyElectionDeepDive gss={selectedConstituencyId} analyticalAreaType={analyticalAreaType} />
       </div>

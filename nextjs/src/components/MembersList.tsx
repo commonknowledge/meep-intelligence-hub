@@ -1,8 +1,7 @@
 import { useQuery, gql } from '@apollo/client';
 import { ReportContext } from "@/app/reports/[id]/context";
 import { useContext, useState, useEffect } from "react";
-import { useMap } from 'react-map-gl';
-
+import { selectedMemberAtom } from '@/app/reports/[id]/page';
 import {
   Table,
   TableBody,
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from './ui/input';
 import { Search } from 'lucide-react';
+import { useAtom } from 'jotai';
 
 // GraphQL queries
 export const MAP_REPORT_LAYER_ANALYTICS = gql`
@@ -44,18 +44,19 @@ export const MEMBER_DATA = gql`
         latitude
         longitude
         postcode
+        parliamentaryConstituency
+        parliamentaryConstituency2025
       }
     }
   }
 `;
 
-const MembersList = () => {
+const MembersList = ({ constituenciesFilter = null }) => {
   const { id } = useContext(ReportContext); // Assuming ReportContext provides `id`
   const [sourceId, setSourceId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>(""); // State for search query
-  const [selectedMember, setSelectedMember] = useState<any>(null); // State for selected member
+  const [selectedMember, setSelectedMember] = useAtom(selectedMemberAtom)
 
-  const { current: map } = useMap(); // Assuming you have a Mapbox instance using react-map-gl
 
   // First query to get source.id
   const { loading: loadingLayers, error: errorLayers, data: dataLayers } = useQuery(MAP_REPORT_LAYER_ANALYTICS, {
@@ -78,27 +79,21 @@ const MembersList = () => {
     skip: !sourceId, // Skip the query until sourceId is available
   });
 
-  useEffect(() => {
-    if (selectedMember && map) {
-      map.flyTo({
-        center: [selectedMember.postcodeData.longitude, selectedMember.postcodeData.latitude],
-        zoom: 12,
-        essential: true // This animation is considered essential with respect to prefers-reduced-motion
-      });
-    }
-  }, [selectedMember, map]);
 
   if (loadingLayers || (sourceId && loadingMembers)) return <p>Loading...</p>;
   if (errorLayers) return <p>Error: {errorLayers.message}</p>;
   if (errorMembers) return <p>Error: {errorMembers.message}</p>;
 
-  // Filter members based on search query
-  const filteredMembers = dataMembers?.genericDataByExternalDataSource?.filter((member: any) =>
-    member.fullName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
+  // Filter members based on search query and constituenciesFilter
+  const filteredMembers = dataMembers?.genericDataByExternalDataSource?.filter((member: any) => {
+    const matchesSearchQuery = member.fullName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesConstituency = !constituenciesFilter || 
+      member.postcodeData.parliamentaryConstituency === constituenciesFilter || 
+      member.postcodeData.parliamentaryConstituency2025 === constituenciesFilter;
+    return matchesSearchQuery && matchesConstituency;
+  });
   return (
-    <div className='p-4 h-full'>
+    <div className='h-full'>
       <div className='flex gap-2 mb-2 items-center justify-between'>
         <h2 className='text-sm text-meepGray-300 '>Members in this map</h2>
         <Input 
@@ -110,7 +105,7 @@ const MembersList = () => {
       </div>
 
       <Table>
-        <TableHeader>
+        <TableHeader >
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
@@ -120,18 +115,18 @@ const MembersList = () => {
         <TableBody>
           {filteredMembers?.map((member: any) => (
             <TableRow 
-            key={member.id} 
-            className={`hover:bg-meepGray-600 ${selectedMember?.id === member.id ? 'bg-meepGray-700' : ''}`}
-            onClick={() => {
-              console.log('Selected member:', member);
-              setSelectedMember(member);
-            }}
-          >
-            <TableCell>{member.fullName}</TableCell>
-            <TableCell>{member.email}</TableCell>
-            <TableCell>{member.postcodeData?.postcode}</TableCell>
-          </TableRow>
-          
+              key={member.id} 
+              className={`cursor-pointer hover:bg-meepGray-600 ${selectedMember?.id === member.id ? 'bg-meepGray-700' : ''}`}
+              onClick={() => {
+                console.log('Selected member:', member.postcodeData);
+                setSelectedMember(member);
+                
+              }}
+            >
+              <TableCell>{member.fullName}</TableCell>
+              <TableCell>{member.email}</TableCell>
+              <TableCell>{member.postcodeData?.postcode}</TableCell>
+            </TableRow>
           ))}
         </TableBody>
       </Table>

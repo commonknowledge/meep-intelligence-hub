@@ -28,7 +28,7 @@ import { z } from "zod";
 import { layerColour, useLoadedMap, isConstituencyPanelOpenAtom, MAP_REPORT_LAYERS_SUMMARY, layerIdColour, useMapIcons, PlaceholderLayer } from "@/lib/map";
 import { constituencyPanelTabAtom } from "@/app/reports/[id]/ConstituenciesPanel";
 import { authenticationHeaders } from "@/lib/auth";
-import { selectedConstituencyAtom } from "@/app/reports/[id]/page";
+import { selectedConstituencyAtom, selectedMemberAtom } from "@/app/reports/[id]/page";
 
 const MAX_REGION_ZOOM = 8
 export const MAX_CONSTITUENCY_ZOOM = 10
@@ -42,7 +42,7 @@ const viewStateAtom = atom<Partial<ViewState>>({
 
 const selectedSourceMarkerAtom = atom<MapboxGeoJSONFeature | null>(null)
 
-export function ReportMap () {
+export function ReportMap() {
   const { id, displayOptions } = useContext(ReportContext)
   const analytics = useQuery<MapReportLayerAnalyticsQuery, MapReportLayerAnalyticsQueryVariables>(MAP_REPORT_LAYER_ANALYTICS, {
     variables: {
@@ -94,7 +94,7 @@ export function ReportMap () {
       labelId: "eer18nm",
       data: regionAnalytics.data?.mapReport.importedDataCountByRegion || [],
       mapboxSourceProps: {
-      //   maxzoom: MAX_REGION_ZOOM
+        //   maxzoom: MAX_REGION_ZOOM
       },
       mapboxLayerProps: {
         maxzoom: MAX_REGION_ZOOM
@@ -170,7 +170,7 @@ export function ReportMap () {
             addChloroplethDataToMapbox(area.gss, area.count, tileset.mapboxSourceId, tileset.sourceLayerId)
           } catch {
             mapbox.loadedMap?.on('load', () => {
-              addChloroplethDataToMapbox(area.gss!, area.count, tileset.mapboxSourceId, tileset.sourceLayerId!) 
+              addChloroplethDataToMapbox(area.gss!, area.count, tileset.mapboxSourceId, tileset.sourceLayerId!)
             })
           }
         }
@@ -197,9 +197,21 @@ export function ReportMap () {
 
   const [selectedSourceMarker, setSelectedSourceMarker] = useAtom(selectedSourceMarkerAtom)
   const [selectedConstituency, setSelectedConstituency] = useAtom(selectedConstituencyAtom)
+  const [selectedMember, setSelectedMember] = useAtom(selectedMemberAtom)
+
   const [tab, setTab] = useAtom(constituencyPanelTabAtom)
   // const isConstituencyPanelOpenAtom
   const [isConstituencyPanelOpen, setIsConstituencyPanelOpen] = useAtom(isConstituencyPanelOpenAtom)
+
+  const useResize = (handler) => {
+    useEffect(() => {
+      window.addEventListener("resize", handler);
+
+      return () => {
+        window.removeEventListener("resize", handler);
+      };
+    }, [handler]);
+  };
 
   useEffect(function selectConstituency() {
     mapbox.loadedMap?.on('mouseover', `${constituencyTileset.mapboxSourceId}-fill`, () => {
@@ -230,6 +242,31 @@ export function ReportMap () {
       }
     })
   }, [mapbox.loadedMap, displayOptions.analyticalAreaType, constituencyTileset])
+
+  useEffect(function flyToSelectedMember() {
+    if (selectedMember) {
+      mapbox.loadedMap?.flyTo({
+        center: [selectedMember.postcodeData.longitude, selectedMember.postcodeData.latitude],
+        zoom: 14,
+        essential: true,
+      });
+
+      setSelectedSourceMarker({
+        properties: {
+          id: selectedMember.id,
+          name: selectedMember.fullName,
+          postcodeData: selectedMember.postcodeData,
+          phone: selectedMember.phone, // Assuming these fields exist
+          email: selectedMember.email,
+          remoteUrl: selectedMember.remoteUrl, // Assuming these fields exist
+        },
+        geometry: {
+          coordinates: [selectedMember.postcodeData.longitude, selectedMember.postcodeData.latitude],
+        },
+      });
+    }
+  }, [selectedMember, mapbox.loadedMap]);
+
 
   const [viewState, setViewState] = useAtom(viewStateAtom)
 
@@ -290,11 +327,17 @@ export function ReportMap () {
           }
           return { url };
         }}
-        // padding={{ top: 0, right: 0, bottom: 0, left: 0 }}
+      // padding={{ top: 0, right: 0, bottom: 0, left: 0 }}
+
+      //Resizing/centering the map when screen size changes
+      // onRender={(event) => event.target.resize()}
+
       >
+
         {mapbox.loaded && (
           <>
             {Object.entries(TILESETS).map(([key, tileset]) => {
+
               let min =
                 tileset.data.reduce(
                   (min, p) => (p?.count! < min ? p?.count! : min),
@@ -352,7 +395,7 @@ export function ReportMap () {
               const SOURCE_LABEL = `${tileset.name}_SOURCE_LABEL`;
               const SOURCE_POINTS = `${tileset.name}_SOURCE_POINTS`;
 
-              
+
 
               return (
                 <Fragment key={tileset.mapboxSourceId}>
@@ -515,6 +558,7 @@ export function ReportMap () {
                   "line-opacity": 1,
                 }}
               />
+              
             )}
             <PlaceholderLayer id={"PLACEHOLDER_MARKERS"} />
             {/* Wait for all icons to load */}
@@ -530,109 +574,52 @@ export function ReportMap () {
             {!!selectedSourceMarker?.properties?.id && (
               <ErrorBoundary errorComponent={() => <></>}>
                 <Popup
-              key={selectedSourceMarker.properties.id}
+                  key={selectedSourceMarker.properties.id}
                   longitude={
-                    (selectedSourceMarker.geometry as Point)
-                      ?.coordinates?.[0] || 0
+                    selectedSourceMarker.geometry?.coordinates?.[0] || 0
                   }
                   latitude={
-                    (selectedSourceMarker.geometry as Point)?.coordinates[1] ||
-                    0
+                    selectedSourceMarker.geometry?.coordinates?.[1] || 0
                   }
                   closeOnClick={false}
                   className="text-black [&>.mapboxgl-popup-content]:p-0 [&>.mapboxgl-popup-content]:overflow-auto w-[150px] [&>.mapboxgl-popup-tip]:!border-t-meepGray-200"
                   closeButton={false}
                   closeOnMove={false}
                   anchor="bottom"
-                  offset={[0, -35] as any}
+                  offset={[0, -35]}
                 >
-              {selectedPointLoading ? (
-                <div className="font-IBMPlexMono p-2 space-y-1 bg-white">
-                  <div className="-space-y-1">
-                    <div className="text-meepGray-400">LOADING</div>
-                  </div>
-                </div>
-              ) : (
-                    <>
-                      <div className="font-IBMPlexMono p-2 space-y-1 bg-white">
-                        {!!selectedPointData?.importedDataGeojsonPoint
-                          ?.properties?.name && (
-                          <div className="-space-y-1">
-                            <div className="text-meepGray-400">NAME</div>
-                            <div>
-                              {
-                                selectedPointData?.importedDataGeojsonPoint
-                                  .properties.name
-                              }
-                            </div>
-                          </div>
-                        )}
-                        {!!selectedPointData?.importedDataGeojsonPoint
-                          ?.properties?.postcodeData?.postcode && (
-                          <div className="-space-y-1">
-                            <div className="text-meepGray-400">POSTCODE</div>
-                            <pre>
-                              {
-                                selectedPointData?.importedDataGeojsonPoint
-                                  .properties.postcodeData.postcode
-                              }
-                            </pre>
-                          </div>
-                        )}
+                  <div className="font-IBMPlexMono p-2 space-y-1 bg-white">
+                    {!!selectedSourceMarker.properties.name && (
+                      <div className="-space-y-1">
+                        <div className="text-meepGray-400">NAME</div>
+                        <div>{selectedSourceMarker.properties.name}</div>
                       </div>
-                      {(analytics.data?.mapReport.layers.length || 0) > 1 && (
-                        <footer className="pb-2 px-2 text-meepGray-400 font-IBMPlexMono text-xs">
-                          From{" "}
-                          {
-                            selectedPointData?.importedDataGeojsonPoint
-                              ?.properties?.dataType.dataSet.externalDataSource
-                              .name
-                          }
-                        </footer>
-                      )}
-                      <footer className="flex-divide-x bg-meepGray-200 text-meepGray-500 flex flex-row justify-around w-full py-1 px-2 text-center">
-                        {!!selectedPointData?.importedDataGeojsonPoint
-                          ?.properties?.phone && (
-                          <a
-                            href={`tel:${selectedPointData?.importedDataGeojsonPoint?.properties?.phone}`}
-                            target="_blank"
-                          >
-                            Call
-                          </a>
-                        )}
-                        {!!selectedPointData?.importedDataGeojsonPoint
-                          ?.properties?.phone && (
-                          <a
-                            href={`sms:${selectedPointData?.importedDataGeojsonPoint?.properties?.phone}`}
-                            target="_blank"
-                          >
-                            SMS
-                          </a>
-                        )}
-                        {!!selectedPointData?.importedDataGeojsonPoint
-                          ?.properties?.email && (
-                          <a
-                            href={`mailto:${selectedPointData?.importedDataGeojsonPoint?.properties.email}`}
-                            target="_blank"
-                          >
-                            Email
-                          </a>
-                        )}
-                        {!!selectedPointData?.importedDataGeojsonPoint
-                          ?.properties?.remoteUrl && (
-                          <a
-                            href={`${selectedPointData?.importedDataGeojsonPoint?.properties?.remoteUrl}`}
-                            target="_blank"
-                          >
-                            Link
-                          </a>
-                        )}
-                      </footer>
-                    </>
-              )}
-              </Popup>
-            </ErrorBoundary>
+                    )}
+                    {!!selectedSourceMarker.properties.postcodeData?.postcode && (
+                      <div className="-space-y-1">
+                        <div className="text-meepGray-400">POSTCODE</div>
+                        <pre>{selectedSourceMarker.properties.postcodeData.postcode}</pre>
+                      </div>
+                    )}
+                  </div>
+                  <footer className="flex-divide-x bg-meepGray-200 text-meepGray-500 flex flex-row justify-around w-full py-1 px-2 text-center">
+                    {!!selectedSourceMarker.properties.phone && (
+                      <a href={`tel:${selectedSourceMarker.properties.phone}`} target="_blank">Call</a>
+                    )}
+                    {!!selectedSourceMarker.properties.phone && (
+                      <a href={`sms:${selectedSourceMarker.properties.phone}`} target="_blank">SMS</a>
+                    )}
+                    {!!selectedSourceMarker.properties.email && (
+                      <a href={`mailto:${selectedSourceMarker.properties.email}`} target="_blank">Email</a>
+                    )}
+                    {!!selectedSourceMarker.properties.remoteUrl && (
+                      <a href={`${selectedSourceMarker.properties.remoteUrl}`} target="_blank">Link</a>
+                    )}
+                  </footer>
+                </Popup>
+              </ErrorBoundary>
             )}
+
           </>
         )}
       </Map>
@@ -640,10 +627,9 @@ export function ReportMap () {
   );
 }
 
-function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { externalDataSourceId: string, index: number }) {
+function ExternalDataSourcePointMarkers({ externalDataSourceId, index }: { externalDataSourceId: string, index: number }) {
   const mapbox = useLoadedMap()
-  const [selectedSourceMarker, setSelectedSourceMarker] =  useAtom(selectedSourceMarkerAtom)
-
+  const [selectedSourceMarker, setSelectedSourceMarker] = useAtom(selectedSourceMarkerAtom)
   useEffect(function selectMarker() {
     mapbox.loadedMap?.on('mouseover', `${externalDataSourceId}-marker`, () => {
       const canvas = mapbox.loadedMap?.getCanvas()
@@ -662,7 +648,7 @@ function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { exte
       }
     })
   }, [mapbox.loadedMap, externalDataSourceId])
-  
+
   return (
     <>
       <Source
@@ -688,8 +674,8 @@ function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { exte
             minzoom={MIN_MEMBERS_ZOOM}
             {...(
               selectedSourceMarker?.properties?.id
-              ? { filter: ["!=", selectedSourceMarker?.properties?.id, ["get", "id"]] }
-              : {}
+                ? { filter: ["!=", selectedSourceMarker?.properties?.id, ["get", "id"]] }
+                : {}
             )}
           />
         ) : (
@@ -706,8 +692,8 @@ function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { exte
             minzoom={MIN_MEMBERS_ZOOM}
             {...(
               selectedSourceMarker?.properties?.id
-              ? { filter: ["!=", selectedSourceMarker?.properties?.id, ["get", "id"]] }
-              : {}
+                ? { filter: ["!=", selectedSourceMarker?.properties?.id, ["get", "id"]] }
+                : {}
             )}
           />
         )}

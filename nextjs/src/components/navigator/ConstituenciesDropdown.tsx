@@ -27,7 +27,7 @@ interface Constituency {
     }
 }
 
-import { MAX_CONSTITUENCY_ZOOM } from "./report/ReportMap"
+import { MAX_CONSTITUENCY_ZOOM } from "../report/ReportMap"
 
 
 interface ConstituenciesDropdownProps {
@@ -55,11 +55,13 @@ export default function ConstituenciesDropdown({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className=" justify-between bg-meepGray-600"
+                    className=" justify-between bg-meepGray-600 px-3"
                 >
-                    {value
-                        ? constituencies.find((constituency) => constituency.gss === value)?.gssArea.name
-                        : "Search constituency..."}
+                    <p className="truncate">
+                        {value
+                            ? constituencies.find((constituency) => constituency.gss === value)?.gssArea.name
+                            : "Search constituency..."}
+                    </p>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>

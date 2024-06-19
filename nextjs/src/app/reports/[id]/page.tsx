@@ -62,12 +62,14 @@ import { currentOrganisationIdAtom } from "@/data/organisation";
 import Link from "next/link";
 import { MappedIcon } from "@/components/navbar";
 import Navigator from "@/components/navigator/Navigator";
+import PulsingDot from "../../../components/PulsingDot";
 
 type Params = {
   id: string
 }
 
 export const selectedConstituencyAtom = atom<string | null>(null)
+export const selectedMemberAtom = atom<string | null>(null)
 
 export default function Page({ params: { id } }: { params: Params }) {
   const client = useApolloClient();
@@ -200,9 +202,12 @@ function ReportPage() {
   }
 
   const [selectedConstituency, setSelectedConstituency] = useAtom(selectedConstituencyAtom);
+  const [selectedMember, setSelectedMember] = useAtom(selectedMemberAtom);
 
   const [isNavigatorPanelOpen, setNavigatorPanelOpen] = useAtom(isNavigatorPanelOpenAtom);
-  const toggleNavigator = () => setNavigatorPanelOpen(b => !b)
+  const toggleNavigator = () => {
+    setNavigatorPanelOpen(b => !b)
+  }
 
   useEffect(() => {
     // @ts-ignore
@@ -301,7 +306,9 @@ function ReportPage() {
 
           <Dialog>
             <DialogTrigger className="bg-meepGray-700 rounded border  flex gap-2 items-center  px-4 py-2 border-meepGray-600 text-sm text-white flex-row overflow-hidden text-nowrap text-ellipsis cursor-pointer">
-              <Settings className="text-meepGray-400"/>Settings</DialogTrigger>
+              <Settings className="text-meepGray-400 ping" />Settings
+              <PulsingDot />
+            </DialogTrigger>
             <DialogContent className="w-[600px]">
               <DialogHeader>
                 <DialogTitle>Map Settings</DialogTitle>
@@ -335,19 +342,20 @@ function ReportPage() {
 
       </nav>
       <div className="absolute w-full h-[calc(100%-74px)] flex flex-row pointer-events-none">
-        <aside className="h-full pointer-events-auto">
-          {/* Data config card */}
-          {report?.data?.mapReport && isDataConfigOpen && (
-            <DataConfigPanel />
-          )}
-        </aside>
         <div className='w-full h-full pointer-events-auto flex'>
-          <ReportMap />
-          {report?.data?.mapReport && isNavigatorPanelOpen && (
-            <aside className=" w-screen flex bg-meepGray-700">
+          <ReportMap  />
+          {report?.data?.mapReport && (
+            <aside className={`flex bg-meepGray-700 ease-in duration-300 ${isNavigatorPanelOpen ? 'w-1/2' : 'w-0'}`}>
               <Navigator />
             </aside>
           )}
+          <div>
+            {/* {report?.data?.mapReport && isNavigatorPanelOpen && (
+              <aside className=" w-1/2 flex bg-meepGray-700">
+                <Navigator />
+              </aside>
+            )} */}
+          </div>
         </div>
       </div>
       <AlertDialog open={deleteOpen} onOpenChange={() => setDeleteOpen(false)}>
