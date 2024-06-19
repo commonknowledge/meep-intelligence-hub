@@ -1,53 +1,32 @@
 version: "1"
+previewsEnabled: true
+previewsExpireAfterDays: 3
 databases:
 - name: meep-database
   databaseName: meep_database
   user: meep_database_user
-  plan: standard
   previewPlan: starter
   region: frankfurt
-  ipAllowList:
-  - source: 0.0.0.0/0
-    description: everywhere
   postgresMajorVersion: "16"
 services:
 - type: web
   name: meep-intelligence-hub-backend
   runtime: python
   repo: https://github.com/commonknowledge/mapped
-  plan: standard
   previewPlan: starter
   envVars:
   - key: SCHEDULED_UPDATE_SECONDS_DELAY
     value: 0
-  - key: MINIO_STORAGE_STATIC_BUCKET_NAME
-  - key: MINIO_STORAGE_SECRET_KEY
-  - key: MINIO_STORAGE_MEDIA_BUCKET_NAME
-  - key: MINIO_STORAGE_ENDPOINT
-  - key: MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET
-  - key: MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET
-  - key: MINIO_STORAGE_ACCESS_KEY
-  - key: GOOGLE_SITE_VERIFICATION
-    sync: false
-  - key: GOOGLE_ANALYTICS
-    sync: false
-  - key: FRONTEND_SITE_TITLE
   - key: BACKEND_HOST
     fromService:
       name: meep-intelligence-hub-backend
+      type: web
       property: host
   - key: FRONTEND_HOST
     fromService:
-      name: meep-intelligence-hub-worker
+      name: meep-intelligence-hub-frontend
+      type: web
       property: host
-  - key: EMAIL_USE_TLS
-  - key: EMAIL_PORT
-  - key: EMAIL_HOST_USER
-  - key: EMAIL_HOST_PASSWORD
-  - key: EMAIL_HOST
-  - key: EMAIL_BACKEND
-  - key: ELECTORAL_COMMISSION_API_KEY
-  - key: DEFAULT_FROM_EMAIL
   - key: DATABASE_URL
     fromDatabase:
       name: meep-database
@@ -65,14 +44,6 @@ services:
     --force && gunicorn local_intelligence_hub.asgi:application -k uvicorn.workers.UvicornWorker
   preDeployCommand: python manage.py migrate
   healthCheckPath: /
-  domains:
-  - api.mapped.commonknowledge.coop
-  # Only in production
-  scaling:
-    minInstances: 1
-    maxInstances: 2
-    targetCPUPercent: 70
-    targetMemoryPercent: 70
   buildFilter:
     ignoredPaths:
     - nextjs/**
@@ -80,7 +51,6 @@ services:
   name: meep-intelligence-hub-worker
   runtime: python
   repo: https://github.com/commonknowledge/mapped
-  plan: standard
   previewPlan: starter
   envVars:
   - key: DATABASE_URL
@@ -89,17 +59,17 @@ services:
       property: connectionString
   - key: SCHEDULED_UPDATE_SECONDS_DELAY
     value: 0
-  - key: MAPIT_URL
-  - key: MAPIT_API_KEY
   - key: CACHE_FILE
     value: /tmp/meep
   - key: BACKEND_HOST
     fromService:
       name: meep-intelligence-hub-backend
+      type: web
       property: host
   - key: FRONTEND_HOST
     fromService:
-      name: meep-intelligence-hub-worker
+      name: meep-intelligence-hub-frontend
+      type: web
       property: host
   - fromGroup: MEEP production environment
   region: frankfurt
@@ -113,23 +83,12 @@ services:
   name: meep-intelligence-hub-frontend
   runtime: node
   repo: https://github.com/commonknowledge/mapped
-  plan: standard
   previewPlan: starter
   envVars:
   - fromGroup: MEEP production environment
   region: frankfurt
   buildCommand: npm install && npm run build
   startCommand: npm run start
-  domains:
-  - www.peopleclimatenature.org
-  - peopleclimatenature.org
-  - prototype.mapped.commonknowledge.coop
-  # Only in production
-  scaling:
-    minInstances: 1
-    maxInstances: 2
-    targetCPUPercent: 90
-    targetMemoryPercent: 90
   buildFilter:
     paths:
     - nextjs/**
