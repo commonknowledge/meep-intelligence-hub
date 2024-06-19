@@ -59,9 +59,7 @@ export const conf: UserConfig = {
     defaultProps: {
       title: "My Page",
     },
-    render: (props) => <Root {...props} />,
-    // TODO: fields
-    // fields: {}
+    render: (props) => <Root {...props} />
   },
   categories: {
     specialLayout: {
