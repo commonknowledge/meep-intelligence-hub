@@ -100,7 +100,7 @@ function PageContent ({ params: { hostname, slugs }, shouldDisplayMap, hub }: { 
             </div>
             {!localData.loading && (
               <aside
-                className="absolute top-5 left-0 sm:left-5 right-0 max-w-full pointer-events-none h-full md:h-full max-h-full overflow-y-hidden shadow-hub-muted"
+                className="absolute top-5 left-0 sm:left-5 right-0 max-w-full pointer-events-none h-full md:h-[calc(100%-40px)] max-h-full overflow-y-hidden shadow-hub-muted"
                 style={{ width: SIDEBAR_WIDTH }}
               >
                 <div className="max-w-[100vw] rounded-[20px] bg-white max-h-full overflow-y-auto  pointer-events-auto">

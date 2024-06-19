@@ -133,32 +133,25 @@ export const FilterableGrid: ComponentConfig<FilterableGridProps> = {
                         type: "text",
                     },
                     linkLabel: {
-                        // @ts-ignore
-                        // visible: data.props.behaviour === "dialog",
                         type: "text",
                     },
                     timestamp: {
                         type: "number"
                     },
                     eventMonth: {
-                        // @ts-ignore
                         type: "select",
                         options: eventMonths
                     },
                     eventDay: {
-                        // @ts-ignore
                         type: "text",
                     },
                     eventTime: {
-                        // @ts-ignore
                         type: "text",
                     },
                     eventLocation: {
-                        // @ts-ignore
                         type: "text",
                     },
                     imageUrl: {
-                        // @ts-ignore
                         type: "text"
                     }
                 },

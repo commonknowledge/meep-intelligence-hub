@@ -41,7 +41,7 @@ export function BatchJobProgressReport ({ batchJobProgress, pastTenseVerb = 'Com
             Waiting in the job queue
           </div>
         </div>
-      ) : batchJobProgress.hasForecast ? (
+      ) : batchJobProgress.hasForecast && batchJobProgress.succeeded !== null && batchJobProgress.succeeded !== undefined ? (
         // Progress bar
         <>
           <Progress

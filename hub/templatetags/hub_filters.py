@@ -1,3 +1,4 @@
+import logging
 import re
 from urllib.parse import urlencode, urljoin
 
@@ -11,6 +12,9 @@ import utils as lih_utils
 
 register = template.Library()
 User = get_user_model()
+
+
+logger = logging.getLogger(__name__)
 
 
 @register.simple_tag(name="backend_url")
@@ -89,11 +93,15 @@ def pending_account_requests(**kwargs):
     """
     Return number of account requests
     """
-    return User.objects.filter(
-        is_active=False,
-        userproperties__email_confirmed=True,
-        userproperties__account_confirmed=False,
-    ).count()
+    try:
+        return User.objects.filter(
+            is_active=False,
+            userproperties__email_confirmed=True,
+            userproperties__account_confirmed=False,
+        ).count()
+    except Exception as e:
+        logger.warning(f"Error getting pending account requests: {e}")
+    return 0
 
 
 @register.filter

@@ -6,14 +6,10 @@ import dynamic from 'next/dynamic'
 import { Metadata } from 'next'
 import { openGraphImage } from './shared-metadata'
 import { Suspense } from "react";
-import { useAuth } from "@/hooks/auth";
-
 
 const PostHogPageView = dynamic(() => import('./PostHogPageView'), {
   ssr: false,
 })
-
-
 
 export default async function RootLayout({
   children,

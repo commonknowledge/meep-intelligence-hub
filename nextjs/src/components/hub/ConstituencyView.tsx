@@ -14,6 +14,8 @@ import {
 import { useState } from "react";
 import { HustingsCTA } from "@/app/hub/render/[hostname]/map/[[...slugs]]/SearchPanel";
 import Link from "next/link";
+import IframeResizer from "iframe-resizer-react";
+import queryString from "query-string";
 
 export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSearch']['constituency'] }) {
   const [tab, setTab] = useState("events");
@@ -44,9 +46,11 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
       isAfter(new Date(d.startTime), new Date())
   );
 
+  const postcode = data?.samplePostcode?.postcode?.trim().replace(/([\s ]*)/mig, "");
+
   return (
-    <div className='flex flex-col overflow-y-hidden p-6'>
-      <header className="mb-4">
+    <div className='flex flex-col overflow-y-hidden'>
+      <header className="mb-4 pt-6 px-6">
         <a
           href="#"
           className="block mb-4"
@@ -67,21 +71,30 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
           onValueChange={setTab}
           className="flex flex-col max-h-full overflow-hidden items-stretch justify-start"
         >
-          <TabsList className="p-0 py-4 mb-4 border-none w-full justify-start gap-2">
-            {["Events", "Candidates"].map((target) => (
+          <TabsList className="px-6 py-4 mb-4 border-none w-full justify-start gap-2">
+            {[
+              {
+                label: "Calendar",
+                key: "events"
+              }, 
+              {
+                label: "Message your candidates 💬",
+                key: "candidates"
+              }
+            ].map((target) => (
               <TabsTrigger
-                key={target}
-                value={target.toLowerCase()}
+                key={target.key}
+                value={target.key}
                 className="rounded text-jungle-green-600 bg-none hover:bg-jungle-green-50 data-[state=active]:bg-jungle-green-50 data-[state=active]:text-jungle-green-600 data-[state=active]:shadow-none"
               >
-                {target}
+                {target.label}
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className="w-full border-b border-meepGray-200 mb-6"></div>
+          <div className="w-full border-b border-meepGray-200"></div>
           <TabsContent className="mt-0" value="events">
             {events && events.length ? (
-              <>
+              <div className='px-6 py-6'>
                 <div className="mb-4">
                   Help the campaign in {data?.name}{" "}
                   by coming along to one of these upcoming events.
@@ -139,18 +152,19 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
                 <div className="flex flex-col gap-2 text-jungle-green-neutral ">
                   <HustingsCTA />
                 </div>
-              </>
+              </div>
             ) : (
               <>
-                <p>
-                  No upcoming events in {data?.name}.
-                </p>
-                <div className="w-full border-b border-meepGray-200 my-6"></div>
-                <div className="flex flex-col gap-2 text-jungle-green-neutral ">
-                  <HustingsCTA />
+                <div className='p-6 pb-0'>
+                  <p>
+                    No upcoming events in {data?.name}.
+                  </p>
+                  <div className="flex flex-col gap-2 text-jungle-green-neutral mt-4">
+                    <HustingsCTA />
+                  </div>
                 </div>
                 <div className="w-full border-b border-meepGray-200 my-6"></div>
-                <div className="flex flex-col gap-2 text-jungle-green-neutral ">
+                <div className="flex flex-col gap-2 text-jungle-green-neutral pt-0 p-6">
                     <h3 className='font-bold'>Other ways to get involved</h3>
                     <p>There are lots of easy ways you can show your candidates you care about people, climate and nature. Take a look at this page here to find out more.</p>
                     <Link href="/get-involved" className='text-jungle-green-600 font-bold'>Learn more &rarr;</Link>
@@ -160,8 +174,21 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
           </TabsContent>
           <TabsContent className="mt-0" value="candidates">
             <section className="space-y-4">
+              {/* {!!postcode && data?.ppcs.some(person => !!person.email?.data) ? ( */}
+                <IframeResizer
+                  src={queryString.stringifyUrl({
+                    url: 'https://peopleclimatenature.onldspk.cc/ge2024-candidates/frame/write',
+                    query: {
+                      body: "VqQTqd",
+                      pc: postcode
+                    }
+                  })}
+                  width={'100%'}
+                />
+             {/* ) : (
+              <>
               {data?.ppcs
-                //.sort((a, b) => a.name < b.name ? -1 : 1)
+                .sort((a, b) => a.name.localeCompare(b.name))
                 .map((person) => (
                   <article
                     key={person.id}
@@ -205,6 +232,8 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
                     )}
                   </article>
                 ))}
+              </>
+             )} */}
             </section>
           </TabsContent>
         </Tabs>

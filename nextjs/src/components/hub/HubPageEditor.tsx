@@ -101,35 +101,46 @@ export default function HubPageEditor({ hubId, pageId }: { hubId: string, pageId
                   <DialogTitle>Select a page to edit</DialogTitle>
                 </DialogHeader>
                 <div className='overflow-y-auto divide-y'>
-                  {hubData.data?.hubHomepage?.descendants.map(page => (
-                    <div key={page.id} className="w-full items-start py-4 space-y-2">
-                      <BreadcrumbList>
-                        {page.ancestors.filter(
-                          // wagtail root
-                          ancestor => ancestor.path !== "0001"
-                        ).map((ancestor, i, a) => (
-                          <Fragment key={ancestor.id}>
-                            <Breadcrumb>
-                              <Link href={`/hub/editor/${ancestor.id}`}>
-                                {ancestor.modelName === "HubHomepage" ? "Home Page" : ancestor.title}</Link>
-                            </Breadcrumb>
-                            {i < a.length - 1 && (
-                              <BreadcrumbSeparator>
-                                <Slash />
-                              </BreadcrumbSeparator>
-                            )}
-                          </Fragment>
-                        ))}
-                      </BreadcrumbList>
-                      <div className='flex flex-row gap-3 justify-between'>
-                        <Button size='sm' variant='outline' onClick={() => addChildPage(page.id, `Page created at ${(new Date().toISOString())}`)}>Add child page</Button>
-                        {/* TODO: add "are you sure checker" */}
-                        {page.modelName !== "HubHomepage" && (
-                          <Button size='sm' variant="destructive" onClick={() => deletePage(page.id)}>Delete</Button>
-                        )}
+                  {hubData.data?.hubHomepage?.descendants.map(page => {
+                    const ancestors = page.ancestors.filter(
+                      // wagtail root
+                      ancestor => ancestor.path !== "0001"
+                    )
+
+                    const isHomePage = page.modelName === "HubHomepage"
+                    const isTopLevelPage = ancestors.length === 1
+                    
+                    return (
+                      <div key={page.id} className="w-full items-start py-4 space-y-2">
+                        <BreadcrumbList>
+                          {ancestors.map((ancestor, i, a) => (
+                            <Fragment key={ancestor.id}>
+                              <Breadcrumb>
+                                <Link href={`/hub/editor/${ancestor.id}`}>
+                                  {ancestor.modelName === "HubHomepage" ? "Home Page" : ancestor.title}</Link>
+                              </Breadcrumb>
+                              {i < a.length - 1 && (
+                                <BreadcrumbSeparator>
+                                  <Slash />
+                                </BreadcrumbSeparator>
+                              )}
+                            </Fragment>
+                          ))}
+                        </BreadcrumbList>
+                        <div className='flex flex-row gap-3 justify-between'>
+                          {isTopLevelPage && (
+                            // Due to limitations with NextJS routing,
+                            // we don't currently support multi-level nesting
+                            <Button size='sm' variant='outline' onClick={() => addChildPage(page.id, `Page created at ${(new Date().toISOString())}`)}>Add child page</Button>
+                          )}
+                          {/* TODO: add "are you sure checker" */}
+                          {!isHomePage && (
+                            <Button size='sm' variant="destructive" onClick={() => deletePage(page.id)}>Delete</Button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </DialogContent>
             </Dialog>

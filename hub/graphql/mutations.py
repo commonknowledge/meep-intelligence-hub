@@ -429,6 +429,17 @@ def update_page(info: Info, page_id: str, input: HubPageInput) -> model_types.Hu
     for attr, value in vars(input).items():
         if value is not strawberry.UNSET and value is not None:
             setattr(page, attr, value)
+    try:
+        if (
+            "root" in input.puck_json_content
+            and "props" in input.puck_json_content["root"]
+        ):
+            metadata = input.puck_json_content["root"]["props"]
+            for field in models.puck_wagtail_root_fields:
+                if metadata.get(field):
+                    setattr(page, field, metadata[field])
+    except Exception as e:
+        logger.error(f"Error updating page: {e}")
     page.save_revision(user=user, log_action=True).publish()
     return page
 

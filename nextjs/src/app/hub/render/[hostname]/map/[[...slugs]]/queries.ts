@@ -53,6 +53,10 @@ export const CONSTITUENCY_VIEW_FRAGMENT = gql`
     name
     # For zooming
     fitBounds
+    # For loudspeek
+    samplePostcode {
+      postcode
+    }
     # PPCs
     ppcs: people(filters:{personType:"PPC"}) {
       id
