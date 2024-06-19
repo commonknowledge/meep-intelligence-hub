@@ -18,10 +18,9 @@ import {
 import { ConstituencyElectionDeepDive } from "@/components/reportsConstituencyItem";
 import { TopConstituencies } from "@/components/TopConstituencies";
 import { useEffect, useRef, useState } from "react";
-import { useReportContext } from "./context";
+import { selectedConstituencyAtom, useReportContext } from "@/app/reports/[id]/context";
 import MembersList from "@/components/MembersList"
 import ConsSettings from "@/components/ConsSettings"
-import { selectedConstituencyAtom } from "./page"
 
 
 export const constituencyPanelTabAtom = atom("list")

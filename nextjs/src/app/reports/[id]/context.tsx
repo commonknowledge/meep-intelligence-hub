@@ -2,6 +2,7 @@
 
 import { AnalyticalAreaType, Exact, GetMapReportQuery, MapReportInput } from "@/__generated__/graphql";
 import { QueryResult } from "@apollo/client";
+import { atom } from "jotai";
 import { createContext, useContext, useState } from "react";
 
 export const defaultDisplayOptions = {
@@ -42,3 +43,5 @@ export const useReportContext = () => {
 
   return { ...context, updateDisplayOptions };
 };
+
+export const selectedConstituencyAtom = atom<string | null>(null)

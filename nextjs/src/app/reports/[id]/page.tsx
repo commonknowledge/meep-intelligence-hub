@@ -67,8 +67,6 @@ type Params = {
   id: string
 }
 
-export const selectedConstituencyAtom = atom<string | null>(null)
-
 export default function Page({ params: { id } }: { params: Params }) {
   const client = useApolloClient();
   const router = useRouter();

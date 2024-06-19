@@ -32,7 +32,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import ConstituenciesDropdown from "./ConstituenciesDropdown"
-import { selectedConstituencyAtom } from "@/app/reports/[id]/page"
+import { selectedConstituencyAtom } from "@/app/reports/[id]/context";
 
 export function TopConstituencies() {
   const sortOptions = {
