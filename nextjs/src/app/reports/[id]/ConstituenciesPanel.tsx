@@ -60,7 +60,9 @@ export function ConstituenciesPanel() {
           </div>
           <TopConstituencies />
         </div>
-        <ConstituencyElectionDeepDive gss={selectedConstituencyId} analyticalAreaType={analyticalAreaType} />
+        {!!selectedConstituencyId && (
+          <ConstituencyElectionDeepDive gss={selectedConstituencyId} analyticalAreaType={analyticalAreaType} />
+        )}
       </div>
     </div>
   )
