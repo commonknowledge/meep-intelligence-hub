@@ -15,7 +15,7 @@ export default function ConsSettings() {
         setDisplayOptions({ showMPs: !displayOptions.showMPs });
     };
 
-    const handleAnalyticalAreaTypeChange = (value) => {
+    const handleAnalyticalAreaTypeChange = (value: AnalyticalAreaType) => {
         setDisplayOptions({ analyticalAreaType: value });
     };
 

@@ -31,7 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import ConstituenciesDropdown from "./ConstituenciesDropdown"
+import ConstituenciesDropdown, { SelectableConstituency } from "./ConstituenciesDropdown"
 import { selectedConstituencyAtom } from "@/app/reports/[id]/context";
 
 export function TopConstituencies() {
@@ -54,8 +54,14 @@ export function TopConstituencies() {
   const [tab, setTab] = useAtom(constituencyPanelTabAtom)
   const map = useLoadedMap()
 
+  type RequiredConstituencyType = ConstituencyStatsOverviewQuery["mapReport"]["importedDataCountByConstituency"][number] & SelectableConstituency
+
+  function isSelectable(constituency: ConstituencyStatsOverviewQuery["mapReport"]["importedDataCountByConstituency"][number]): constituency is RequiredConstituencyType {
+    return !!constituency.gssArea && !!constituency.gss
+  }
+
   const constituencies = constituencyAnalytics.data?.mapReport.importedDataCountByConstituency
-    .filter(constituency => constituency.gssArea)
+    .filter(isSelectable)
     .sort((a, b) => {
       if (sortBy === "totalCount") {
         return b.count - a.count
@@ -78,17 +84,18 @@ export function TopConstituencies() {
       <div className='text-meepGray-400 text-xs'>
         <div className='flex flex-col items-stretch gap-2'>
 
-          <ConstituenciesDropdown
-            constituencies={constituencies}
-            setSelectedConstituency={setSelectedConstituency}
-            map={map}
-          />
+          {!!constituencies &&(
+            <ConstituenciesDropdown
+              constituencies={constituencies}
+              setSelectedConstituency={setSelectedConstituency}
+              map={map}
+              setTab={setTab}
+            />
+          )}
           <Select
             value={sortBy}
             onValueChange={(value) => setSortBy(value as keyof typeof sortOptions)}
-
           >
-
             <div>
               <SelectTrigger
                 className={twMerge(

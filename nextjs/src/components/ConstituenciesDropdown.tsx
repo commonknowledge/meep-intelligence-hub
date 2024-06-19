@@ -18,10 +18,11 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 
-interface Constituency {
+export interface SelectableConstituency {
     gss: string
     count: number
     gssArea: {
+        id: string
         fitBounds: number[]
         name: string
     }
@@ -31,7 +32,7 @@ import { MAX_CONSTITUENCY_ZOOM } from "./report/ReportMap"
 
 
 interface ConstituenciesDropdownProps {
-    constituencies: Constituency[]
+    constituencies: SelectableConstituency[]
     setSelectedConstituency: (gss: string) => void
     setTab: (tab: string) => void
     map: any // Replace with the correct type if available
@@ -47,6 +48,7 @@ export default function ConstituenciesDropdown({
 }: ConstituenciesDropdownProps) {
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState("")
+    const selectedConstituency = constituencies.find((constituency) => constituency.gss === value)
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -57,8 +59,8 @@ export default function ConstituenciesDropdown({
                     aria-expanded={open}
                     className=" justify-between bg-meepGray-600"
                 >
-                    {value
-                        ? constituencies.find((constituency) => constituency.gss === value)?.gssArea.name
+                    {selectedConstituency
+                        ? selectedConstituency.gssArea.name
                         : "Search constituency..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
