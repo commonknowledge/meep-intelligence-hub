@@ -2353,10 +2353,13 @@ class ExternalDataSource(PolymorphicModel, Analytics):
             return default_source_permissions
         else:
             # If the user's org owns the source, they can see everything
-            can_display_points = external_data_source.organisation.members.filter(
-                user=user_id
-            ).exists()
-            can_display_details = can_display_points
+            can_display_points = (
+                external_data_source.organisation.members.filter(user=user_id).exists()
+                or default_source_permissions["can_display_points"]
+            )
+            can_display_details = (
+                can_display_points or default_source_permissions["can_display_details"]
+            )
         # Otherwise, check if their org has sharing permissions at any granularity
         if not can_display_points:
             permission = SharingPermission.objects.filter(

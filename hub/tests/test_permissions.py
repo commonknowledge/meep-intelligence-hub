@@ -870,3 +870,221 @@ class TestLoggedOutUserForSharedSource(Setup, TestCase):
         result = res.json()
 
         self.assertIsNone(result["data"]["importedDataGeojsonPoint"])
+
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class TestLoggedOutUserForPublicSource(Setup, TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.source.can_display_points_publicly = True
+        self.source.can_display_details_publicly = True
+        self.source.save()
+
+    def test_permissions_calculator(self):
+        permissions = models.ExternalDataSource.user_permissions(None, self.source)
+        self.assertDictEqual(
+            permissions, {"can_display_points": True, "can_display_details": True}
+        )
+
+    def test_aggregate_data_count(self):
+        """
+        Logged out users can't access the sharedDataSource graphql query
+        """
+        query = """
+            query MapReportLayerGeoJSONPoint($sourceId: ID!) {
+              sharedDataSource(pk: $sourceId) {
+                id
+                importedDataCountByRegion {
+                  gss
+                  count
+                }
+              }
+            }
+        """
+
+        res = self.client.post(
+            reverse("graphql"),
+            content_type="application/json",
+            data={"query": query, "variables": {"sourceId": str(self.source.id)}},
+        )
+        result = res.json()
+
+        self.assertIsNotNone(result.get("errors", None))
+        self.assertIsNone(result["data"])
+
+    def test_generic_data_visibility(self):
+        """
+        Logged out users can't see generic data
+        """
+        query = """
+            query MapReportLayerGeoJSONPoint($genericDataId: String!) {
+              importedDataGeojsonPoint(genericDataId: $genericDataId) {
+                id
+                geometry {
+                  coordinates
+                }
+                properties {
+                  id
+                  email
+                }
+              }
+            }
+        """
+
+        res = self.client.post(
+            reverse("graphql"),
+            content_type="application/json",
+            data={
+                "query": query,
+                "variables": {"genericDataId": str(self.generic_data.id)},
+            },
+        )
+        result = res.json()
+
+        self.assertIsNone(result.get("errors", None))
+        self.assertIsNone(result["data"]["importedDataGeojsonPoint"], None)
+
+    def test_vector_tiles_visibility(self):
+        zoom = 13
+        kwargs = {
+            "pk": str(self.source.id),
+            "z": zoom,
+            "x": geo.lon2tile(self.generic_data.point.x, zoom),
+            "y": geo.lat2tile(self.generic_data.point.y, zoom),
+        }
+        res = self.client.get(
+            reverse(
+                "external_data_source_point_tile",
+                kwargs=kwargs,
+            ),
+        )
+        self.assertIn(res.status_code, [200, 204])
+        self.assertEqual(res["Content-Type"], "application/vnd.mapbox-vector-tile")
+        self.assertIsNotNone(res.content)
+
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class TestLoggedInUserForPublicSource(Setup, TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.source.can_display_points_publicly = True
+        self.source.can_display_details_publicly = True
+        self.source.save()
+        self.other_user = models.User.objects.create_user(
+            username="otheruser", password="12345"
+        )
+        self.client.login(username="otheruser", password="12345")
+        res = self.client.post(
+            reverse("graphql"),
+            content_type="application/json",
+            data={
+                "variables": {"username": "otheruser", "password": "12345"},
+                "query": """
+            mutation Login($username: String!, $password: String!) {
+              tokenAuth(username: $username, password: $password) {
+                errors
+                success
+                token {
+                  token
+                }
+              }
+            }
+            """,
+            },
+            headers={},
+        )
+        self.token = res.json()["data"]["tokenAuth"]["token"]["token"]
+
+    def test_permissions_calculator(self):
+        permissions = models.ExternalDataSource.user_permissions(
+            self.other_user, self.source
+        )
+        self.assertDictEqual(
+            permissions, {"can_display_points": True, "can_display_details": True}
+        )
+
+    def test_aggregate_data_count(self):
+        """
+        Unshared users can't access the sharedDataSource data
+        """
+
+        query = """
+            query MapReportLayerGeoJSONPoint($sourceId: ID!) {
+              sharedDataSource(pk: $sourceId) {
+                id
+                importedDataCountByRegion {
+                  gss
+                  count
+                }
+              }
+            }
+        """
+
+        res = self.client.post(
+            reverse("graphql"),
+            content_type="application/json",
+            data={"query": query, "variables": {"sourceId": str(self.source.id)}},
+            headers={
+                "Authorization": f"JWT {self.token}",
+            },
+        )
+        result = res.json()
+
+        self.assertIsNotNone(result.get("errors", None))
+        self.assertIsNone(result.get("data", None))
+
+    def test_generic_data_visibility(self):
+        query = """
+            query MapReportLayerGeoJSONPoint($genericDataId: String!) {
+              importedDataGeojsonPoint(genericDataId: $genericDataId) {
+                id
+                geometry {
+                  coordinates
+                }
+                properties {
+                  id
+                  email
+                }
+              }
+            }
+        """
+
+        res = self.client.post(
+            reverse("graphql"),
+            content_type="application/json",
+            data={
+                "query": query,
+                "variables": {"genericDataId": str(self.generic_data.id)},
+            },
+            headers={"Authorization": f"JWT {self.token}"},
+        )
+        result = res.json()
+
+        self.assertIsNone(result.get("errors", None))
+        self.assertDictEqual(
+            result["data"]["importedDataGeojsonPoint"],
+            {
+                "id": str(self.generic_data.id),
+                "geometry": {"coordinates": [0.0, 0.0]},
+                "properties": {"id": str(self.generic_data.id), "email": "xyz@bbc.com"},
+            },
+        )
+
+    def test_vector_tiles_visibility(self):
+        zoom = 13
+        kwargs = {
+            "pk": str(self.source.id),
+            "z": zoom,
+            "x": geo.lon2tile(self.generic_data.point.x, zoom),
+            "y": geo.lat2tile(self.generic_data.point.y, zoom),
+        }
+        res = self.client.get(
+            reverse(
+                "external_data_source_point_tile",
+                kwargs=kwargs,
+            ),
+            headers={"Authorization": f"JWT {self.token}"},
+        )
+        self.assertIn(res.status_code, [200, 204])
+        self.assertEqual(res["Content-Type"], "application/vnd.mapbox-vector-tile")
+        self.assertIsNotNone(res.content)
