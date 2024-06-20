@@ -58,7 +58,7 @@ class ExternalDataSourceTileView(MVTView, DetailView):
             user_or_error: UserOrError = get_user_or_error(request)
             user = user_or_error.user if user_or_error.user else None
             permissions = ExternalDataSource.user_permissions(user, self.get_id())
-            logger.info(
+            logger.debug(
                 f"Got user permissions for {self.get_id()}, user {user}: {permissions}"
             )
             if not permissions.get("can_display_points", False):

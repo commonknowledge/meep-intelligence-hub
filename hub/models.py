@@ -2323,11 +2323,11 @@ class ExternalDataSource(PolymorphicModel, Analytics):
         )
 
         source = ExternalDataSource.objects.get(pk=external_data_source_id)
-        default_source_permissions = source.default_data_permissions()
+        permissions: cls.DataPermissions = source.default_data_permissions()
 
         if user is None or not user.is_authenticated:
             logger.debug("No user provided, returning default permissions")
-            return default_source_permissions
+            return permissions
 
         # Check for cached permissions on this source
         user_id = user if not hasattr(user, "id") else str(user.id)
@@ -2350,29 +2350,28 @@ class ExternalDataSource(PolymorphicModel, Analytics):
                     can_display_details=False,
                 )
         if user_id is None or external_data_source.organisation is None:
-            return default_source_permissions
+            return permissions
         else:
             # If the user's org owns the source, they can see everything
-            can_display_points = external_data_source.organisation.members.filter(
+            is_owner = external_data_source.organisation.members.filter(
                 user=user_id
             ).exists()
-            can_display_details = can_display_points
+            if is_owner:
+                permissions['can_display_points'] = True
+                permissions['can_display_details'] = True
         # Otherwise, check if their org has sharing permissions at any granularity
-        if not can_display_points:
+        if not is_owner:
             permission = SharingPermission.objects.filter(
                 external_data_source=external_data_source,
                 organisation__members__user=user_id,
             ).first()
             if permission is not None:
                 if permission.visibility_record_coordinates:
-                    can_display_points = True
+                    permissions['can_display_points'] = True
                     if permission.visibility_record_details:
-                        can_display_details = True
+                        permissions['can_display_details'] = True
 
-        permissions_dict[user_id] = cls.DataPermissions(
-            can_display_points=can_display_points,
-            can_display_details=can_display_details,
-        )
+        permissions_dict[user_id] = permissions
 
         cache.set(
             permission_cache_key,
@@ -2382,7 +2381,12 @@ class ExternalDataSource(PolymorphicModel, Analytics):
             timeout=60 * 60,
         )
 
-        return permissions_dict[user_id]
+        perms = permissions_dict[user_id]
+
+        logger.debug(
+            f"Calculated new user permissions for user {user}: {perms}"
+        )
+        return perms
 
     def filter(self, filter: dict) -> dict:
         """
@@ -3535,7 +3539,7 @@ class HubHomepage(Page):
     subpage_types = ["hub.HubContentPage"]
 
     organisation = models.ForeignKey(
-        Organisation, on_delete=models.PROTECT, related_name="hubs"
+        Organisation, on_delete=models.CASCADE, related_name="hubs"
     )
 
     layers = models.JSONField(blank=True, null=True, default=list)
@@ -3593,25 +3597,29 @@ class HubHomepage(Page):
         user,
         hostname,
         port=80,
-        org_id=None,
+        org=None,
     ):
         """
         Create a new HubHomepage for a user.
         """
-        if org_id:
-            organisation = Organisation.objects.get(id=org_id)
+        if org:
+            if not isinstance(org, Organisation):
+                org = Organisation.objects.get(id=org)
         else:
-            organisation = Organisation.get_or_create_for_user(user)
+            org = Organisation.get_or_create_for_user(user)
+        if site := Site.objects.filter(hostname=hostname, port=port).first():
+            return site.root_page.specific
+
         hub = HubHomepage(
             title=hostname,
             slug=slugify(hostname),
-            organisation=organisation,
+            organisation=org,
         )
         # get root
         root_page = Page.get_first_root_node()
         root_page.add_child(instance=hub)
         hub.save()
-        Site.objects.create(
+        Site.objects.get_or_create(
             hostname=hostname, port=port, site_name=hostname, root_page=hub
         )
         return hub
