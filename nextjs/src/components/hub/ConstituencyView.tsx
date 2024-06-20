@@ -130,12 +130,15 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
                             </div>
                           </div>
                         </div>
-                        <p>
+                        <div>
                           <div className="text-meepGray-500 text-sm">
                             What{"'"}s this about?
                           </div>
-                          {i.description}
-                        </p>
+                          {/* @ts-ignore */}
+                          {i.description?.split("\n\n").map((paragraph, index) => (
+                            <p key={index}>{paragraph}</p>
+                          ))}
+                        </div>
                         {i.publicUrl && (
                           <a
                             href={i.publicUrl}
