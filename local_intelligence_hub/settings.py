@@ -238,7 +238,7 @@ WSGI_APPLICATION = "local_intelligence_hub.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {"ENGINE": "django.contrib.gis.db.backends.postgis", **env.db()}
+    "default": env.db(engine="django.contrib.gis.db.backends.postgis")
 }
 
 
