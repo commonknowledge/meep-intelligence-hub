@@ -151,6 +151,13 @@
 
 /**/
 
+.lucide {
+  /* Change this! */
+  /* color: #969EB0; */
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.5px;
+}
 
 .react-grid-layout {
   position: relative;

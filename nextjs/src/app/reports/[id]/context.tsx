@@ -2,11 +2,12 @@
 
 import { AnalyticalAreaType, Exact, GetMapReportQuery, MapReportInput } from "@/__generated__/graphql";
 import { QueryResult } from "@apollo/client";
+import { atom } from "jotai";
 import { createContext, useContext, useState } from "react";
 
 export const defaultDisplayOptions = {
-  showLastElectionData: false,
-  showMPs: false,
+  showLastElectionData: true,
+  showMPs: true,
   showStreetDetails: false,
   analyticalAreaType: AnalyticalAreaType.ParliamentaryConstituency_2025
 }
@@ -21,6 +22,7 @@ export const ReportContext = createContext<{
   refreshReportDataQueries: () => void,
   displayOptions: DisplayOptionsType,
   setDisplayOptions: (options: Partial<DisplayOptionsType>) => void,
+  selectedMember: any,
 }>({
   id: '?',
   updateReport: () => ({} as any),
@@ -28,6 +30,7 @@ export const ReportContext = createContext<{
   refreshReportDataQueries: () => {},
   displayOptions: defaultDisplayOptions,
   setDisplayOptions: () => {},
+  selectedMember: null,
 });
 
 export const useReportContext = () => {
@@ -40,3 +43,5 @@ export const useReportContext = () => {
 
   return { ...context, updateDisplayOptions };
 };
+
+export const selectedConstituencyAtom = atom<string | null>(null)

@@ -57,8 +57,8 @@ export function AddMapLayerButton({ addLayer, filter }: { addLayer(layer: Source
   return (
     <Dialog open={open} onOpenChange={(o) => setOpen(o)}>
       <DialogTrigger asChild>
-        <Button variant="outline" size='sm'>
-          <Plus className="w-4" /> add data source
+        <Button variant="outline" size='sm' className="bg-brandBlue text-meepGray-700 border-meepGray-500 hover:bg-white hover:text-brandBlue hover:border-none gap-2 w-full">
+          <Plus className="w-4" />add data source
         </Button>
       </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">

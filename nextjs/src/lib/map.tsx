@@ -62,6 +62,7 @@ export function layerIdColour (id: string) {
 export const mapHasLoaded = atom(false)
 export const isDataConfigOpenAtom = atom(false)
 export const isConstituencyPanelOpenAtom = atom(false)
+export const isNavigatorPanelOpenAtom = atom(false)
 
 export type MapLoader = {
   loadedMap: MapRef<mapboxgl.Map> | null | undefined;

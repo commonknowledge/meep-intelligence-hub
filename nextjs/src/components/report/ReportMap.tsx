@@ -17,7 +17,7 @@ import {
 import { Fragment, useContext, useEffect, useState } from "react";
 import Map, { Layer, Source, LayerProps, Popup, ViewState, MapboxGeoJSONFeature } from "react-map-gl";
 import { gql, useFragment, useQuery } from "@apollo/client";
-import { ReportContext } from "@/app/reports/[id]/context";
+import { ReportContext, selectedConstituencyAtom } from "@/app/reports/[id]/context";
 import { LoadingIcon } from "@/components/ui/loadingIcon";
 import { scaleLinear, scaleSequential } from 'd3-scale'
 import { interpolateInferno } from 'd3-scale-chromatic'
@@ -32,7 +32,7 @@ import { BACKEND_URL } from "@/env";
 
 const MAX_REGION_ZOOM = 8
 export const MAX_CONSTITUENCY_ZOOM = 10
-const MIN_MEMBERS_ZOOM = 12
+const MIN_MEMBERS_ZOOM = 7
 
 const viewStateAtom = atom<Partial<ViewState>>({
   longitude: -2.296605,
@@ -41,8 +41,6 @@ const viewStateAtom = atom<Partial<ViewState>>({
 })
 
 const selectedSourceMarkerAtom = atom<MapboxGeoJSONFeature | null>(null)
-
-export const selectedConstituencyAtom = atom<string | null>(null)
 
 export function ReportMap () {
   const { id, displayOptions } = useContext(ReportContext)
@@ -276,7 +274,7 @@ export function ReportMap () {
         mapStyle={
           displayOptions.showStreetDetails
             ? "mapbox://styles/commonknowledge/clubx087l014y01mj1bv63yg8"
-            : "mapbox://styles/commonknowledge/clty3prwh004601pr4nqn7l9s"
+            : "mapbox://styles/commonknowledge/clo78ruww00uj01qv9n68h8a0"
         }
         onClick={() => setSelectedSourceMarker(null)}
         transformRequest={(url, resourceType) => {
@@ -292,6 +290,7 @@ export function ReportMap () {
           }
           return { url };
         }}
+        // padding={{ top: 0, right: 0, bottom: 0, left: 0 }}
       >
         {mapbox.loaded && (
           <>
@@ -352,6 +351,8 @@ export function ReportMap () {
               const SOURCE_STROKE = `${tileset.name}_SOURCE_STROKE`;
               const SOURCE_LABEL = `${tileset.name}_SOURCE_LABEL`;
               const SOURCE_POINTS = `${tileset.name}_SOURCE_POINTS`;
+
+              
 
               return (
                 <Fragment key={tileset.mapboxSourceId}>

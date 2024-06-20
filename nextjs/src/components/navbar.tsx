@@ -64,10 +64,11 @@ const crmSync: { title: string; href: string | undefined; description: string }[
 
 interface NavbarProps {
   isLoggedIn: boolean;
+  isMapPage?: boolean;
 }
 
 
-export default function Navbar({ isLoggedIn }: NavbarProps) {
+export default function Navbar({ isLoggedIn, isMapPage }: NavbarProps) {
   const pathname = usePathname()
 
   const [open, setOpen] = React.useState(false)
@@ -75,6 +76,9 @@ export default function Navbar({ isLoggedIn }: NavbarProps) {
   return (
     <>
       {isLoggedIn ? (
+        isMapPage ? (
+          <></>
+        ) : (
         <nav className='sticky top-0 shrink-0 flex flex-row justify-start items-stretch gap-md font-IBMPlexSansCondensed text-lg border-b border-meepGray-700 px-sm'>
           <Link href='/' className="py-sm"><MappedIcon /></Link>
           <Link
@@ -108,6 +112,7 @@ export default function Navbar({ isLoggedIn }: NavbarProps) {
             </div>
           </div>
         </nav>
+        )
       ) : (
         <nav className="p-sm">
           <ul className="flex flex-row">
@@ -282,7 +287,7 @@ export default function Navbar({ isLoggedIn }: NavbarProps) {
   )
 }
 
-function MappedIcon() {
+export function MappedIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="29" height="43" viewBox="0 0 29 43" fill="none">
       <circle cx="14.7351" cy="14.2833" r="13.9737" fill="#678DE3" />
