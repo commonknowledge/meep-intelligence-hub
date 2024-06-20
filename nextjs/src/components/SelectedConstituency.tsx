@@ -10,6 +10,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import ConsSettings from "@/components/ConsSettings"
+import { MoreVertical } from "lucide-react"
 import { gql, useQuery } from "@apollo/client";
 import { getYear } from "date-fns";
 import { format } from 'd3-format'
@@ -39,7 +49,7 @@ type DeepNullable<T> = {
   [K in keyof T]: DeepNullable<T[K]> | null;
 };
 
-export const ConstituencyElectionDeepDive = ({ gss, analyticalAreaType = AnalyticalAreaType.ParliamentaryConstituency_2025 }: { gss: string, analyticalAreaType: AnalyticalAreaType }) => {
+export const SelectedConstituency = ({ gss, analyticalAreaType = AnalyticalAreaType.ParliamentaryConstituency_2025 }: { gss: string, analyticalAreaType: AnalyticalAreaType }) => {
   const { id, displayOptions } = useContext(ReportContext)
   const { data, loading, error } = useQuery<GetConstituencyDataQuery, GetConstituencyDataQueryVariables>(CONSTITUENCY_DATA, {
     variables: { gss, reportID: id, analyticalAreaType },
@@ -56,8 +66,19 @@ export const ConstituencyElectionDeepDive = ({ gss, analyticalAreaType = Analyti
     .filter(l => !!l.source.importedDataCountForConstituency?.count)
 
   return (
-    <div key={data.constituency.id} className='divide-y space-y-4 p-4'>
-      <h2 className='text-xl'>{data.constituency.name}</h2>
+    <div key={data.constituency.id} className='divide-y space-y-4 p-4 overflow-y-scroll'>
+      <div className="flex gap-2 justify-between">
+
+      <DropdownMenu>
+      <h2 className='text-xl font-IBMPlexSansSemiBold'>{data.constituency.name}</h2>
+        <DropdownMenuTrigger>
+          <MoreVertical className='w-3' />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="left" align="start">
+          <ConsSettings />
+        </DropdownMenuContent>
+      </DropdownMenu>
+      </div>
       {data.constituency.mp && displayOptions.showMPs && (
         <section className='mb-8'>
           <div className='uppercase font-IBMPlexMono text-xs text-meepGray-400 mb-1'>
@@ -177,9 +198,9 @@ export function MemberElectoralInsights({
 
   return (
     <>
-      <div className='text-xs'>
-          {format(",")(totalCount)} {pluralize("member", totalCount)} in this report
-        </div>
+      <div className='text-xs text-meepGray-300'>
+        {format(",")(totalCount)} {pluralize("member", totalCount)} in this report
+      </div>
       {/* <section className='border border-meepGray-500 rounded relative p-2 mt-2'>
       
 

@@ -2,39 +2,20 @@ import { ConstituencyStatsOverviewQuery, ConstituencyStatsOverviewQueryVariables
 import { ReportContext, useReportContext } from "@/app/reports/[id]/context"
 import { gql, useQuery } from "@apollo/client"
 import { useContext, useState } from "react"
-import { MemberElectoralInsights, Person } from "./reportsConstituencyItem"
+import { MemberElectoralInsights, Person } from "./SelectedConstituency"
 import { getYear } from "date-fns"
 import { useAtom } from "jotai"
 import { MAX_CONSTITUENCY_ZOOM } from "./report/ReportMap"
 import { LoadingIcon } from "./ui/loadingIcon"
 import { useLoadedMap } from "@/lib/map"
-import { constituencyPanelTabAtom } from "@/app/reports/[id]/ConstituenciesPanel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
-
 import { twMerge } from "tailwind-merge"
-
-
-import { Check, ChevronsUpDown } from "lucide-react"
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { ArrowLeftToLine } from "lucide-react"
 import ConstituenciesDropdown, { SelectableConstituency } from "./ConstituenciesDropdown"
 import { selectedConstituencyAtom } from "@/app/reports/[id]/context";
 
-export function TopConstituencies() {
+export function NavigatorListSidebar() {
   const sortOptions = {
     totalCount: "Total Membership",
     electoralPower: "Electoral Power",
@@ -51,7 +32,6 @@ export function TopConstituencies() {
     }
   })
   const [selectedConstituency, setSelectedConstituency] = useAtom(selectedConstituencyAtom)
-  const [tab, setTab] = useAtom(constituencyPanelTabAtom)
   const map = useLoadedMap()
 
   type RequiredConstituencyType = ConstituencyStatsOverviewQuery["mapReport"]["importedDataCountByConstituency"][number] & SelectableConstituency
@@ -80,61 +60,65 @@ export function TopConstituencies() {
 
   return (
     // List of them here
-    <div className='flex flex-col gap-4 border-meepGray-700 w-full'>
-      <div className='text-meepGray-400 text-xs'>
-        <div className='flex flex-col items-stretch gap-2'>
+    <div className='flex flex-col  border-r border-meepGray-700 w-[180px]'>
+      <div className='flex flex-col items-stretch gap-2 text-sm p-3 border-b border-meepGray-700'>
+        <div className="flex gap-2 mb-1">
+          <ArrowLeftToLine />
+          <h2 className="">Navigator</h2>
+        </div>
 
-          {!!constituencies &&(
-            <ConstituenciesDropdown
-              constituencies={constituencies}
-              setSelectedConstituency={setSelectedConstituency}
-              map={map}
-              setTab={setTab}
-            />
-          )}
-          <Select
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value as keyof typeof sortOptions)}
-          >
-            <div>
-              <SelectTrigger
-                className={twMerge(
-                  " w-full max-w-[200px] text-xs [&_svg]:h-4 [&_svg]:w-4 h-full"
-                )}
-              >
-                <span className="text-muted-foreground">Sort by:</span>
-              </SelectTrigger>
-              <SelectContent>
-                <ScrollArea className="h-72" >
+        {!!constituencies && (
+          <ConstituenciesDropdown
+            constituencies={constituencies}
+            setSelectedConstituency={setSelectedConstituency}
+            map={map}
+          />
+        )}
+        <Select
+          value={sortBy}
+          onValueChange={(value) => setSortBy(value as keyof typeof sortOptions)}
+        >
+          <div>
+            <SelectTrigger
+              className={twMerge(
+                " w-full max-w-[200px] text-xs [&_svg]:h-4 [&_svg]:w-4 h-full"
+              )}
+            >
+              <span className="text-muted-foreground">Sort by:</span>
+            </SelectTrigger>
+            <SelectContent>
+              <ScrollArea >
                 {Object.entries(sortOptions).map(([value, label]) => (
                   <SelectItem key={value} value={value} className="text-xs">
                     {label}
                   </SelectItem>
                 ))}
-                </ScrollArea>
-              </SelectContent>
-            </div>
-          </Select>
-        </div>
+              </ScrollArea>
+            </SelectContent>
+          </div>
+        </Select>
       </div>
-      
-      {constituencies?.map((constituency) => (
-        <div
-          key={constituency.gss}
-          onClick={() => {
-            setSelectedConstituency(constituency.gss!)
-            map.loadedMap?.fitBounds(constituency.gssArea?.fitBounds, {
-              maxZoom: MAX_CONSTITUENCY_ZOOM - 0.1
-            })
-          }}
-          className='cursor-pointer text-lg border border-meepGray-600 group hover:bg-meepGray-600 rounded'
-        >
-          <ConstituencySummaryCard
-            constituency={constituency.gssArea!}
-            count={constituency.count}
-          />
-        </div>
-      ))}
+      <div className="overflow-y-scroll">
+
+
+        {constituencies?.map((constituency) => (
+          <div
+            key={constituency.gss}
+            onClick={() => {
+              setSelectedConstituency(constituency.gss!)
+              map.loadedMap?.fitBounds(constituency.gssArea?.fitBounds, {
+                maxZoom: MAX_CONSTITUENCY_ZOOM - 0.1
+              })
+            }}
+            className='cursor-pointer group hover:bg-meepGray-600 border-b border-meepGray-700'
+          >
+            <ConstituencySummaryCard
+              constituency={constituency.gssArea!}
+              count={constituency.count}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -149,8 +133,13 @@ export function ConstituencySummaryCard({ count, constituency }: {
 
   return (
     <div className='p-3'>
-      <h2 className='mb-2 text-base '>{constituency.name}</h2>
-      {!!constituency.mp?.name && displayOptions.showMPs && (
+      <h2 className='mb-1 text-sm'>{constituency.name}</h2>
+      <MemberElectoralInsights
+        totalCount={count}
+        electionStats={constituency.lastElection?.stats}
+        bg="text-meepGray-400"
+      />
+      {/* {!!constituency.mp?.name && displayOptions.showMPs && (
         <div className='mb-5 mt-4'>
           <Person
             name={constituency.mp?.name}
@@ -158,7 +147,7 @@ export function ConstituencySummaryCard({ count, constituency }: {
             img={constituency.mp?.photo?.url}
           />
         </div>
-      )}
+      )} */}
       {/* {!!constituency.lastElection?.stats && displayOptions.showLastElectionData && (
         <div className='flex justify-between mb-6'>
           <div className="flex flex-col gap-1">
@@ -189,13 +178,7 @@ export function ConstituencySummaryCard({ count, constituency }: {
           </div>
         </div>
       )} */}
-      <div>
-        <MemberElectoralInsights
-          totalCount={count}
-          electionStats={constituency.lastElection?.stats}
-          bg=" group-hover:bg-meepGray-600 border border-meepGray-700"
-        />
-      </div>
+
     </div>
   )
 }

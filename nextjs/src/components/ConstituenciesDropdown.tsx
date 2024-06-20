@@ -17,7 +17,14 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
+import { MAX_CONSTITUENCY_ZOOM } from "./report/ReportMap"
 
+
+interface ConstituenciesDropdownProps {
+    constituencies: SelectableConstituency[]
+    setSelectedConstituency: (gss: string) => void
+    map: any // Replace with the correct type if available
+}
 export interface SelectableConstituency {
     gss: string
     count: number
@@ -28,22 +35,11 @@ export interface SelectableConstituency {
     }
 }
 
-import { MAX_CONSTITUENCY_ZOOM } from "./report/ReportMap"
-
-
-interface ConstituenciesDropdownProps {
-    constituencies: SelectableConstituency[]
-    setSelectedConstituency: (gss: string) => void
-    setTab: (tab: string) => void
-    map: any // Replace with the correct type if available
-}
-
 
 
 export default function ConstituenciesDropdown({
     constituencies,
     setSelectedConstituency,
-    setTab,
     map,
 }: ConstituenciesDropdownProps) {
     const [open, setOpen] = React.useState(false)
@@ -59,9 +55,11 @@ export default function ConstituenciesDropdown({
                     aria-expanded={open}
                     className=" justify-between bg-meepGray-600"
                 >
-                    {selectedConstituency
-                        ? selectedConstituency.gssArea.name
-                        : "Search constituency..."}
+                    <p className="truncate text-tiny">
+                        {selectedConstituency
+                            ? selectedConstituency.gssArea.name
+                            : "Search constituency..."}
+                    </p>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>

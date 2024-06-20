@@ -291,12 +291,7 @@ function ReportPage() {
             )}
           </div>
         </div>
-        <div className='flex gap-4 items-center'>
-
-
-        </div>
         <div className="flex gap-2">
-
           <Dialog>
             <DialogTrigger className="bg-meepGray-700 rounded border  flex gap-2 items-center  px-4 py-2 border-meepGray-600 text-sm text-white flex-row overflow-hidden text-nowrap text-ellipsis cursor-pointer">
               <Settings className="text-meepGray-400"/>Settings</DialogTrigger>
@@ -333,19 +328,13 @@ function ReportPage() {
 
       </nav>
       <div className="absolute w-full h-[calc(100%-74px)] flex flex-row pointer-events-none">
-        <aside className="h-full pointer-events-auto">
-          {/* Data config card */}
-          {report?.data?.mapReport && isDataConfigOpen && (
-            <DataConfigPanel />
-          )}
-        </aside>
         <div className='w-full h-full pointer-events-auto flex'>
-          <ReportMap />
           {report?.data?.mapReport && isNavigatorPanelOpen && (
-            <aside className=" w-screen flex bg-meepGray-700">
+            <aside className=" w-screen flex">
               <Navigator />
             </aside>
           )}
+          <ReportMap />
         </div>
       </div>
       <AlertDialog open={deleteOpen} onOpenChange={() => setDeleteOpen(false)}>
