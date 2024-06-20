@@ -632,6 +632,8 @@ class GenericData(CommonData):
 
     @strawberry_django.field
     def postcode_data(self) -> Optional[PostcodesIOResult]:
+        if not self.postcode_data:
+            return None
         return benedict(self.postcode_data)
 
     @strawberry_django.field
