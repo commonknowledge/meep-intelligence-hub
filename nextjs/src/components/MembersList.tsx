@@ -94,7 +94,7 @@ const MembersList = () => {
 
   // Filter members based on search query
   const filteredMembers = dataMembers?.genericDataByExternalDataSource?.filter((member: any) =>
-    member.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+    member.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
