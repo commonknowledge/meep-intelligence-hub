@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { NextMiddleware } from "next/server";
+import { FRONTEND_HOSTNAME } from "./env";
 
 export const config = {
   matcher: [
@@ -36,24 +37,20 @@ export const middleware: NextMiddleware = (req) => {
   let hostname = req.headers
     .get("host")!
     .split(":")[0]
-    // TODO: 
-    // .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
 
   // special case for Vercel preview deployment URLs
   if (
     hostname.includes("---") &&
     hostname.endsWith(`.${process.env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX}`)
   ) {
-    hostname = `${hostname.split("---")[0]}.${
-      process.env.NEXT_PUBLIC_ROOT_DOMAIN
-    }`;
+    hostname = `${hostname.split("---")[0]}.${FRONTEND_HOSTNAME}`;
   }
 
   // For the main app domain, continue as normal
   if (
     hostname === "localhost" ||
     hostname === "127.0.0.1" ||
-    hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN
+    hostname === FRONTEND_HOSTNAME
   ) {
     return response
   }

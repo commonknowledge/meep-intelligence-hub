@@ -8,6 +8,7 @@ import {
   NextSSRApolloClient,
 } from "@apollo/experimental-nextjs-app-support/ssr";
 import { authenticationHeaders } from '@/lib/auth';
+import { GRAPHQL_URL } from "@/env";
 
 /**
  * Creates an apollo client that can be used in client components.
@@ -35,7 +36,7 @@ import { authenticationHeaders } from '@/lib/auth';
  */
 export function makeFrontEndClient() {
   const httpLink = new HttpLink({
-    uri: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/graphql`,
+    uri: GRAPHQL_URL,
   });
 
   const authLink = setContext((_, { headers }) => {

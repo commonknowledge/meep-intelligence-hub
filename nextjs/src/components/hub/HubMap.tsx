@@ -10,6 +10,7 @@ import { LoadingIcon } from "../ui/loadingIcon";
 import { GetLocalDataQuery } from "@/__generated__/graphql";
 import { useEffect } from "react";
 import { SIDEBAR_WIDTH } from "./data";
+import { BACKEND_URL } from "@/env";
 
 const viewStateAtom = atom<Partial<ViewState>>({
   longitude: -2.296605,
@@ -75,7 +76,7 @@ export function HubMap ({
         mapStyle={mapStyle || "mapbox://styles/commonknowledge/clwqeu7rb012301nyh52n3kss"}
         transformRequest={(url, resourceType) => {
           if (
-            url.includes(process.env.NEXT_PUBLIC_BACKEND_BASE_URL!) &&
+            url.includes(BACKEND_URL) &&
             !url.includes("tiles.json")
           ) {
             return {

@@ -28,6 +28,7 @@ import { z } from "zod";
 import { layerColour, useLoadedMap, isConstituencyPanelOpenAtom, MAP_REPORT_LAYERS_SUMMARY, layerIdColour, useMapIcons, PlaceholderLayer } from "@/lib/map";
 import { constituencyPanelTabAtom } from "@/app/reports/[id]/ConstituenciesPanel";
 import { authenticationHeaders } from "@/lib/auth";
+import { BACKEND_URL } from "@/env";
 
 const MAX_REGION_ZOOM = 8
 export const MAX_CONSTITUENCY_ZOOM = 10
@@ -278,7 +279,7 @@ export function ReportMap () {
         onClick={() => setSelectedSourceMarker(null)}
         transformRequest={(url, resourceType) => {
           if (
-            url.includes(process.env.NEXT_PUBLIC_BACKEND_BASE_URL!) &&
+            url.includes(BACKEND_URL) &&
             !url.includes("tiles.json")
           ) {
             return {
@@ -667,7 +668,7 @@ function ExternalDataSourcePointMarkers ({ externalDataSourceId, index }: { exte
       <Source
         id={externalDataSourceId}
         type="vector"
-        url={`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/tiles/external-data-source/${externalDataSourceId}/tiles.json`}
+        url={new URL(`/tiles/external-data-source/${externalDataSourceId}/tiles.json`, BACKEND_URL).toString()}
         minzoom={MIN_MEMBERS_ZOOM}
       >
         {index <= 1 ? (

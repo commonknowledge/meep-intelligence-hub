@@ -46,15 +46,6 @@ on the fly, but that doesn't work with whitenoise, which requires all assets to 
 
 The worker launch command is: `python manage.py procrastinate worker`
 
-## Frontend
-
-### Environment Variables
-
-The only required environment variables are:
-
-- NEXT_PUBLIC_FRONTEND_BASE_URL: The URL of the frontend website (with https://, no trailing slash)
-- NEXT_PUBLIC_BACKEND_BASE_URL: The URL of the backend web server (with https://, no trailing slash)
-
 ### Launch Commands
 
 The pre-launch command is: `npm install && npm run build`

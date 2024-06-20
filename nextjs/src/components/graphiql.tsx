@@ -6,19 +6,20 @@ import React, { useMemo } from 'react';
 import 'graphiql/graphiql.css';
 import { authenticationHeaders } from '@/lib/auth';
 import { ErrorBoundary } from '@sentry/nextjs';
+import { GRAPHQL_URL } from '@/env';
 
 export function GraphQLPlayground(props: Partial<GraphiQLProps>) {
   const fetcher = useMemo(function getAuthenticatedFetcher () {
     if (typeof window === 'undefined') return null
     try {
       return createGraphiQLFetcher({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/graphql`,
+        url: GRAPHQL_URL,
         headers: authenticationHeaders()
       });
     } catch (e) {
       console.error(e)
       return createGraphiQLFetcher({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/graphql`
+        url: GRAPHQL_URL
       });
     }
   }, [])

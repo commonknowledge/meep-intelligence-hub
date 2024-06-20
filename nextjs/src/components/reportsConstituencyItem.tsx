@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/tooltip"
 import { LoadingIcon } from "./ui/loadingIcon";
 import { twMerge } from "tailwind-merge";
+import { BACKEND_URL } from "@/env";
 
 type Party = {
   name: string;
@@ -287,7 +288,7 @@ export function Person({ img, name, subtitle }: { img?: string, name: string, su
     <div className='flex flex-row items-center gap-2'>
       {!!img && (
         <img
-          src={new URL(img, process.env.NEXT_PUBLIC_BACKEND_BASE_URL).toString()}
+          src={new URL(img, BACKEND_URL).toString()}
           alt={name} width={41} height={41} className='rounded-full'
         />
       )}

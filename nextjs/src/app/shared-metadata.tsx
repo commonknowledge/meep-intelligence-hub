@@ -1,5 +1,7 @@
+import { FRONTEND_URL } from "@/env";
+
 export const openGraphImage = {
   images: [
-    `${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}/Mapped-ShareCard.png`,
+    new URL(`/Mapped-ShareCard.png`, FRONTEND_URL).toString(),
   ],
 };

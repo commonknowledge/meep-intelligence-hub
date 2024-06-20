@@ -4,6 +4,7 @@ import Map, { ViewState } from "react-map-gl";
 import { atom, useAtom } from "jotai";
 import { authenticationHeaders } from "@/lib/auth";
 import { ImmutableLike } from "react-map-gl/dist/esm/types";
+import { BACKEND_URL } from "@/env";
 
 const viewStateAtom = atom<Partial<ViewState>>({
   longitude: -2.296605,
@@ -28,7 +29,7 @@ export function PublicMap ({
         mapStyle={mapStyle || "mapbox://styles/commonknowledge/clwqeu7rb012301nyh52n3kss"}
         transformRequest={(url, resourceType) => {
           if (
-            url.includes(process.env.NEXT_PUBLIC_BACKEND_BASE_URL!) &&
+            url.includes(BACKEND_URL) &&
             !url.includes("tiles.json")
           ) {
             return {

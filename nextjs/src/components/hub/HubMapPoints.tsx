@@ -5,6 +5,7 @@ import { useAtom } from "jotai"
 import { selectedHubSourceMarkerAtom } from "@/components/hub/data"
 import { useEffect } from "react"
 import { Layer, Source } from "react-map-gl"
+import { BACKEND_URL } from "@/env"
 
 export function HubPointMarkers ({ externalDataSourceId, index, beforeId }: { externalDataSourceId: string, index: number, beforeId?: string }) {
   const mapbox = useLoadedMap()
@@ -34,7 +35,7 @@ export function HubPointMarkers ({ externalDataSourceId, index, beforeId }: { ex
       <Source
         id={externalDataSourceId}
         type="vector"
-        url={`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/tiles/external-data-source/${externalDataSourceId}/tiles.json`}
+        url={new URL(`/tiles/external-data-source/${externalDataSourceId}/tiles.json`, BACKEND_URL).toString()}
       >
         {/* {index <= 1 ? ( */}
           <Layer

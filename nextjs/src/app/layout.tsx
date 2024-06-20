@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 import { Metadata } from 'next'
 import { openGraphImage } from './shared-metadata'
 import { Suspense } from "react";
+import { FRONTEND_URL } from "@/env";
 
 const PostHogPageView = dynamic(() => import('./PostHogPageView'), {
   ssr: false,
@@ -41,5 +42,5 @@ export const metadata: Metadata = {
     template: '%s | Mapped by Common Knowledge',
     default: 'Mapped by Common Knowledge', // a default is required when creating a template
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_BASE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(FRONTEND_URL),
 }

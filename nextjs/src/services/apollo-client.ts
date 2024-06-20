@@ -6,6 +6,7 @@ import {
 } from "@apollo/experimental-nextjs-app-support/ssr";
 import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rsc";
 import { cookies } from "next/headers";
+import { GRAPHQL_URL } from "@/env";
 
 const getJwt = (): string | undefined => {
   const cookieStore = cookies();
@@ -40,7 +41,7 @@ const getJwt = (): string | undefined => {
  */
 const makeBackEndClient = () => {
   const httpLink = new HttpLink({
-    uri: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/graphql`,
+    uri: GRAPHQL_URL,
   });
 
   const authLink = setContext((_, { headers }) => {

@@ -201,7 +201,7 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
                           <img
                             src={new URL(
                               person.photo.url,
-                              process.env.NEXT_PUBLIC_BACKEND_BASE_URL
+                              BACKEND_URL
                             ).toString()}
                             alt={person.name}
                             width={41}
