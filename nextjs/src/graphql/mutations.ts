@@ -5,8 +5,8 @@ export const UPDATE_EXTERNAL_DATA_SOURCE = gql`
     updateExternalDataSource(input: $input) {
       id
       name
-      geographyColumn
-      geographyColumnType
+      pointField
+      pointFieldType
       postcodeField
       firstNameField
       lastNameField

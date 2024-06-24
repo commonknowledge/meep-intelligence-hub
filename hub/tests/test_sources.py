@@ -38,8 +38,8 @@ class TestExternalDataSource:
                 base_id=settings.TEST_AIRTABLE_CUSTOMDATALAYER_BASE_ID,
                 table_id=settings.TEST_AIRTABLE_CUSTOMDATALAYER_TABLE_NAME,
                 api_key=settings.TEST_AIRTABLE_CUSTOMDATALAYER_API_KEY,
-                geography_column="council district",
-                geography_column_type=models.AirtableSource.GeographyTypes.ADMIN_DISTRICT,
+                point_field="council district",
+                point_field_type=models.AirtableSource.PointFieldTypes.ADMIN_DISTRICT,
             )
         )
 
@@ -214,7 +214,7 @@ class TestExternalDataSource:
         record = await self.source.fetch_one(self.source.get_record_id(record))
         # Check
         self.assertEqual(
-            self.source.get_record_field(record, self.source.geography_column),
+            self.source.get_record_field(record, self.source.point_field),
             "EH99 1SP",
         )
 
@@ -390,7 +390,7 @@ class TestExternalDataSource:
         assert len(records) == 2
         for record in records:
             if (
-                self.source.get_record_field(record, self.source.geography_column)
+                self.source.get_record_field(record, self.source.point_field)
                 == "G11 5RD"
             ):
                 self.assertEqual(
@@ -398,7 +398,7 @@ class TestExternalDataSource:
                     "Glasgow West",
                 )
             elif (
-                self.source.get_record_field(record, self.source.geography_column)
+                self.source.get_record_field(record, self.source.point_field)
                 == "G42 8PH"
             ):
                 self.assertEqual(
@@ -475,8 +475,8 @@ class TestAirtableSource(TestExternalDataSource, TestCase):
             base_id=settings.TEST_AIRTABLE_MEMBERLIST_BASE_ID,
             table_id=settings.TEST_AIRTABLE_MEMBERLIST_TABLE_NAME,
             api_key=settings.TEST_AIRTABLE_MEMBERLIST_API_KEY,
-            geography_column="Postcode",
-            geography_column_type=models.AirtableSource.GeographyTypes.POSTCODE,
+            point_field="Postcode",
+            point_field_type=models.AirtableSource.PointFieldTypes.POSTCODE,
             postcode_field="Postcode",
             email_field="Email",
             auto_update_enabled=True,
@@ -537,8 +537,8 @@ class TestMailchimpSource(TestExternalDataSource, TestCase):
             api_key=settings.TEST_MAILCHIMP_MEMBERLIST_API_KEY,
             list_id=settings.TEST_MAILCHIMP_MEMBERLIST_AUDIENCE_ID,
             email_field="email_address",
-            geography_column="ADDRESS.zip",
-            geography_column_type=models.MailchimpSource.GeographyTypes.POSTCODE,
+            point_field="ADDRESS.zip",
+            point_field_type=models.MailchimpSource.PointFieldTypes.POSTCODE,
             auto_update_enabled=True,
             update_mapping=[
                 {
@@ -567,9 +567,9 @@ class TestActionNetworkSource(TestExternalDataSource, TestCase):
             data_type=models.ActionNetworkSource.DataSourceType.MEMBER,
             organisation=self.organisation,
             api_key=settings.TEST_ACTIONNETWORK_MEMBERLIST_API_KEY,
-            geography_column="postal_addresses[0].postal_code",
+            point_field="postal_addresses[0].postal_code",
             email_field="email_addresses[0].address",
-            geography_column_type=models.MailchimpSource.GeographyTypes.POSTCODE,
+            point_field_type=models.MailchimpSource.PointFieldTypes.POSTCODE,
             auto_update_enabled=True,
             update_mapping=[
                 {

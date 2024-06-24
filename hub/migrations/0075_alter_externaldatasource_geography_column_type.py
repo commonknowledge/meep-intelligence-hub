@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                     ("council", "Council"),
                     ("constituency", "Constituency"),
                 ],
-                choices_enum=hub.models.ExternalDataSource.GeographyTypes,
+                choices_enum=hub.models.ExternalDataSource.PointFieldTypes,
                 default="postcode",
                 max_length=12,
             ),

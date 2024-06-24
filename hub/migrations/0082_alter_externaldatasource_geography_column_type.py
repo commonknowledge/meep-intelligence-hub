@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                     ("parliamentary_constituency", "Constituency"),
                     ("parliamentary_constituency_2025", "Constituency (2024)"),
                 ],
-                choices_enum=hub.models.ExternalDataSource.GeographyTypes,
+                choices_enum=hub.models.ExternalDataSource.PointFieldTypes,
                 default="postcode",
                 max_length=31,
             ),

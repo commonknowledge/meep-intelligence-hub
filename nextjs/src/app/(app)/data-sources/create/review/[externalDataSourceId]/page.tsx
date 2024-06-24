@@ -18,8 +18,8 @@ const GET_UPDATE_CONFIG = gql`
     externalDataSource(pk: $ID) {
       id
       name
-      geographyColumn
-      geographyColumnType
+      pointField
+      pointFieldType
       dataType
       crmType
       autoImportEnabled
@@ -73,7 +73,7 @@ export default function Page({
 
   return (
     <div className="space-y-7">
-      {pageQuery.data?.externalDataSource.geographyColumn ? (
+      {pageQuery.data?.externalDataSource.pointField ? (
         <header>
           <h1 className="text-hLg">Activate data source</h1>
           <p className="mt-6 text-meepGray-300 max-w-sm">
@@ -87,7 +87,7 @@ export default function Page({
                 </span>
                 <DataSourceFieldLabel
                   className='align-middle'
-                  label={pageQuery.data?.externalDataSource.geographyColumn}
+                  label={pageQuery.data?.externalDataSource.pointField}
                   crmType={pageQuery.data?.externalDataSource.crmType}
                 />
                 <span className='align-middle'>

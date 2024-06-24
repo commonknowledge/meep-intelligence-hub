@@ -1,6 +1,6 @@
 import { FieldPath, FormProvider, useForm } from "react-hook-form";
 import { Button } from "./ui/button";
-import { CrmType, DataSourceType, ExternalDataSourceInput, FieldDefinition, GeographyTypes } from "@/__generated__/graphql";
+import { CrmType, DataSourceType, ExternalDataSourceInput, FieldDefinition, PointFieldTypes } from "@/__generated__/graphql";
 import { PreopulatedSelectField } from "./ExternalDataSourceFields";
 import {
   FormControl,
@@ -81,7 +81,7 @@ export function UpdateExternalDataSourceFields ({
       >
         <FormField
           control={form.control}
-          name="geographyColumnType"
+          name="pointFieldType"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type of location data</FormLabel>
@@ -109,18 +109,18 @@ export function UpdateExternalDataSourceFields ({
         />
         <FormField
           control={form.control}
-          name="geographyColumn"
+          name="pointField"
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                {form.watch("geographyColumnType")?.toLocaleLowerCase()} field
+                {form.watch("pointFieldType")?.toLocaleLowerCase()} field
               </FormLabel>
               <FormControl>
                 {fieldDefinitions?.length ? (
                   // @ts-ignore
                   <Select value={field.value} onValueChange={field.onChange} required>
                     <SelectTrigger className='pl-1'>
-                      <SelectValue placeholder={`Choose ${form.watch('geographyColumnType') || 'geography'} field`} />
+                      <SelectValue placeholder={`Choose ${form.watch('pointFieldType') || 'geography'} field`} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
@@ -161,8 +161,8 @@ export function getFieldsForDataSourceType (type?: DataSourceType): Array<keyof 
   'name' |
   'organisation' |
   'updateMapping' |
-  'geographyColumn' |
-  'geographyColumnType'
+  'pointField' |
+  'pointFieldType'
 )>> {
   switch (type) {
     case DataSourceType.Member:

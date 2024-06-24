@@ -125,8 +125,8 @@ const GET_UPDATE_CONFIG = gql`
       automatedWebhooks
       webhookUrl
       webhookHealthcheck
-      geographyColumn
-      geographyColumnType
+      pointField
+      pointFieldType
       postcodeField
       firstNameField
       lastNameField
@@ -351,8 +351,8 @@ export default function InspectExternalDataSource({
             crmType={source.crmType}
             fieldDefinitions={source.fieldDefinitions}
             initialData={{
-              geographyColumn: source.geographyColumn,
-              geographyColumnType: source.geographyColumnType,
+              pointField: source.pointField,
+              pointFieldType: source.pointFieldType,
               firstNameField: source.firstNameField,
               lastNameField: source.lastNameField,
               fullNameField: source.fullNameField,
@@ -402,7 +402,7 @@ export default function InspectExternalDataSource({
                   </span>
                   <DataSourceFieldLabel
                     className='align-middle'
-                    label={source.geographyColumnType}
+                    label={source.pointFieldType}
                     crmType={source.crmType}
                     />
                   </p>
@@ -487,8 +487,8 @@ export default function InspectExternalDataSource({
                 refreshFieldDefinitions={() => { refetch() }}
                 initialData={{
                   // Trim out the __typenames
-                  geographyColumn: source?.geographyColumn,
-                  geographyColumnType: source?.geographyColumnType,
+                  pointField: source?.pointField,
+                  pointFieldType: source?.pointFieldType,
                   updateMapping: source?.updateMapping?.map((m) => ({
                     source: m.source,
                     sourcePath: m.sourcePath,

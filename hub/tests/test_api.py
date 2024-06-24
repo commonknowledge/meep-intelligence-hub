@@ -29,8 +29,8 @@ class TestPublicAPI(TestCase):
                 base_id=settings.TEST_AIRTABLE_CUSTOMDATALAYER_BASE_ID,
                 table_id=settings.TEST_AIRTABLE_CUSTOMDATALAYER_TABLE_NAME,
                 api_key=settings.TEST_AIRTABLE_CUSTOMDATALAYER_API_KEY,
-                geography_column="council district",
-                geography_column_type=models.AirtableSource.GeographyTypes.ADMIN_DISTRICT,
+                point_field="council district",
+                point_field_type=models.AirtableSource.PointFieldTypes.ADMIN_DISTRICT,
             )
         )
         # Some dummy data

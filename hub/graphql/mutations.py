@@ -217,8 +217,8 @@ class ExternalDataSourceInput:
     data_type: auto
     description: auto
     organisation: auto
-    geography_column: auto
-    geography_column_type: auto
+    point_field: auto
+    point_field_type: auto
     postcode_field: auto
     first_name_field: auto
     last_name_field: auto

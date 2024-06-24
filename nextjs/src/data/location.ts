@@ -1,28 +1,28 @@
-import { GeographyTypes } from "@/__generated__/graphql";
+import { PointFieldTypes } from "@/__generated__/graphql";
 
 export const locationTypeOptions = [
     {
-        value: GeographyTypes.Postcode,
+        value: PointFieldTypes.Postcode,
         label: "Postcode",
     },
     {
-        value: GeographyTypes.Address,
+        value: PointFieldTypes.Address,
         label: "Address",
     },
     {
-        value: GeographyTypes.Ward,
+        value: PointFieldTypes.Ward,
         label: "Ward",
     },
     {
-        value: GeographyTypes.AdminDistrict,
+        value: PointFieldTypes.AdminDistrict,
         label: "Council",
     },
     {
-        value: GeographyTypes.ParliamentaryConstituency,
+        value: PointFieldTypes.ParliamentaryConstituency,
         label: "Constituency",
     },
     {
-        value: GeographyTypes.ParliamentaryConstituency_2025,
+        value: PointFieldTypes.ParliamentaryConstituency_2025,
         label: "Constituency (2024)",
     }
 ]

@@ -189,7 +189,7 @@ class FieldDefinition:
 @strawberry_django.filter(models.ExternalDataSource)
 class ExternalDataSourceFilter:
     data_type: auto
-    geography_column_type: auto
+    point_field_type: auto
 
 
 @strawberry.type
@@ -547,13 +547,18 @@ class Area:
         hub = site.root_page.specific
         data = []
         for layer in hub.layers:
+            # Point within 
             data.extend(
                 models.GenericData.objects.filter(
-                    data_type__data_set__external_data_source=layer.get("source"),
-                    data_type__data_set__external_data_source__can_display_points_publicly=True,
-                    data_type__data_set__external_data_source__can_display_details_publicly=True,
-                    point__within=self.polygon,
-                    **layer.get("filter", {}),
+                    Q(
+                        data_type__data_set__external_data_source=layer.get("source"),
+                        data_type__data_set__external_data_source__can_display_points_publicly=True,
+                        data_type__data_set__external_data_source__can_display_details_publicly=True,
+                    ) & (
+                        Q(point__within=self.polygon) |
+                        Q(areas__overlaps=self.polygon)
+                    ) &
+                    Q(**layer.get("filter", {}))
                 )
             )
         return data
@@ -807,8 +812,8 @@ class BaseDataSource(Analytics):
     description: auto
     created_at: auto
     last_update: auto
-    geography_column: auto
-    geography_column_type: auto
+    point_field: auto
+    point_field_type: auto
     postcode_field: auto
     first_name_field: auto
     last_name_field: auto

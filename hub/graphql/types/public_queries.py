@@ -89,8 +89,8 @@ async def enrich_postcode(
             str(source.id): source.data_loader_factory()
             async for source in models.ExternalDataSource.objects.filter(
                 organisation__members__user=user,
-                geography_column__isnull=False,
-                geography_column_type__isnull=False,
+                point_field__isnull=False,
+                point_field_type__isnull=False,
             ).all()
         },
     )
@@ -111,8 +111,8 @@ async def enrich_postcodes(
             str(source.id): source.data_loader_factory()
             async for source in models.ExternalDataSource.objects.filter(
                 organisation__members__user=user,
-                geography_column__isnull=False,
-                geography_column_type__isnull=False,
+                point_field__isnull=False,
+                point_field_type__isnull=False,
             ).all()
         },
     )

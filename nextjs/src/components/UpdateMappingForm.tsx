@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
-import { CrmType, DataSourceType, EnrichmentLayersQuery, ExternalDataSourceInput, FieldDefinition, GeographyTypes } from "@/__generated__/graphql";
+import { CrmType, DataSourceType, EnrichmentLayersQuery, ExternalDataSourceInput, FieldDefinition, PointFieldTypes } from "@/__generated__/graphql";
 import { Input } from "@/components/ui/input";
 import { SourcePathSelector } from "@/components/SelectSourceData";
 import { ArrowRight, Plus, RefreshCcw, X } from "lucide-react";
@@ -95,7 +95,7 @@ export function UpdateMappingForm({
               <div className='grid grid-cols-2 gap-4 w-full'>
                 <FormField
                   control={form.control}
-                  name="geographyColumnType"
+                  name="pointFieldType"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type of location data</FormLabel>
@@ -123,23 +123,23 @@ export function UpdateMappingForm({
               />
               <FormField
                 control={form.control}
-                name="geographyColumn"
+                name="pointField"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {form.watch("geographyColumnType")?.toLocaleLowerCase()} field
+                      {form.watch("pointFieldType")?.toLocaleLowerCase()} field
                     </FormLabel>
                     <FormControl>
                       {fieldDefinitions?.length ? (
                         // @ts-ignore
                         <Select value={field.value} onValueChange={field.onChange} required>
                           <SelectTrigger className='pl-1'>
-                            <SelectValue placeholder={`Choose ${data.geographyColumnType || 'geography'} field`} />
+                            <SelectValue placeholder={`Choose ${data.pointFieldType || 'geography'} field`} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
                               <SelectLabel>
-                                {form.watch("geographyColumnType")?.toLocaleLowerCase()} field
+                                {form.watch("pointFieldType")?.toLocaleLowerCase()} field
                               </SelectLabel>
                               {fieldDefinitions?.map((field) => (
                                 <SelectItem key={field.value} value={field.value}>

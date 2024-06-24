@@ -30,7 +30,7 @@ import {
   CreateExternalDataSourceInput,
   DataSourceType,
   ExternalDataSourceInput,
-  GeographyTypes,
+  PointFieldTypes,
   CreateSourceMutation,
   TestDataSourceQuery,
   TestDataSourceQueryVariables,
@@ -56,8 +56,8 @@ const TEST_DATA_SOURCE = gql`
         description
         editable
       }
-      geographyColumn,
-      geographyColumnType
+      pointField,
+      pointFieldType
       healthcheck
       predefinedColumnNames
       defaultDataType
@@ -110,8 +110,8 @@ export default function Page({
 
   const defaultValues: CreateExternalDataSourceInput & ExternalDataSourceInput = {
     name: '',
-    geographyColumnType: GeographyTypes.Postcode,
-    geographyColumn: '',
+    pointFieldType: PointFieldTypes.Postcode,
+    pointField: '',
     dataType: context.dataType,
     airtable: {
       apiKey: '',
@@ -133,7 +133,7 @@ export default function Page({
 
   const form = useForm<FormInputs>({
     defaultValues: {
-      geographyColumnType: GeographyTypes.Postcode,
+      pointFieldType: PointFieldTypes.Postcode,
       ...defaultValues
     } as FormInputs,
   });
@@ -142,7 +142,7 @@ export default function Page({
   const collectFields = useMemo(() => {
     return getFieldsForDataSourceType(dataType)
   }, [dataType])
-  const geographyFields = ["geographyColumn", "geographyColumnType"]
+  const geographyFields = ["pointField", "pointFieldType"]
 
   const [createSource, createSourceResult] = useMutation<CreateSourceMutation>(CREATE_DATA_SOURCE);
   const [testSource, testSourceResult] = useLazyQuery<TestDataSourceQuery, TestDataSourceQueryVariables>(TEST_DATA_SOURCE);
@@ -212,7 +212,7 @@ export default function Page({
     }, [testSourceResult.data?.testDataSource.fieldDefinitions, form, collectFields, setGuessed])
   }
 
-  useGuessedField('geographyColumn', ["postcode", "postal code", "zip code", "zip"])
+  useGuessedField('pointField', ["postcode", "postal code", "zip code", "zip"])
   useGuessedField('emailField', ["email"])
   useGuessedField('phoneField', ["mobile", "phone"])
   useGuessedField('addressField', ["street", "line1", "address", "location", "venue"], ['email'])
@@ -478,7 +478,7 @@ export default function Page({
                 <div className='grid grid-cols-2 gap-4 w-full'>
                   <FormField
                     control={form.control}
-                    name="geographyColumnType"
+                    name="pointFieldType"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Type of location data</FormLabel>
@@ -504,7 +504,7 @@ export default function Page({
                       </FormItem>
                     )}
                   />
-                  <FPreopulatedSelectField name="geographyColumn" label={`${form.watch("geographyColumnType")?.toLocaleLowerCase()} field`} required />
+                  <FPreopulatedSelectField name="pointField" label={`${form.watch("pointFieldType")?.toLocaleLowerCase()} field`} required />
                   {collectFields.map((field) => (
                     <FPreopulatedSelectField key={field} name={field} />
                   ))}

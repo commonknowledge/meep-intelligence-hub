@@ -24,6 +24,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 import httpx
+from hub.lib.area import treated_area_name_or_code
 import numpy as np
 import pandas as pd
 import pytz
@@ -39,7 +40,8 @@ from psycopg.errors import UniqueViolation
 from pyairtable import Api as AirtableAPI
 from pyairtable import Base as AirtableBase
 from pyairtable import Table as AirtableTable
-from pyairtable.models.schema import TableSchema as AirtableTableSchema
+from pyairtable import formulas as airtable_formulas
+from pyairtable.models.schema import TableSchema as AirtableTableSchema, MultipleRecordLinksFieldSchema
 from sentry_sdk import metrics
 from strawberry.dataloader import DataLoader
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
@@ -733,6 +735,7 @@ class GenericData(CommonData):
     last_update = models.DateTimeField(auto_now=True)
     point = PointField(srid=4326, blank=True, null=True)
     polygon = MultiPolygonField(srid=4326, blank=True, null=True)
+    areas = models.ManyToManyField("Area", related_name="generic_data")
     postcode_data = JSONField(blank=True, null=True)
     postcode = models.CharField(max_length=1000, blank=True, null=True)
     first_name = models.CharField(max_length=300, blank=True, null=True)
@@ -1002,7 +1005,7 @@ class ExternalDataSource(PolymorphicModel, Analytics):
     can_display_points_publicly = models.BooleanField(default=False)
     can_display_details_publicly = models.BooleanField(default=False)
 
-    class GeographyTypes(models.TextChoices):
+    class PointFieldTypes(models.TextChoices):
         """
         The keys and values here are identical (for GraphQL compatibility)
         and are uppercased versions of the PostcodesIO terms
@@ -1011,6 +1014,9 @@ class ExternalDataSource(PolymorphicModel, Analytics):
 
         ADDRESS = "ADDRESS", "Address"
         POSTCODE = "POSTCODE", "Postcode"
+        # TODO: LNG_LAT = "LNG_LAT", "Longitude and Latitude"
+
+    class PolygonFieldTypes(models.TextChoices):
         WARD = "WARD", "Ward"
         ADMIN_DISTRICT = "ADMIN_DISTRICT", "Council"
         PARLIAMENTARY_CONSTITUENCY = "PARLIAMENTARY_CONSTITUENCY", "Constituency"
@@ -1018,13 +1024,30 @@ class ExternalDataSource(PolymorphicModel, Analytics):
             "PARLIAMENTARY_CONSTITUENCY_2025",
             "Constituency (2024)",
         )
-        # TODO: LNG_LAT = "LNG_LAT", "Longitude and Latitude"
 
-    geography_column_type = TextChoicesField(
-        choices_enum=GeographyTypes,
-        default=GeographyTypes.POSTCODE,
+    polygon_type_to_code = {
+        PolygonFieldTypes.PARLIAMENTARY_CONSTITUENCY: "WMC",
+        PolygonFieldTypes.PARLIAMENTARY_CONSTITUENCY_2025: "WMC23",
+        PolygonFieldTypes.ADMIN_DISTRICT: "DIS",
+        PolygonFieldTypes.WARD: "WD23",
+    }
+
+    # For point-based geocoding
+    point_field_type = TextChoicesField(
+        choices_enum=PointFieldTypes,
+        blank=True,
+        null=True,
     )
-    geography_column = models.CharField(max_length=250, blank=True, null=True)
+    point_field = models.CharField(max_length=250, blank=True, null=True)
+
+    # For area-based geocoding
+    polygon_field_type = TextChoicesField(
+        choices_enum=PolygonFieldTypes,
+        blank=True,
+        null=True,
+    )
+    polygon_field = models.CharField(max_length=250, blank=True, null=True)
+
     countries = models.JSONField(
         default=default_countries,
         blank=True,
@@ -1095,15 +1118,15 @@ class ExternalDataSource(PolymorphicModel, Analytics):
                 setattr(self, key, value)
         # Always keep these two in sync
         if (
-            self.geography_column is not None
-            and self.geography_column_type == self.GeographyTypes.POSTCODE
+            self.point_field is not None
+            and self.point_field_type == self.PointFieldTypes.POSTCODE
         ):
-            self.postcode_field = self.geography_column
+            self.postcode_field = self.point_field
         elif (
-            self.geography_column is not None
-            and self.geography_column_type == self.GeographyTypes.ADDRESS
+            self.point_field is not None
+            and self.point_field_type == self.PointFieldTypes.ADDRESS
         ):
-            self.address_field = self.geography_column
+            self.address_field = self.point_field
 
         if not self.deduplication_hash:
             self.deduplication_hash = self.get_deduplication_hash()
@@ -1389,6 +1412,10 @@ class ExternalDataSource(PolymorphicModel, Analytics):
             "Get member ID not implemented for this data source type."
         )
 
+    async def get_polygon_field_values(self, record) -> list[str]:
+        value = self.get_record_field(record, self.polygon_field)
+        return treated_area_name_or_code(value)
+
     async def import_page(self, page: int) -> bool:
         """
         Page starts at 1. Returns True if the next page
@@ -1424,9 +1451,9 @@ class ExternalDataSource(PolymorphicModel, Analytics):
             defaults={
                 "name": str(self.id),
                 "data_type": "json",
-                "table": "commondata",
+                "table": "genericdata",
                 "default_value": {},
-                "is_filterable": True,
+                "is_filterable": False,
                 "is_shadable": False,
                 "is_public": False,
             },
@@ -1450,65 +1477,52 @@ class ExternalDataSource(PolymorphicModel, Analytics):
 
             return update_data
 
-        if (
-            self.geography_column
-            and self.geography_column_type == self.GeographyTypes.POSTCODE
-        ):
+        async def create_import_record(record):
+            """
+            Converts a record fetched from the API into
+            a GenericData record in the MEEP db.
+
+            Used to batch-import data.
+            """
+
+            # To allow us to lean on LIH's geo-analytics features,
+            # TODO: Re-implement this data as `AreaData`, linking each datum to an Area/AreaType as per `self.point_field` and `self.point_field_type`.
+            # This will require importing other AreaTypes like admin_district, Ward
+
             loaders = await self.get_loaders()
+            structured_data = get_update_data(record)
+            update_data = {
+                **structured_data
+            }
+            geography_data = self.get_record_field(record, self.point_field)
+            id = self.get_record_id(record)
 
-            async def create_import_record(record):
-                """
-                Converts a record fetched from the API into
-                a GenericData record in the MEEP db.
-
-                Used to batch-import data.
-                """
-                structured_data = get_update_data(record)
-                postcode_data: PostcodesIOResult = await loaders["postcodesIO"].load(
-                    self.get_record_field(record, self.geography_column)
-                )
-                update_data = {
-                    **structured_data,
-                    "postcode_data": postcode_data,
-                    "point": (
-                        Point(
-                            postcode_data["longitude"],
-                            postcode_data["latitude"],
-                        )
-                        if (
-                            postcode_data is not None
-                            and "latitude" in postcode_data
-                            and "longitude" in postcode_data
-                        )
-                        else None
-                    ),
-                }
-
-                await GenericData.objects.aupdate_or_create(
-                    data_type=data_type,
-                    data=self.get_record_id(record),
-                    defaults=update_data,
-                )
-
-            await asyncio.gather(*[create_import_record(record) for record in data])
-        elif (
-            self.geography_column
-            and self.geography_column_type == self.GeographyTypes.ADDRESS
-        ):
-            loaders = await self.get_loaders()
-
-            async def create_import_record(record):
-                """
-                Converts a record fetched from the API into
-                a GenericData record in the MEEP db.
-
-                Used to batch-import data.
-                """
-                structured_data = get_update_data(record)
-                address = self.get_record_field(record, self.geography_column)
+            if self.postcode_field and self.point_field_type == self.PointFieldTypes.POSTCODE:
+                postcode = geography_data
+                if postcode:
+                    postcode_data: PostcodesIOResult = await loaders["postcodesIO"].load(postcode)
+                    if postcode_data:
+                        update_data.update({
+                            "postcode_data": postcode_data,
+                            "point": (
+                                Point(
+                                    postcode_data["longitude"],
+                                    postcode_data["latitude"],
+                                )
+                                if (
+                                    postcode_data is not None
+                                    and "latitude" in postcode_data
+                                    and "longitude" in postcode_data
+                                )
+                                else None
+                            ),
+                            "geocoder": Geocoder.POSTCODES_IO.value,
+                        })
+            elif self.address_field and self.point_field_type == self.PointFieldTypes.ADDRESS:
                 point = None
                 address_data = None
                 postcode_data = None
+                address = geography_data
                 if address is None or (
                     isinstance(address, str)
                     and (address.strip() == "" or address.lower() == "online")
@@ -1544,34 +1558,45 @@ class ExternalDataSource(PolymorphicModel, Analytics):
                                 "postcodesIOFromPoint"
                             ].load(point)
 
-                update_data = {
-                    **structured_data,
-                    "postcode_data": postcode_data,
-                    "geocode_data": address_data,
-                    "geocoder": (
-                        Geocoder.GOOGLE.value if address_data is not None else None
-                    ),
-                    "point": point,
-                }
+                if address is not None and address_data is not None:
+                    update_data.update({
+                        "postcode_data": postcode_data,
+                        "geocode_data": address_data,
+                        "geocoder": Geocoder.GOOGLE.value,
+                        "point": point,
+                    })
+            
+            if self.polygon_field:
+                area_name_or_codes = await self.get_polygon_field_values(record)
 
-                await GenericData.objects.aupdate_or_create(
-                    data_type=data_type,
-                    data=self.get_record_id(record),
-                    defaults=update_data,
-                )
+                if area_name_or_codes and len(area_name_or_codes) > 0:
+                    areas = []
+                    f = {}
+                    if self.polygon_field_type:
+                        f.update(dict(
+                            area_type__code=self.polygon_type_to_code[self.polygon_field_type],
+                        ))
+                    for area_name_or_code in area_name_or_codes:
+                        f.update(dict(
+                            name__trigram_similar=area_name_or_code,
+                        ))
+                        area = Area.objects.filter(**f).first()
 
-            await asyncio.gather(*[create_import_record(record) for record in data])
-        else:
-            # To allow us to lean on LIH's geo-analytics features,
-            # TODO: Re-implement this data as `AreaData`, linking each datum to an Area/AreaType as per `self.geography_column` and `self.geography_column_type`.
-            # This will require importing other AreaTypes like admin_district, Ward
-            for record in data:
-                update_data = get_update_data(record)
-                data, created = await GenericData.objects.aupdate_or_create(
-                    data_type=data_type,
-                    data=self.get_record_id(record),
-                    defaults=update_data,
-                )
+                        if area:
+                            areas.append(area)
+
+                    if len(areas) > 0:
+                        update_data.update({
+                            "areas": areas,
+                        })
+
+            await GenericData.objects.aupdate_or_create(
+                data_type=data_type,
+                data=id,
+                defaults=update_data,
+            )
+
+        await asyncio.gather(*[create_import_record(record) for record in data])
 
     async def fetch_one(self, member_id: str):
         """
@@ -1687,7 +1712,7 @@ class ExternalDataSource(PolymorphicModel, Analytics):
                         )
                         return_data.append(None)
                         continue
-                    postcodes_io_key = self.geography_column_type.lower()
+                    postcodes_io_key = self.point_field_type.lower()
                     relevant_member_geography = get(
                         key["postcode_data"], postcodes_io_key, ""
                     )
@@ -1716,7 +1741,7 @@ class ExternalDataSource(PolymorphicModel, Analytics):
                         )
                         enrichment_value = enrichment_df.loc[
                             # Match the member's geography to the enrichment source's geography
-                            enrichment_df[self.geography_column]
+                            enrichment_df[self.point_field]
                             == relevant_member_geography,
                             # and return the requested value for this enrichment source row
                             key["source_path"],
@@ -1758,8 +1783,8 @@ class ExternalDataSource(PolymorphicModel, Analytics):
                 str(source.id): source.data_loader_factory()
                 async for source in ExternalDataSource.objects.filter(
                     organisation=self.organisation_id,
-                    geography_column__isnull=False,
-                    geography_column_type__isnull=False,
+                    point_field__isnull=False,
+                    point_field_type__isnull=False,
                 ).all()
             },
         )
@@ -1792,9 +1817,9 @@ class ExternalDataSource(PolymorphicModel, Analytics):
         try:
             logger.debug(f"mapping member {id}")
             postcode_data = None
-            if self.geography_column_type == self.GeographyTypes.POSTCODE:
+            if self.point_field_type == self.PointFieldTypes.POSTCODE:
                 # Get postcode from member
-                postcode = self.get_record_field(member, self.geography_column)
+                postcode = self.get_record_field(member, self.point_field)
                 # Get relevant config data for that postcode
                 postcode_data: PostcodesIOResult = await loaders["postcodesIO"].load(
                     postcode
@@ -2506,6 +2531,38 @@ class AirtableSource(ExternalDataSource):
     def get_record_dict(self, record):
         return record["fields"]
 
+    async def get_polygon_field_values(self, record):
+        area_name_or_codes = super().get_polygon_field_values(record)
+
+        # Quick heuristic to see if we should even attempt to query the API
+        d = 0
+        for n in area_name_or_codes:
+            if n.startswith("rec"):
+                d += 1
+        if d == len(area_name_or_codes):
+            # All these records look like record IDs
+            # so we will need to query the names first.
+            field_schema = self.schema.field(self.polygon_field)
+            if isinstance(field_schema, MultipleRecordLinksFieldSchema):
+                # query the related table for these IDs
+                related_table = self.base.table(field_schema.options.linked_table_id)
+                primary_field_id = related_table.schema().primary_field_id
+                related_records = related_table.all(
+                    formula=airtable_formulas.OR(
+                        *[
+                            airtable_formulas.EQUAL(
+                                f"RECORD_ID()",
+                                airtable_formulas.to_airtable_value(n)
+                            )
+                            for n in area_name_or_codes
+                        ]
+                    ),
+                    return_fields_by_field_id=True
+                )
+                # return the string representation of these areas
+                return [r["fields"][primary_field_id] for r in related_records]
+        return area_name_or_codes
+            
     async def update_one(self, mapped_record, **kwargs):
         return self.table.update(
             self.get_record_id(mapped_record["member"]), mapped_record["update_fields"]
@@ -2617,9 +2674,7 @@ class AirtableSource(ExternalDataSource):
         return records
 
     def filter(self, d: dict):
-        formula = "AND("
-        formula += ",".join([f"{key}='{value}'" for key, value in d.items()])
-        formula += ")"
+        formula = airtable_formulas.match(d)
         records = self.table.all(formula=formula)
         return records
 
@@ -2725,8 +2780,8 @@ class MailchimpSource(ExternalDataSource):
         # Reports
         data_type=ExternalDataSource.DataSourceType.MEMBER,
         # Geocoding
-        geography_column="ADDRESS.zip",
-        geography_column_type=ExternalDataSource.GeographyTypes.POSTCODE,
+        point_field="ADDRESS.zip",
+        point_field_type=ExternalDataSource.PointFieldTypes.POSTCODE,
         # Imports
         postcode_field="ADDRESS.zip",
         first_name_field="FNAME",
@@ -3017,8 +3072,8 @@ class ActionNetworkSource(ExternalDataSource):
         # Reports
         data_type=ExternalDataSource.DataSourceType.MEMBER,
         # Geocoding
-        geography_column="postal_addresses[0].postal_code",
-        geography_column_type=ExternalDataSource.GeographyTypes.POSTCODE,
+        point_field="postal_addresses[0].postal_code",
+        point_field_type=ExternalDataSource.PointFieldTypes.POSTCODE,
         # Imports
         postcode_field="postal_addresses[0].postal_code",
         first_name_field="given_name",
@@ -3330,8 +3385,8 @@ class TicketTailorSource(ExternalDataSource):
         # Reports
         data_type=ExternalDataSource.DataSourceType.EVENT,
         # Geocoding
-        geography_column="venue.postal_code",
-        geography_column_type=ExternalDataSource.GeographyTypes.POSTCODE,
+        point_field="venue.postal_code",
+        point_field_type=ExternalDataSource.PointFieldTypes.POSTCODE,
         # Imports
         postcode_field="venue.postal_code",
         title_field="name",
