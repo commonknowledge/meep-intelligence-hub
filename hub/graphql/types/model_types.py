@@ -552,14 +552,10 @@ class Area:
             # We return the layers so that the UI has a bit of context
             # about how data has ended up being in the hub.
             # E.g. "This is a training event."
-            data.extend(
-                models.MapLayer(
-                    **layer,
-                    data=layer.get_queryset(
-                        point__within=self.polygon
-                    )
-                )
+            layer.queryset = layer.get_queryset().filter(
+                point__within=self.polygon
             )
+            data.append(layer)
         return data
 
     @strawberry_django.field
@@ -1079,21 +1075,16 @@ class Report:
         user = get_current_user(info)
         return queryset.filter(organisation__members__user=user.id)
 
-
-@strawberry.type
-class MapboxLayerProps:
-    type: Optional[str] = None
-    paint: Optional[JSON] = None
-    layout: Optional[JSON] = None
-
-
 @strawberry.type
 class MapLayer:
     id: str
     name: str
     visible: Optional[bool] = None
-    mapbox_props: Optional[MapboxLayerProps] = None
-    data: Optional[List[GenericData]] = None
+    mapbox_paint: Optional[JSON] = None
+    mapbox_layout: Optional[JSON] = None
+    mapbox_type: Optional[str] = None
+    source_id: str = attr_field("source")
+    queryset: strawberry.Private[List[GenericData]] = None
 
     @strawberry_django.field
     def is_shared_source(self, info: Info) -> Optional[bool]:
@@ -1101,7 +1092,7 @@ class MapLayer:
         user = get_current_user(info)
         return models.SharingPermission.objects.filter(
             organisation__members__user=user.id,
-            external_data_source_id=self["source"],
+            external_data_source_id=self.source,
         ).exists()
 
     @strawberry_django.field
@@ -1110,16 +1101,18 @@ class MapLayer:
         user = get_current_user(info)
         return models.SharingPermission.objects.filter(
             organisation__members__user=user.id,
-            external_data_source_id=self["source"],
+            external_data_source_id=self.source,
         ).first()
 
     @strawberry_django.field
     def source(self, info: Info) -> SharedDataSource:
-        # Set in MapReport GraphQL type
-        if self.get("cached_source"):
-            return self.get("cached_source")
-        source_id = self.get("source")
-        return models.ExternalDataSource.objects.get(id=source_id)
+        return models.ExternalDataSource.objects.get(id=self.source)
+    
+    @strawberry_django.field
+    def data(self: models.MapLayer) -> List[GenericData]:
+        if hasattr(self, "queryset") and self.queryset is not None:
+            return self.queryset
+        return self.get_queryset()
 
 
 @strawberry.type
@@ -1128,7 +1121,9 @@ class MapLayerGroup:
     name: str
     legend_icon_url: Optional[str] = None
     visible: Optional[bool] = None
-    mapbox_props: Optional[MapboxLayerProps] = None
+    mapbox_paint: Optional[JSON] = None
+    mapbox_layout: Optional[JSON] = None
+    mapbox_type: Optional[str] = None
     layers: List[MapLayer] = None
 
 
@@ -1164,11 +1159,13 @@ class MapReport(Report, Analytics):
         Filter out layers that refer to missing sources
         """
         layers = self.get_layers()
+        return_layers = []
         for layer in layers:
-            layer["cached_source"] = models.ExternalDataSource.objects.filter(
-                id=layer.get("source")
-            ).first()
-        return [layer for layer in self.layers if layer["cached_source"]]
+            if models.ExternalDataSource.objects.filter(
+                id=layer.source
+            ).exists():
+                return_layers.append(layer)
+        return [layer for layer in return_layers]
 
 
 def public_map_report(info: Info, org_slug: str, report_slug: str) -> models.MapReport:
@@ -1326,7 +1323,7 @@ class HubHomepage(HubPage):
     secondary_colour: Optional[str] = None
 
     @strawberry_django.field
-    def layers(self) -> List[Union[MapLayer, MapLayerGroup]]:
+    def layers(self: models.HubHomepage) -> List[MapLayer]:
         return self.get_layers()
 
     @strawberry_django.field

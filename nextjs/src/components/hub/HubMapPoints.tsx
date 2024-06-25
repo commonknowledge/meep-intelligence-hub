@@ -19,37 +19,37 @@ export function HubPointMarkers ({ layer, index, beforeId }: {
   const [selectedSourceMarker, setSelectedSourceMarker] = useAtom(selectedHubSourceMarkerAtom)
 
   useEffect(function selectMarker() {
-    mapbox.loadedMap?.on('mouseover', `${layer.source.id}-marker`, (event) => {
+    mapbox.loadedMap?.on('mouseover', `${layer.sourceId}-marker`, (event) => {
       const canvas = mapbox.loadedMap?.getCanvas()
       if (!canvas) return
       canvas.style.cursor = 'pointer'
     })
-    mapbox.loadedMap?.on('mouseleave', `${layer.source.id}-marker`, (event) => {
+    mapbox.loadedMap?.on('mouseleave', `${layer.sourceId}-marker`, (event) => {
       const canvas = mapbox.loadedMap?.getCanvas()
       if (!canvas) return
       canvas.style.cursor = ''
     })
-    mapbox.loadedMap?.on('click', `${layer.source.id}-marker`, event => {
+    mapbox.loadedMap?.on('click', `${layer.sourceId}-marker`, event => {
       const feature = event.features?.[0]
       if (feature?.properties?.id) {
         setSelectedSourceMarker(feature)
         context.goToEventId(feature.properties.id)
       }
     })
-  }, [mapbox.loadedMap, layer.source.id])
+  }, [mapbox.loadedMap, layer.sourceId])
   
   return (
     <>
       <Source
-        id={layer.source.id}
+        id={layer.sourceId}
         type="vector"
-        url={new URL(`/tiles/external-data-source/${context.hostname}/${layer.source.id}/tiles.json`, BACKEND_URL).toString()}
+        url={new URL(`/tiles/external-data-source/${context.hostname}/${layer.sourceId}/tiles.json`, BACKEND_URL).toString()}
       >
         {/* {index <= 1 ? ( */}
           <Layer
             beforeId={beforeId}
-            id={`${layer.source.id}-marker`}
-            source={layer.source.id}
+            id={`${layer.sourceId}-marker`}
+            source={layer.sourceId}
             source-layer={"generic_data"}
             type="symbol"
             layout={{

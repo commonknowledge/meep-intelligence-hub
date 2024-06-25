@@ -8,8 +8,9 @@ import math
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-from typing import List, Optional, Type, TypedDict, Union
+from typing import Any, List, Optional, Type, TypedDict, Union
 from urllib.parse import urlencode, urljoin
+from attr import attrs, attrib
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -3991,12 +3992,6 @@ class TicketTailorSource(ExternalDataSource):
         return self.client.get(f"/v1/events/{member_id}").json()
 
 @dataclass
-class MapboxLayerProps:
-    type: Optional[str] = None
-    paint: Optional[dict] = None
-    layout: Optional[dict] = None
-
-@dataclass
 class MapLayer:
     '''
     Display a slice of a data source's data.
@@ -4004,11 +3999,15 @@ class MapLayer:
     id: str
     name: str
     source: str
-    mapbox_props: Optional[MapboxLayerProps] = None
-    filter: Optional[dict] = None
-    exclude: Optional[dict] = None
+    mapbox_layer_type: Optional[str] = None
+    mapbox_paint: Optional[Any] = None
+    mapbox_layout: Optional[Any] = None
+    filter: Optional[Any] = None
+    exclude: Optional[Any] = None
     visible: Optional[bool] = True
     type: str = "MapLayer"
+    # Used for storing data on the object
+    queryset: Optional[Any] = None
 
     def get_queryset(self):
         qs = GenericData.objects.filter(
@@ -4028,8 +4027,10 @@ class MapLayerGroup:
     '''
     id: str
     name: str
-    layers: list[MapLayer] = list
-    mapbox_props: Optional[MapboxLayerProps] = None
+    layers: list[MapLayer] = attrib(factory=list)
+    mapbox_layer_type: Optional[str] = None
+    mapbox_paint: Optional[Any] = None
+    mapbox_layout: Optional[Any] = None
     visible: Optional[bool] = True
     type = "MapLayerGroup"
 

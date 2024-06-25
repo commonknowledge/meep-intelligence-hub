@@ -1,3 +1,4 @@
+from typing import Optional
 import strawberry
 import strawberry_django
 from strawberry.types.info import Info
@@ -9,7 +10,16 @@ def attr_resolver(root, info: Info):
     return getattr(root, info.python_name, None)
 
 
-def attr_field(**kwargs):
+def primed_attr_resolver(attrname):
+    def _resolver(root):
+        return getattr(root, attrname, None)
+
+    return _resolver
+
+
+def attr_field(arg: Optional[str] = None, **kwargs):
+    if arg:
+        return strawberry_django.field(resolver=primed_attr_resolver(arg), **kwargs)
     return strawberry_django.field(resolver=attr_resolver, **kwargs)
 
 
@@ -17,7 +27,17 @@ def fn_resolver(root, info: Info):
     return getattr(root, info.python_name, lambda: None)()
 
 
-def fn_field(**kwargs):
+def primed_fn_resolver(fnname):
+    def _resolver(root):
+        fn = getattr(root, fnname, lambda: None)()
+        return fn()
+
+    return _resolver
+
+
+def fn_field(arg: Optional[str] = None, **kwargs):
+    if arg:
+        return strawberry_django.field(resolver=primed_fn_resolver(arg), **kwargs)
     return strawberry_django.field(resolver=fn_resolver, **kwargs)
 
 

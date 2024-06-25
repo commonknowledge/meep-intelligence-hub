@@ -14,9 +14,7 @@ export const GET_HUB_MAP_DATA = gql`
           id
           name
           visible
-          source {
-            id
-          }
+          sourceId
           mapboxProps {
             paint
             layout
