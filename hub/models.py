@@ -4043,7 +4043,7 @@ class MapReport(Report, Analytics):
 
     def get_import_data(self):
         visible_layer_ids = [
-            layer["source"] for layer in self.get_layers() if layer.get("visible", True)
+            layer.source for layer in self.get_layers() if layer.visible
         ]
         return GenericData.objects.filter(
             models.Q(data_type__data_set__external_data_source_id__in=visible_layer_ids)
