@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { useHubRenderContext } from "./HubRenderContext";
 
 export function EventCard ({ event }: {
-    event: NonNullable<GetLocalDataQuery['postcodeSearch']['constituency']>['genericDataForHub'][number]
+    event: NonNullable<NonNullable<NonNullable<GetLocalDataQuery['postcodeSearch']['constituency']>['genericDataForHub'][number]>['data']>[number]
 }) {
     const isFuture = useMemo(() => isAfter(new Date(event.startTime), new Date()), [event.startTime])
     const ctx = useHubRenderContext()

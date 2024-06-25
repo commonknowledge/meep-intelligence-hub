@@ -56,7 +56,7 @@ class Setup:
             name="testreport",
             organisation=self.org,
             layers=[
-                models.MapReport.MapLayer(
+                models.MapLayer(
                     id="testlayer",
                     name="testlayer",
                     source=str(self.source.id),

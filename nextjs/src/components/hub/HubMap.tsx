@@ -42,8 +42,6 @@ export function HubMap ({
 
   const mapbox = useLoadedMap()
 
-  const loadedImages = useMapIcons(requiredImages, mapbox)
-
   const tileset = TILESETS.constituencies2024
 
   useEffect(() => {
@@ -64,7 +62,7 @@ export function HubMap ({
 
   return (
     <>
-      {!layers?.length || loadedImages.length !== requiredImages.length || localDataLoading && (
+      {!layers?.length || localDataLoading && (
         <div className="absolute w-full h-full inset-0 z-10 pointer-events-none">
           <div className="flex flex-col items-center justify-center w-full h-full">
             <LoadingIcon />
@@ -150,15 +148,13 @@ export function HubMap ({
           </>
         )}
         {/* Markers */}
-        {loadedImages.some(t => t === "tcc-event-marker") && layers?.map(
-          (layer, index) => (
-            <HubPointMarkers
-              beforeId="PLACEHOLDER_MARKERS"
-              key={layer.source.id}
-              index={index}
-              layer={layer}
-            />
-          )
+        {layers?.map((layer, index) => layer.__typename === 'MapLayer' &&
+          <HubPointMarkers
+            beforeId="PLACEHOLDER_MARKERS"
+            key={layer.source.id}
+            index={index}
+            layer={layer}
+          />
         )}
       </Map>
     </>

@@ -10,15 +10,18 @@ export const GET_HUB_MAP_DATA = gql`
         name
       }
       layers {
-        id
-        name
-        visible
-        iconImage
-        source {
+        ... on MapLayer {
           id
+          name
+          visible
+          source {
+            id
+          }
+          mapboxProps {
+            paint
+            layout
+          }
         }
-        mapboxPaint
-        mapboxLayout
       }
       navLinks {
         label
@@ -90,7 +93,16 @@ export const GET_LOCAL_DATA = gql`
         ...ConstituencyViewFragment
         # List of events
         genericDataForHub(hostname: $hostname) {
-          ...EventFragment
+          ... on MapLayer {
+            id
+            name
+            source {
+              dataType
+            }
+            data {
+              ...EventFragment
+            }
+          }
         }
       }
     }
@@ -108,7 +120,16 @@ export const GET_EVENT_DATA = gql`
           ... ConstituencyViewFragment
           # List of events
           genericDataForHub(hostname: $hostname) {
-            ...EventFragment
+            ... on MapLayer {
+              id
+              name
+              source {
+                dataType
+              }
+              data {
+                ...EventFragment
+              }
+            }
           }
         }
       }

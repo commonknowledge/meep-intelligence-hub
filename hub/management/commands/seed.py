@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 
 from asgiref.sync import async_to_sync
 
-from hub.models import AirtableSource, HubHomepage, MapReport, Organisation, User
+from hub.models import AirtableSource, HubHomepage, MapLayer, MapLayerGroup, Organisation, User
 
 
 class Command(BaseCommand):
@@ -43,9 +43,15 @@ class Command(BaseCommand):
         # Create a hub for the org
         hub = HubHomepage.create_for_user(user=1, hostname="testdomain.org", org=org)
         hub.layers = [
-            MapReport.MapLayer(
-                id=str(source.id), name="Test data", source=str(source.id)
-            ),
-            # TODO: add some event source
+            MapLayerGroup(
+                name="Everything",
+                layers=[
+                    MapLayer(
+                        id=str(source.id),
+                        name="Test data",
+                        source=str(source.id)
+                    )
+                ]
+            )
         ]
         hub.save()

@@ -1,4 +1,6 @@
 import asyncio
+from dataclasses import dataclass
+import typedload
 import hashlib
 import itertools
 import json
@@ -3988,27 +3990,55 @@ class TicketTailorSource(ExternalDataSource):
     async def fetch_one(self, member_id: str):
         return self.client.get(f"/v1/events/{member_id}").json()
 
+@dataclass
+class MapboxLayerProps:
+    type: Optional[str] = None
+    paint: Optional[dict] = None
+    layout: Optional[dict] = None
+
+@dataclass
+class MapLayer:
+    '''
+    Display a slice of a data source's data.
+    '''
+    id: str
+    name: str
+    source: str
+    mapbox_props: Optional[MapboxLayerProps] = None
+    filter: Optional[dict] = None
+    exclude: Optional[dict] = None
+    visible: Optional[bool] = True
+    type: str = "MapLayer"
+
+    def get_queryset(self):
+        qs = GenericData.objects.filter(
+            data_type__data_set__external_data_source_id=self.source,
+            **(self.filter or {}),
+        )
+        if self.exclude:
+            qs = qs.exclude(**self.exclude)
+        return qs
+
+@dataclass
+class MapLayerGroup:
+    '''
+    Can be used to aggregate different data sources together,
+    under the same styling. For example, trainings from different
+    organisations can be grouped together on a public map.
+    '''
+    id: str
+    name: str
+    layers: list[MapLayer] = list
+    mapbox_props: Optional[MapboxLayerProps] = None
+    visible: Optional[bool] = True
+    type = "MapLayerGroup"
 
 class MapReport(Report, Analytics):
     layers = models.JSONField(default=list, blank=True)
     display_options = models.JSONField(default=dict, blank=True)
 
-    class MapLayer(TypedDict):
-        id: str
-        name: str
-        source: str
-        icon_image: Optional[str] = None
-        mapbox_paint: Optional[dict] = {}
-        mapbox_layout: Optional[dict] = {}
-        visible: Optional[bool] = True
-        """
-        filter: ORM filter dict for GenericData objects like { "json__status": "Published" }
-        """
-        filter: Optional[dict] = {}
-        custom_marker_text: Optional[str] = None
-
-    def get_layers(self) -> list[MapLayer]:
-        return self.layers or []
+    def get_layers(self):
+        return [typedload.load(l, MapLayer) for l in (self.layers or [])]
 
     def get_import_data(self):
         visible_layer_ids = [
@@ -4113,8 +4143,8 @@ class HubHomepage(Page):
         ]
     )
 
-    def get_layers(self) -> list[MapReport.MapLayer]:
-        return self.layers
+    def get_layers(self) -> list[MapLayer]:
+        return [typedload.load(l, MapLayer) for l in self.layers or []]
 
     class HubNavLinks(TypedDict):
         label: str

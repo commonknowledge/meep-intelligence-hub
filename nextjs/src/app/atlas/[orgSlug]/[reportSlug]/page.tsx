@@ -59,8 +59,10 @@ const GET_PUBLIC_MAP_REPORT = gql`
         name
       }
       layers {
-        id
-        name
+        ... on MapLayer {
+          id
+          name
+        }
       }
     }
   }

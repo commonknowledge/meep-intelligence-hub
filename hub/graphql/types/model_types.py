@@ -542,18 +542,22 @@ class Area:
         )
 
     @strawberry_django.field
-    def generic_data_for_hub(self, hostname: str) -> List["GenericData"]:
+    def generic_data_for_hub(self, hostname: str) -> List["MapLayer"]:
         site = Site.objects.get(hostname=hostname)
         hub = site.root_page.specific
+        if not isinstance(hub, models.HubHomepage):
+            return []
         data = []
-        for layer in hub.layers:
+        for layer in hub.get_layers():
+            # We return the layers so that the UI has a bit of context
+            # about how data has ended up being in the hub.
+            # E.g. "This is a training event."
             data.extend(
-                models.GenericData.objects.filter(
-                    data_type__data_set__external_data_source=layer.get("source"),
-                    data_type__data_set__external_data_source__can_display_points_publicly=True,
-                    data_type__data_set__external_data_source__can_display_details_publicly=True,
-                    point__within=self.polygon,
-                    **layer.get("filter", {}),
+                models.MapLayer(
+                    **layer,
+                    data=layer.get_queryset(
+                        point__within=self.polygon
+                    )
                 )
             )
         return data
@@ -1077,17 +1081,22 @@ class Report:
 
 
 @strawberry.type
+class MapboxLayerProps:
+    type: Optional[str] = None
+    paint: Optional[JSON] = None
+    layout: Optional[JSON] = None
+
+
+@strawberry.type
 class MapLayer:
-    id: str = dict_key_field()
-    name: str = dict_key_field()
-    visible: Optional[bool] = dict_key_field()
-    custom_marker_text: Optional[str] = dict_key_field()
-    icon_image: Optional[str] = dict_key_field()
-    mapbox_paint: Optional[JSON] = dict_key_field()
-    mapbox_layout: Optional[JSON] = dict_key_field()
+    id: str
+    name: str
+    visible: Optional[bool] = None
+    mapbox_props: Optional[MapboxLayerProps] = None
+    data: Optional[List[GenericData]] = None
 
     @strawberry_django.field
-    def is_shared_source(self, info: Info) -> bool:
+    def is_shared_source(self, info: Info) -> Optional[bool]:
         # see if this source is shared with the user's org
         user = get_current_user(info)
         return models.SharingPermission.objects.filter(
@@ -1111,6 +1120,16 @@ class MapLayer:
             return self.get("cached_source")
         source_id = self.get("source")
         return models.ExternalDataSource.objects.get(id=source_id)
+
+
+@strawberry.type
+class MapLayerGroup:
+    id: str
+    name: str
+    legend_icon_url: Optional[str] = None
+    visible: Optional[bool] = None
+    mapbox_props: Optional[MapboxLayerProps] = None
+    layers: List[MapLayer] = None
 
 
 @strawberry_django.type(model=models.SharingPermission)
@@ -1140,11 +1159,11 @@ class MapReport(Report, Analytics):
     display_options: JSON
 
     @strawberry_django.field
-    def layers(self, info: Info) -> List[MapLayer]:
+    def layers(self: models.MapReport, info: Info) -> List[MapLayer]:
         """
         Filter out layers that refer to missing sources
         """
-        layers = self.layers
+        layers = self.get_layers()
         for layer in layers:
             layer["cached_source"] = models.ExternalDataSource.objects.filter(
                 id=layer.get("source")
@@ -1299,13 +1318,16 @@ class HubNavLink:
 @strawberry_django.type(models.HubHomepage)
 class HubHomepage(HubPage):
     organisation: Organisation
-    layers: List[MapLayer]
     nav_links: List[HubNavLink]
     favicon_url: Optional[str] = None
     google_analytics_tag_id: Optional[str] = None
     custom_css: Optional[str] = None
     primary_colour: Optional[str] = None
     secondary_colour: Optional[str] = None
+
+    @strawberry_django.field
+    def layers(self) -> List[Union[MapLayer, MapLayerGroup]]:
+        return self.get_layers()
 
     @strawberry_django.field
     def seo_image_url(self) -> Optional[str]:
@@ -1346,7 +1368,10 @@ def hub_page_by_path(
 @strawberry_django.field()
 def hub_by_hostname(hostname: str) -> HubHomepage:
     site = Site.objects.get(hostname=hostname)
-    return site.root_page.specific
+    hub = site.root_page.specific
+    if not isinstance(hub, models.HubHomepage):
+        raise ValueError(f"Hub homepage not found for hostname {hostname}")
+    return hub
 
 
 @strawberry_django.field()

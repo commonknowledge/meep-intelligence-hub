@@ -3377,6 +3377,17 @@ slack = ["slack-sdk"]
 telegram = ["requests"]
 
 [[package]]
+name = "typedload"
+version = "2.33"
+description = "Load and dump data from json-like format into typed data structures"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "typedload-2.33-py3-none-any.whl", hash = "sha256:d0ea4d165205fad441da318123254589101086044cd4bab1aa472519c2e66eaf"},
+    {file = "typedload-2.33.tar.gz", hash = "sha256:e67b89e4ce26e583fab2372726d95b62067cc9908a1e2fa42d3e32c3cd8ccf20"},
+]
+
+[[package]]
 name = "types-pytz"
 version = "2024.1.0.20240417"
 description = "Typing stubs for pytz"
@@ -3618,4 +3629,4 @@ wand = ["Wand (>=0.6,<1.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">3.11,<=3.12.3"
-content-hash = "86897d0ff33018daaf9707273b3ed5e5ab27dc3a46b9546eb71322d73007f8c6"
+content-hash = "eb319cf323a0687f096413d86e04657e677d5fae8a6e9278e51584364dd94660"

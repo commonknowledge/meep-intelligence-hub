@@ -11,7 +11,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs-rounded";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { HustingsCTA } from "@/app/hub/render/[hostname]/map/SearchPanel";
 import Link from "next/link";
 import IframeResizer from "iframe-resizer-react";
@@ -42,11 +42,14 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
     );
   }
 
-  const events = data?.genericDataForHub?.filter(
-    (d) =>
-      d.dataType.dataSet.externalDataSource.dataType === DataSourceType.Event &&
-      !!d.startTime
-  )
+  const events = useMemo(() => {
+    // Give me a flat list of events
+    const allData = data.genericDataForHub
+      .filter(d => d.source.dataType === DataSourceType.Event)
+      .flatMap((d) => d.data || []);
+
+    return allData.filter((d) => !!d.startTime);
+  }, [data.genericDataForHub])
 
   .sort((a, b) =>
     // most recent first

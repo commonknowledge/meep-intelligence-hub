@@ -1,16 +1,16 @@
 "use client"
 
-import { layerColour, useLoadedMap } from "@/lib/map"
+import { useLoadedMap } from "@/lib/map"
 import { useAtom } from "jotai"
 import { selectedHubSourceMarkerAtom } from "@/components/hub/data"
 import { useEffect } from "react"
 import { Layer, Source } from "react-map-gl"
 import { BACKEND_URL } from "@/env"
 import { useHubRenderContext } from "./HubRenderContext"
-import { GetHubMapDataQuery } from "@/__generated__/graphql"
+import { MapLayer } from "@/__generated__/graphql"
 
 export function HubPointMarkers ({ layer, index, beforeId }: {
-  layer: NonNullable<GetHubMapDataQuery['hubByHostname']>['layers'][number],
+  layer: NonNullable<MapLayer>,
   index: number,
   beforeId?: string
 }) {
@@ -53,14 +53,12 @@ export function HubPointMarkers ({ layer, index, beforeId }: {
             source-layer={"generic_data"}
             type="symbol"
             layout={{
-              "icon-image": layer.iconImage ? layer.iconImage : `tcc-event-marker`,
               "icon-allow-overlap": true,
               "icon-ignore-placement": true,
-              "icon-size": layer.iconImage ? 1.25 : 0.75,
               "icon-anchor": "bottom",
-              ...(layer.mapboxLayout || {})
+              ...(layer.mapboxProps?.layout || {})
             }}
-            paint={layer.mapboxPaint || {}}
+            paint={layer.mapboxProps?.paint || {}}
             // {...(
             //   selectedSourceMarker?.properties?.id
             //   ? { filter: ["!=", selectedSourceMarker?.properties?.id, ["get", "id"]] }
