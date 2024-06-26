@@ -321,7 +321,7 @@ export default function InspectExternalDataSource({
                   <p>
                     Webhook URL for auto-imports:
                   </p>
-                  <code className="bg-black p-2 rounded">{source.webhookUrl}</code>
+                  <code className="bg-black p-2 rounded break-words">{source.webhookUrl}</code>
                   <p>Turn this switch on once you have added the above Webhook URL to your CRM:</p>
                   <EnableWebhooksSwitch externalDataSource={source} webhookType={WebhookType.Import} />
                 </div>
@@ -462,7 +462,7 @@ export default function InspectExternalDataSource({
                         <p>
                           Webhook URL for auto-updates:
                         </p>
-                        <code className="bg-black p-2 rounded">{source.webhookUrl}</code>
+                        <code className="bg-black p-2 rounded break-words">{source.webhookUrl}</code>
                         <p>Turn this switch on once you have added the above Webhook URL to your CRM:</p>
                         <EnableWebhooksSwitch externalDataSource={source} webhookType={WebhookType.Update} />
                       </div>

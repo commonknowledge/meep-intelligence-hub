@@ -491,6 +491,10 @@ SCHEDULED_UPDATE_SECONDS_DELAY = env("SCHEDULED_UPDATE_SECONDS_DELAY")
 SENTRY_TRACE_SAMPLE_RATE = env("SENTRY_TRACE_SAMPLE_RATE")
 
 posthog.disabled = True
+if env("POSTHOG_API_KEY") is not False:
+    posthog.project_api_key = env("POSTHOG_API_KEY")
+if env("POSTHOG_HOST") is not False:
+    posthog.host = env("POSTHOG_HOST")
 
 # Configure Sentry and HSTS headers only if in production
 if environment == "production":
@@ -515,8 +519,6 @@ if environment == "production":
 
     if env("POSTHOG_API_KEY") is not False and env("POSTHOG_HOST") is not False:
         posthog.disabled = False
-        posthog.project_api_key = env("POSTHOG_API_KEY")
-        posthog.host = env("POSTHOG_HOST")
 
 
 MINIO_STORAGE_ENDPOINT = env("MINIO_STORAGE_ENDPOINT")

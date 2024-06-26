@@ -1,8 +1,8 @@
 from django.http import HttpRequest
 
 import strawberry
-from strawberry.exceptions import StrawberryGraphQLError
 from gqlauth.core.utils import app_settings
+from strawberry.exceptions import StrawberryGraphQLError
 from strawberry.extensions import SchemaExtension
 
 from hub.models import APIToken, get_api_token

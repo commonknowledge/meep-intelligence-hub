@@ -54,6 +54,8 @@ jobs:
         TEST_MAILCHIMP_MEMBERLIST_API_KEY: ${{ secrets.TEST_MAILCHIMP_MEMBERLIST_API_KEY }}
         TEST_TICKET_TAILOR_API_KEY: ${{ secrets.TEST_TICKET_TAILOR_API_KEY }}
         SECRET_KEY: keyboardcat
+        POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+        POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
     steps:
       - name: Checkout repo content
         uses: actions/checkout@v3
