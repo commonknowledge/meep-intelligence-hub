@@ -63,7 +63,7 @@ function PageContent ({ params: { hostname }, shouldDisplayMap, hub }: { params:
           <div className="absolute w-full h-full flex flex-row pointer-events-none">
             <div className="w-full h-full pointer-events-auto">
               <HubMap
-                layers={hub?.hubByHostname?.layers}
+                layerGroups={hub?.hubByHostname?.layerGroups}
                 currentConstituency={
                   !hubContext.shouldZoomOut ? (
                     localData.data?.postcodeSearch.constituency ||

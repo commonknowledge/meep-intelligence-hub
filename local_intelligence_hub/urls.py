@@ -147,12 +147,12 @@ urlpatterns = [
         name="external_data_source_point_tilejson",
     ),
     path(
-        "tiles/external-data-source/<str:hostname>/<str:pk>/<int:z>/<int:x>/<int:y>",
+        "tiles/external-data-source/<str:hostname>/<str:map_layer_group_id>/<str:pk>/<int:z>/<int:x>/<int:y>",
         vector_tiles.ExternalDataSourceTileView.as_view(),
         name="external_data_source_point_tile",
     ),
     path(
-        "tiles/external-data-source/<str:hostname>/<str:pk>/tiles.json",
+        "tiles/external-data-source/<str:hostname>/<str:map_layer_group_id>/<str:pk>/tiles.json",
         vector_tiles.ExternalDataSourcePointTileJSONView.as_view(),
         name="external_data_source_point_tilejson",
     ),

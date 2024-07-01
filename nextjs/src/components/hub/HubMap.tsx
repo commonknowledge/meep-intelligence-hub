@@ -21,12 +21,12 @@ const viewStateAtom = atom<Partial<ViewState>>({
 
 export function HubMap ({
   mapStyle,
-  layers,
+  layerGroups,
   currentConstituency,
   localDataLoading
 }: {
   mapStyle?: string | mapboxgl.Style | ImmutableLike<mapboxgl.Style> | undefined,
-  layers?: NonNullable<GetHubMapDataQuery['hubByHostname']>['layers'],
+  layerGroups?: NonNullable<GetHubMapDataQuery['hubByHostname']>['layerGroups'],
   currentConstituency: GetLocalDataQuery['postcodeSearch']['constituency'],
   localDataLoading: boolean
 }) {
@@ -62,7 +62,7 @@ export function HubMap ({
 
   return (
     <>
-      {!layers?.length || localDataLoading && (
+      {!layerGroups?.length || localDataLoading && (
         <div className="absolute w-full h-full inset-0 z-10 pointer-events-none">
           <div className="flex flex-col items-center justify-center w-full h-full">
             <LoadingIcon />
@@ -148,13 +148,16 @@ export function HubMap ({
           </>
         )}
         {/* Markers */}
-        {layers?.map((layer, index) => layer.__typename === 'MapLayer' &&
-          <HubPointMarkers
-            beforeId="PLACEHOLDER_MARKERS"
-            key={layer.sourceId}
-            index={index}
-            layer={layer}
-          />
+        {layerGroups?.filter(g => g.visible).map((group, index) =>
+          group.layers.filter(l => l.visible).map((layer) =>
+            <HubPointMarkers
+              beforeId="PLACEHOLDER_MARKERS"
+              key={`group:${group.id}-layer:${layer.sourceId}`}
+              index={index}
+              group={group}
+              layer={layer}
+            />
+          )
         )}
       </Map>
     </>

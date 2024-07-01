@@ -9,16 +9,22 @@ export const GET_HUB_MAP_DATA = gql`
         slug
         name
       }
-      layers {
-        ... on MapLayer {
+      layerGroups {
+        id
+        name
+        iconUrl
+        visible
+        mapboxPaint
+        mapboxLayout
+        mapboxLayerType
+        layers {
           id
           name
           visible
           sourceId
-          mapboxProps {
-            paint
-            layout
-          }
+          mapboxPaint
+          mapboxLayout
+          mapboxLayerType
         }
       }
       navLinks {
@@ -83,6 +89,30 @@ export const CONSTITUENCY_VIEW_FRAGMENT = gql`
   }
 `
 
+export const CONSTITUENCY_DATA_FRAGMENT = gql`
+  fragment ConstituencyDataFragement on MapLayerGroup {
+    id
+    name
+    iconUrl
+    layers {
+      id
+      name
+      source {
+        id
+        name
+        dataType
+        organisation {
+          name
+        }
+      }
+      data {
+        ...EventFragment
+      }
+    }
+  }
+  ${EVENT_FRAGMENT}
+`
+
 export const GET_LOCAL_DATA = gql`
   query GetLocalData($postcode: String!, $hostname: String!) {
     postcodeSearch(postcode: $postcode) {
@@ -91,48 +121,29 @@ export const GET_LOCAL_DATA = gql`
         ...ConstituencyViewFragment
         # List of events
         genericDataForHub(hostname: $hostname) {
-          ... on MapLayer {
-            id
-            name
-            source {
-              dataType
-            }
-            data {
-              ...EventFragment
-            }
-          }
+          ...ConstituencyDataFragement
         }
       }
     }
   }
   ${CONSTITUENCY_VIEW_FRAGMENT}
-  ${EVENT_FRAGMENT}
+  ${CONSTITUENCY_DATA_FRAGMENT}
 `
 
 export const GET_EVENT_DATA = gql`
   query GetEventData($eventId: String!, $hostname: String!) {
     importedDataGeojsonPoint(genericDataId: $eventId) {
       properties {
-        ... EventFragment
         constituency: area(areaType: "WMC23") {
           ... ConstituencyViewFragment
           # List of events
           genericDataForHub(hostname: $hostname) {
-            ... on MapLayer {
-              id
-              name
-              source {
-                dataType
-              }
-              data {
-                ...EventFragment
-              }
-            }
+            ...ConstituencyDataFragement
           }
         }
       }
     }
   }
   ${CONSTITUENCY_VIEW_FRAGMENT}
-  ${EVENT_FRAGMENT}
+  ${CONSTITUENCY_DATA_FRAGMENT}
 `

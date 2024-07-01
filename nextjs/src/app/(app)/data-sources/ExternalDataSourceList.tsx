@@ -14,7 +14,7 @@ import { externalDataSourceOptions } from "@/lib/data";
 import { useAtomValue } from "jotai";
 import { currentOrganisationIdAtom } from "@/data/organisation";
 
-const LIST_UPDATE_CONFIGS = gql`
+export const LIST_DATA_SOURCES = gql`
   query ListOrganisations($currentOrganisationId: ID!) {
     myOrganisations(filters: { id: $currentOrganisationId }) {
       id
@@ -70,7 +70,7 @@ const LIST_UPDATE_CONFIGS = gql`
 
 export default function ExternalDataSourceList() {
   const currentOrganisationId = useAtomValue(currentOrganisationIdAtom)
-  const { loading, error, data, refetch } = useQuery<ListOrganisationsQuery, ListOrganisationsQueryVariables>(LIST_UPDATE_CONFIGS, {
+  const { loading, error, data, refetch } = useQuery<ListOrganisationsQuery, ListOrganisationsQueryVariables>(LIST_DATA_SOURCES, {
     variables: { currentOrganisationId },
   });
 

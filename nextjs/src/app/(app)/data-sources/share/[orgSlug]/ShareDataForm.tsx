@@ -1,89 +1,34 @@
 "use client"
 
-import { DataSourceType, ShareDataSourcesMutation, ShareDataSourcesMutationVariables, YourSourcesForSharingQuery, YourSourcesForSharingQueryVariables } from "@/__generated__/graphql"
+import { DataSourceType, ListOrganisationsQuery, ListOrganisationsQueryVariables, ShareDataSourcesMutation, ShareDataSourcesMutationVariables, YourSourcesForSharingQuery, YourSourcesForSharingQueryVariables } from "@/__generated__/graphql"
 import { DataSourceIcon } from "@/components/DataSourceIcon"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { LoadingIcon } from "@/components/ui/loadingIcon"
 import { Switch } from "@/components/ui/switch"
+import { currentOrganisationIdAtom } from "@/data/organisation"
 import { toastPromise } from "@/lib/toast"
 import { gql, useApolloClient, useQuery } from "@apollo/client"
+import { useAtomValue } from "jotai"
 import pluralize from "pluralize"
 import { useEffect, useState } from "react"
 import { FormProvider, FormSubmitHandler, SubmitHandler, UseFormHandleSubmit, useFieldArray, useForm } from "react-hook-form"
+import { LIST_DATA_SOURCES } from "../../ExternalDataSourceList"
 
 export function ShareDataForm ({ toOrgId }: { toOrgId: string }) {
   const query = useQuery<YourSourcesForSharingQuery, YourSourcesForSharingQueryVariables>(SHARE_WITH_ORG_PAGE)
-  const [fromOrgId, setFromOrgId] = useState<string | null>(null)
+  const fromOrgId = useAtomValue(currentOrganisationIdAtom)
+  const { loading, error, data, refetch } = useQuery<ListOrganisationsQuery, ListOrganisationsQueryVariables>(LIST_DATA_SOURCES, {
+    variables: { currentOrganisationId: fromOrgId },
+  });
 
-  useEffect(() => {
-    // if only one org, proceed to sharing UI
-    if (query.data?.myOrganisations.length === 1) {
-      const prospectiveOrgId = query.data?.myOrganisations[0].id
-      // Don't allow sharing to your own org
-      if (prospectiveOrgId !== toOrgId) {
-        setFromOrgId(query.data?.myOrganisations[0].id)
-      }
-    }
-  }, [query.data, toOrgId])
+  const allOrgSources = data?.myOrganisations.flatMap(org => org.externalDataSources) || []
 
-  if (query.loading) {
-    return (
-      <LoadingIcon />
-    )
-  }
-
-  if (query.error || !query.data?.myOrganisations?.length) {
-    return (
-      <div>Error loading data</div>
-    )
-  }
-
-  const fromOrgSources = query.data.myOrganisations.find(org => org.id === fromOrgId)?.externalDataSources
-
-  if (fromOrgId && query.data.myOrganisations && !fromOrgSources) {
-    return (
-      <div>Error loading sources for org ID {fromOrgId}</div>
-    )
-  }
-
-  if (fromOrgId && fromOrgSources) {
-    return (
-      <SharingForm fromOrgId={fromOrgId} toOrgId={toOrgId} initialData={fromOrgSources} />
-    )
-  }
-
-  const otherOrgs = query.data.myOrganisations
-    // Don't allow sharing your own org's sources to your own org
-    .filter((org) => org.id !== toOrgId)
-
-  if (!otherOrgs.length) {
-    return (
-      <div className='text-center p-4'>
-        <h2 className='font-bold'>No data sources to share</h2>
-        <p>
-          You can{"'"}t share data sources with your own org!
-        </p>
-      </div>
-    )
-  }
+  if (loading) return <LoadingIcon />
 
   return (
-    <div>
-      <h2>Pick an org to share from</h2>
-      <ul>
-        {otherOrgs.map((org) => (
-          <li key={org.id}>
-            <span onClick={() => {
-              setFromOrgId(org.id)
-            }}>
-              {org.name}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <SharingForm fromOrgId={fromOrgId} toOrgId={toOrgId} initialData={allOrgSources} />
   )
 }
 
@@ -92,7 +37,7 @@ type FormInput = {
 }
 
 export function SharingForm ({ initialData, fromOrgId, toOrgId }: {
-  initialData: YourSourcesForSharingQuery['myOrganisations'][0]["externalDataSources"],
+  initialData: ListOrganisationsQuery['myOrganisations'][0]["externalDataSources"],
   fromOrgId: string,
   toOrgId: string
 }) {

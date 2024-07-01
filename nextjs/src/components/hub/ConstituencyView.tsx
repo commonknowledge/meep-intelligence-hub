@@ -45,8 +45,9 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
   const events = useMemo(() => {
     // Give me a flat list of events
     const allData = data.genericDataForHub
-      .filter(d => d.source.dataType === DataSourceType.Event)
-      .flatMap((d) => d.data || []);
+      .flatMap((group) => group.layers.map(l => ({ group, ...l }) || []))
+      .filter(l => l.source.dataType === DataSourceType.Event)
+      .flatMap((l) => l.data.map(e => ({ ...e, layer: l })));
 
     return allData.filter((d) => !!d.startTime);
   }, [data.genericDataForHub])
@@ -170,7 +171,11 @@ export function ConstituencyView({ data }: { data: GetLocalDataQuery['postcodeSe
                   </header>
                   <main className="space-y-4">
                     {pastEvents.map((e) => (
-                      <EventCard key={e.id} event={e} />
+                      <>
+                        <div>Group: {e.layer.group.name}</div>
+                        <div>Layer: {e.layer.name}</div>
+                        <EventCard key={e.id} event={e} />
+                      </>
                     ))}
                   </main>
                 </section>

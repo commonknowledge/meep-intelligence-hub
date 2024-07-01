@@ -9,6 +9,7 @@ from django.http import HttpRequest
 
 import procrastinate.contrib.django.models
 import strawberry
+import strawberry.tools
 import strawberry_django
 import strawberry_django_dataloaders.factories
 import strawberry_django_dataloaders.fields
@@ -17,6 +18,7 @@ from strawberry import auto
 from strawberry.scalars import JSON
 from strawberry.types.info import Info
 from strawberry_django.auth.utils import get_current_user
+import typedload
 from wagtail.models import Site
 
 from hub import models
@@ -542,21 +544,36 @@ class Area:
         )
 
     @strawberry_django.field
-    def generic_data_for_hub(self, hostname: str) -> List["MapLayer"]:
+    def generic_data_for_hub(self, hostname: str) -> List["MapLayerGroup"]:
         site = Site.objects.get(hostname=hostname)
         hub = site.root_page.specific
         if not isinstance(hub, models.HubHomepage):
             return []
-        data = []
+
+        groups: list[models.MapLayerGroup] = []
         for layer in hub.get_layers():
-            # We return the layers so that the UI has a bit of context
-            # about how data has ended up being in the hub.
-            # E.g. "This is a training event."
-            layer.queryset = layer.get_queryset().filter(
-                point__within=self.polygon
-            )
-            data.append(layer)
-        return data
+            if isinstance(layer, models.MapLayerGroup):
+                groups.append(layer)
+            else:
+                # For Backwards compatibility
+                groups.append(
+                    models.MapLayerGroup(
+                        id=layer.id,
+                        name=layer.name,
+                        layers=[layer],
+                    )
+                )
+
+        for group in groups:
+            for layer in group.layers:
+                # We return the layers so that the UI has a bit of context
+                # about how data has ended up being in the hub.
+                # E.g. "This is a training event."
+                layer.queryset = layer.get_queryset().filter(
+                    point__within=self.polygon
+                )
+
+        return groups
 
     @strawberry_django.field
     async def sample_postcode(
@@ -1082,7 +1099,7 @@ class MapLayer:
     visible: Optional[bool] = None
     mapbox_paint: Optional[JSON] = None
     mapbox_layout: Optional[JSON] = None
-    mapbox_type: Optional[str] = None
+    mapbox_layer_type: Optional[str] = None
     source_id: str = attr_field("source")
     queryset: strawberry.Private[List[GenericData]] = None
 
@@ -1119,11 +1136,11 @@ class MapLayer:
 class MapLayerGroup:
     id: str
     name: str
-    legend_icon_url: Optional[str] = None
+    icon_url: Optional[str] = None
     visible: Optional[bool] = None
     mapbox_paint: Optional[JSON] = None
     mapbox_layout: Optional[JSON] = None
-    mapbox_type: Optional[str] = None
+    mapbox_layer_type: Optional[str] = None
     layers: List[MapLayer] = None
 
 
@@ -1325,6 +1342,26 @@ class HubHomepage(HubPage):
     @strawberry_django.field
     def layers(self: models.HubHomepage) -> List[MapLayer]:
         return self.get_layers()
+
+    @strawberry_django.field
+    def layer_groups(self: models.HubHomepage) -> List[MapLayerGroup]:
+        layers = self.get_layers()
+        retval = []
+        # Required because Strawberry requires explicitly defined union types
+        # https://strawberry.rocks/docs/types/union#:~:text=%7D-,Resolving%20a%20union,-When%20a%20field%E2%80%99s
+        for layer in layers:
+            if isinstance(layer, models.MapLayerGroup):
+                retval.append(layer)
+            else:
+                # For backwards compatibility with old layers
+                retval.append(
+                    models.MapLayerGroup(
+                        id=layer.id,
+                        name=layer.name,
+                        layers=[layer]
+                    )
+                )
+        return retval
 
     @strawberry_django.field
     def seo_image_url(self) -> Optional[str]:

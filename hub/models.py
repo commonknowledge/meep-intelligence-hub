@@ -61,7 +61,6 @@ from wagtail_json_widget.widgets import JSONEditorWidget
 
 import utils as lih_utils
 from hub.analytics import Analytics
-from hub.cache_keys import site_tile_filter_dict
 from hub.enrichment.sources import builtin_mapping_sources
 from hub.fields import EncryptedCharField, EncryptedTextField
 from hub.filters import Filter
@@ -4068,6 +4067,7 @@ class MapLayerGroup:
     '''
     id: str
     name: str
+    icon_url: Optional[str] = None
     layers: list[MapLayer] = attrib(factory=list)
     mapbox_layer_type: Optional[str] = None
     mapbox_paint: Optional[Any] = None
@@ -4186,7 +4186,16 @@ class HubHomepage(Page):
     )
 
     def get_layers(self) -> list[MapLayer]:
-        return [typedload.load(l, MapLayer) for l in self.layers or []]
+        return [
+            (
+                typedload.load(l, MapLayerGroup)
+                if l.get("layers") else
+                typedload.load(l, MapLayer)
+            )
+            for l in (
+                self.layers or []
+            )
+        ]
 
     class HubNavLinks(TypedDict):
         label: str
@@ -4227,20 +4236,6 @@ class HubHomepage(Page):
             hostname=hostname, port=port, site_name=hostname, root_page=hub
         )
         return hub
-
-
-# Signal when HubHomepage.layers changes to bust the filter cache
-# used by tilserver
-@receiver(models.signals.post_save, sender=HubHomepage)
-def update_site_filter_cache_on_save(sender, instance: HubHomepage, *args, **kwargs):
-    site = instance.get_site()
-    if site:
-        for layer in instance.get_layers():
-            cache.set(
-                site_tile_filter_dict(site.hostname, layer.get("source")),
-                layer.get("filter", {}),
-            )
-
 
 class HubContentPage(Page):
     parent_page_type = ["hub.HubHomepage"]
